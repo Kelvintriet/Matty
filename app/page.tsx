@@ -141,59 +141,20 @@ function shuffledAnswers(question: string, options: string[]) {
 }
 
 function MathText({ text }: { text: string }) {
-  const explicitMath = /(\\\([\s\S]*?\\\))/g;
-  const plainMath = /(?<![\w.])((?:[0-9a-zA-Z₀-₉ₙ]+)?\([^()/]+\)|[−-]?\d+(?:\.\d+)?|[a-zA-Z](?:[₀-₉ₙ]+)?)\/(\([^()/]+\)|\d+(?:\.\d+)?|[a-zA-Z](?:[₀-₉ₙ]+)?)(?!\w|\.\d)|(?<![\w.])√(\d+)|½/g;
-  const parts = text.split(explicitMath);
+  const parts = text.split(/(\\\([\s\S]*?\\\))/g);
 
-  function renderMath(expression: string, key: string) {
-    const html = katex.renderToString(expression, {
+  return parts.map((part, index) => {
+    if (!part.startsWith("\\(") || !part.endsWith("\\)")) {
+      return part;
+    }
+
+    const html = katex.renderToString(part.slice(2, -2), {
       throwOnError: false,
       output: "htmlAndMathml",
       trust: false,
     });
 
-    return <span className="lesson-math" key={key} dangerouslySetInnerHTML={{ __html: html }} />;
-  }
-
-  function toLatex(value: string) {
-    const subscripts: Record<string, string> = {
-      "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4",
-      "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9", "ₙ": "n",
-    };
-    const superscripts: Record<string, string> = {
-      "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4",
-      "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9", "ⁿ": "n", "⁻": "-",
-    };
-
-    return value
-      .replace(/−/g, "-")
-      .replace(/×/g, "\\times ")
-      .replace(/[₀-₉ₙ]+/g, (digits) => `_{${[...digits].map((digit) => subscripts[digit]).join("")}}`)
-      .replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹ⁿ⁻]+/g, (digits) => `^{${[...digits].map((digit) => superscripts[digit]).join("")}}`);
-  }
-
-  return parts.flatMap<React.ReactNode>((part, partIndex) => {
-    if (part.startsWith("\\(") && part.endsWith("\\)")) {
-      return [renderMath(part.slice(2, -2), `explicit-${partIndex}`)];
-    }
-
-    const rendered: React.ReactNode[] = [];
-    let position = 0;
-    for (const match of part.matchAll(plainMath)) {
-      const index = match.index;
-      rendered.push(part.slice(position, index));
-
-      const expression = match[0] === "½"
-        ? "\\dfrac{1}{2}"
-        : match[3]
-          ? `\\sqrt{${match[3]}}`
-          : `\\dfrac{${toLatex(match[1])}}{${toLatex(match[2])}}`;
-      rendered.push(renderMath(expression, `plain-${partIndex}-${index}`));
-      position = index + match[0].length;
-    }
-    rendered.push(part.slice(position));
-
-    return rendered;
+    return <span className="lesson-math" key={index} dangerouslySetInnerHTML={{ __html: html }} />;
   });
 }
 
@@ -290,7 +251,7 @@ function LessonRenderer({
               <div className="sequence-diagram-flow">
                 {block.terms.map((term, termIndex) => (
                   <div className="sequence-diagram-step" key={`${termIndex}-${term}`}>
-                    <span className="sequence-diagram-term"><small>u{termIndex + 1}</small><MathText text={term} /></span>
+                    <span className="sequence-diagram-term"><small><MathText text={`\\(u_{${termIndex + 1}}\\)`} /></small><MathText text={term} /></span>
                     {termIndex < block.terms.length - 1 && <span className="sequence-diagram-arrow" aria-hidden="true"><small><MathText text={block.operation} /></small>→</span>}
                   </div>
                 ))}

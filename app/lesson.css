@@ -1772,6 +1772,8 @@ button:focus-visible {
 
 .example-expression {
   overflow-x: auto;
+  padding: 0.25em 0;
+  line-height: 1.6;
 }
 
 .answer .lesson-math {

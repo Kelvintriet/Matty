@@ -18,21 +18,21 @@ function finalCheck(questions: Question[]): GuidedLessonStep[] {
 export const scientificNotationCheck = finalCheck([
   {
     question: "Which is the correct scientific notation for 0.000072?",
-    options: ["7.2 × 10⁻⁵", "7.2 × 10⁻⁴", "72 × 10⁻⁶", "7.2 × 10⁵"],
-    answer: "7.2 × 10⁻⁵",
+    options: ["7.2 × \\(10^{-5}\\)", "7.2 × \\(10^{-4}\\)", "72 × \\(10^{-6}\\)", "7.2 × \\(10^{5}\\)"],
+    answer: "7.2 × \\(10^{-5}\\)",
     explanation: "Move the decimal five places right to make 7.2. Because the original number is less than 1, the exponent is −5.",
   },
   {
-    question: "Which is (6 × 10³)(2 × 10²) in scientific notation?",
-    options: ["1.2 × 10⁶", "12 × 10⁵", "1.2 × 10⁵", "8 × 10⁵"],
-    answer: "1.2 × 10⁶",
-    explanation: "6 × 2 = 12 and 10³ × 10² = 10⁵. Rewrite 12 × 10⁵ as 1.2 × 10⁶.",
+    question: "Which is (6 × \\(10^{3}\\))(2 × \\(10^{2}\\)) in scientific notation?",
+    options: ["1.2 × \\(10^{6}\\)", "12 × \\(10^{5}\\)", "1.2 × \\(10^{5}\\)", "8 × \\(10^{5}\\)"],
+    answer: "1.2 × \\(10^{6}\\)",
+    explanation: "6 × 2 = 12 and \\(10^{3}\\) × \\(10^{2}\\) = \\(10^{5}\\). Rewrite 12 × \\(10^{5}\\) as 1.2 × \\(10^{6}\\).",
   },
   {
-    question: "Which is (4 × 10⁵) ÷ (8 × 10²) in scientific notation?",
-    options: ["5 × 10²", "0.5 × 10³", "5 × 10³", "2 × 10³"],
-    answer: "5 × 10²",
-    explanation: "4 ÷ 8 = 0.5 and 5 − 2 = 3. Rewrite 0.5 × 10³ as 5 × 10².",
+    question: "Which is (4 × \\(10^{5}\\)) ÷ (8 × \\(10^{2}\\)) in scientific notation?",
+    options: ["5 × \\(10^{2}\\)", "0.5 × \\(10^{3}\\)", "5 × \\(10^{3}\\)", "2 × \\(10^{3}\\)"],
+    answer: "5 × \\(10^{2}\\)",
+    explanation: "4 ÷ 8 = 0.5 and 5 − 2 = 3. Rewrite 0.5 × \\(10^{3}\\) as 5 × \\(10^{2}\\).",
   },
 ]);
 
@@ -51,8 +51,8 @@ export const significantFiguresCheck = finalCheck([
   },
   {
     question: "Which scientific notation shows 4,500 to exactly 3 significant figures?",
-    options: ["4.50 × 10³", "4.5 × 10³", "4.500 × 10³", "45.0 × 10²"],
-    answer: "4.50 × 10³",
+    options: ["4.50 × \\(10^{3}\\)", "4.5 × \\(10^{3}\\)", "4.500 × \\(10^{3}\\)", "45.0 × \\(10^{2}\\)"],
+    answer: "4.50 × \\(10^{3}\\)",
     explanation: "The coefficient 4.50 has three significant digits and is at least 1 but less than 10, as scientific notation requires.",
   },
 ]);
@@ -87,14 +87,14 @@ export const numberSetsCheck = finalCheck([
   },
   {
     question: "Which number is irrational?",
-    options: ["√18", "√25", "0.121212…", "−7/2"],
-    answer: "√18",
-    explanation: "√18 = 3√2 is irrational. √25 = 5, the repeating decimal, and −7/2 are rational.",
+    options: ["\\(\\sqrt{18}\\)", "\\(\\sqrt{25}\\)", "0.121212…", "\\(\\dfrac{-7}{2}\\)"],
+    answer: "\\(\\sqrt{18}\\)",
+    explanation: "\\(\\sqrt{18}\\) = 3√2 is irrational. \\(\\sqrt{25}\\) = 5, the repeating decimal, and \\(\\dfrac{-7}{2}\\) are rational.",
   },
   {
     question: "Which fraction equals 0.181818…?",
-    options: ["2/11", "18/100", "1/18", "18/90"],
-    answer: "2/11",
-    explanation: "Let x = 0.181818…. Then 100x − x = 18, so x = 18/99 = 2/11.",
+    options: ["\\(\\dfrac{2}{11}\\)", "\\(\\dfrac{18}{100}\\)", "\\(\\dfrac{1}{18}\\)", "\\(\\dfrac{18}{90}\\)"],
+    answer: "\\(\\dfrac{2}{11}\\)",
+    explanation: "Let x = 0.181818…. Then 100x − x = 18, so x = \\(\\dfrac{18}{99}\\) = \\(\\dfrac{2}{11}\\).",
   },
 ]);

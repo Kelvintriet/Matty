@@ -120,7 +120,7 @@ export const significantFiguresSteps: GuidedLessonStep[] = [
         steps: ["Start at the first non-zero digit, 4.", "Count 4 and 5.", "Count both zeros at the end of the decimal: 4, 5, 0, 0 means 4 significant figures."],
       },
       {
-        expression: "1.20 × 10³ has 3 significant figures",
+        expression: "1.20 × \\(10^{3}\\) has 3 significant figures",
         detail: "Scientific notation shows that the final zero is significant.",
         steps: ["Count the digits in the coefficient 1.20: 1, 2 and 0.", "The ending zero after the decimal point counts.", "The power of 10 changes the scale, not the number of significant figures.", "The number has 3 significant figures. Writing 1200 alone may not make that precision clear."],
       },
@@ -128,8 +128,8 @@ export const significantFiguresSteps: GuidedLessonStep[] = [
     [
       { question: "How many significant figures are in 2.30?", options: ["1", "2", "3", "4"], answer: "3", explanation: "The final decimal zero counts, so count 2, 3 and 0." },
       { question: "How many significant figures are in 0.0500?", options: ["1", "2", "3", "4"], answer: "3", explanation: "Ignore leading zeros. Count 5 and the two zeros at the end." },
-      { question: "How many significant figures are in 6.00 × 10²?", options: ["1", "2", "3", "5"], answer: "3", explanation: "The coefficient 6.00 has three significant figures. The exponent does not add any." },
-      { question: "Which notation clearly shows 2 significant figures for 5000?", options: ["5.0 × 10³", "5 × 10³", "5.00 × 10³", "0.5 × 10⁴"], answer: "5.0 × 10³", explanation: "The coefficient 5.0 explicitly includes two significant digits." },
+      { question: "How many significant figures are in 6.00 × \\(10^{2}\\)?", options: ["1", "2", "3", "5"], answer: "3", explanation: "The coefficient 6.00 has three significant figures. The exponent does not add any." },
+      { question: "Which notation clearly shows 2 significant figures for 5000?", options: ["5.0 × \\(10^{3}\\)", "5 × \\(10^{3}\\)", "5.00 × \\(10^{3}\\)", "0.5 × \\(10^{4}\\)"], answer: "5.0 × \\(10^{3}\\)", explanation: "The coefficient 5.0 explicitly includes two significant digits." },
       { question: "How many significant figures are in 10.0?", options: ["1", "2", "3", "4"], answer: "3", explanation: "The zeros after 1 are significant in the written decimal 10.0." },
     ],
   ),
@@ -148,9 +148,9 @@ export const significantFiguresSteps: GuidedLessonStep[] = [
         steps: ["Ignore the leading zeros and start at 4.", "Keep 4 and 6: these are the first two significant digits.", "The next digit is 3, which is less than 5, so the 6 stays the same.", "Write 0.0046."],
       },
       {
-        expression: "9.96 → 1.0 × 10¹ (2 significant figures)",
+        expression: "9.96 → 1.0 × \\(10^{1}\\) (2 significant figures)",
         detail: "Rounding up can carry into the next place; keep the required precision.",
-        steps: ["Keep the first two significant digits: 9 and 9.", "The next digit is 6, so round up. The carry gives 10.", "Write 1.0 × 10¹ to show exactly 2 significant figures; 10.0 would have 3."],
+        steps: ["Keep the first two significant digits: 9 and 9.", "The next digit is 6, so round up. The carry gives 10.", "Write 1.0 × \\(10^{1}\\) to show exactly 2 significant figures; 10.0 would have 3."],
       },
     ],
     [
@@ -158,7 +158,7 @@ export const significantFiguresSteps: GuidedLessonStep[] = [
       { question: "Round 0.00786 to 2 significant figures.", options: ["0.0079", "0.0078", "0.008", "0.00786"], answer: "0.0079", explanation: "Keep 7 and 8. The next digit, 6, rounds 8 up to 9." },
       { question: "Round 452 to 2 significant figures.", options: ["450", "460", "452", "45"], answer: "450", explanation: "Keep 4 and 5; the next digit is 2, so use a zero to keep the place value: 450." },
       { question: "Round 3.146 to 3 significant figures.", options: ["3.14", "3.15", "3.1", "3.146"], answer: "3.15", explanation: "Keep 3, 1 and 4. The next digit is 6, so round 4 up to 5." },
-      { question: "Which answer shows 9.96 rounded to exactly 2 significant figures?", options: ["1.0 × 10¹", "9.9", "10.0", "9.96"], answer: "1.0 × 10¹", explanation: "Rounding gives 10; writing 1.0 × 10¹ makes the two significant figures clear." },
+      { question: "Which answer shows 9.96 rounded to exactly 2 significant figures?", options: ["1.0 × \\(10^{1}\\)", "9.9", "10.0", "9.96"], answer: "1.0 × \\(10^{1}\\)", explanation: "Rounding gives 10; writing 1.0 × \\(10^{1}\\) makes the two significant figures clear." },
     ],
   ),
   ...section(
