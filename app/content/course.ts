@@ -5,6 +5,7 @@ import { numberSetsSteps } from "./number-sets";
 import { nthTermSteps, quadraticSequenceSteps } from "./sequences";
 import { arithmeticSequenceSteps, geometricSequenceSteps } from "./arithmetic-geometric";
 import { recursiveSequenceSteps, sigmaNotationSteps } from "./recursive-sigma";
+import { arithmeticSeriesSteps, geometricSeriesSteps } from "./series";
 import {
   errorSlideSteps,
   nthTermSlideSteps,
@@ -127,22 +128,14 @@ export const topics: Topic[] = [
       {
         id: "arithmetic-series",
         title: "1.7 Arithmetic Series",
-        blocks: [
-          { type: "text", text: "An arithmetic series is the sum of terms in an arithmetic sequence. For n terms, first term a and last term uₙ: Sₙ = n(a + uₙ)/2." },
-          { type: "example", label: "Example", expression: "2 + 5 + 8 + 11 = 26", detail: "S₄ = 4(2 + 11)/2 = 26." },
-          { type: "quiz", question: "What is the sum 3 + 5 + 7 + 9?", options: ["20", "22", "24", "26"], answer: "24", explanation: "S₄ = 4(3 + 9)/2 = 24." },
-        ],
+        blocks: [],
+        guidedSteps: arithmeticSeriesSteps,
       },
       {
         id: "geometric-series",
         title: "1.8 Geometric Series",
-        blocks: [
-          { type: "text", text: "A geometric series adds terms of a geometric sequence. For first term a, ratio r ≠ 1 and n terms, Sₙ = a(1 − rⁿ)/(1 − r). If r = 1, Sₙ = na." },
-          { type: "example", label: "Finite sum", expression: "2 + 4 + 8 = 14", detail: "a = 2, r = 2 and n = 3." },
-          { type: "text", text: "An infinite geometric series converges only when |r| < 1. Its sum is S∞ = a/(1 − r). Otherwise, it diverges." },
-          { type: "example", label: "Infinite sum", expression: "1 + 1/2 + 1/4 + … = 2", detail: "a = 1 and r = 1/2, so S∞ = 1/(1 − 1/2)." },
-          { type: "quiz", question: "Which ratio gives a convergent infinite geometric series?", options: ["2", "1", "−1", "1/2"], answer: "1/2", explanation: "An infinite geometric series converges when |r| < 1." },
-        ],
+        blocks: [],
+        guidedSteps: geometricSeriesSteps,
       },
       {
         id: "induction",

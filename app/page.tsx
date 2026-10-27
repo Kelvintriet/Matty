@@ -388,6 +388,8 @@ export default function Home() {
           ["geometric-sequence", "geometric-sequence:0:2"],
           ["recursive-sequence", "recursive-sequence:0:2"],
           ["sigma-notation", "sigma-notation:0:2"],
+          ["arithmetic-series", "arithmetic-series:0:2"],
+          ["geometric-series", "geometric-series:0:4"],
         ]) {
           if (progress.completedStepIds?.includes(oldQuizKey) && !savedCompletedLessons.includes(lessonId)) {
             savedCompletedLessons.push(lessonId);
