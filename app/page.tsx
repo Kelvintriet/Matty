@@ -1,69 +1,703 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useRef, useState, type ButtonHTMLAttributes } from "react";
+import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, CircleX, Dumbbell, Gamepad2, LogIn, Menu, RotateCcw, Sparkles, UserRound, X } from "lucide-react";
+import { topics, type LessonBlock } from "./content/course";
+
+const topicIntroductions: Record<string, string> = {
+  "scientific-notation": "Write and calculate with very large and very small numbers.",
+  "significant-figures": "Show precision and round numbers to the right number of digits.",
+  "absolute-percentage-error": "Measure how far an estimate is from an accepted value and find bounds for rounded measurements.",
+  "number-sets": "Recognize different types of numbers and describe them using sets.",
+  "unit-zero-revision": "Review Unit 0, then answer all 10 test questions correctly in one attempt.",
+  "nth-term": "Find a rule that describes any term in a sequence.",
+  "quadratic-sequence": "Use differences to find a formula for a quadratic sequence.",
+  "arithmetic-sequence": "Explore sequences that change by the same amount each time.",
+  "geometric-sequence": "Explore sequences that multiply by the same ratio each time.",
+  "recursive-sequence": "Build sequences using earlier terms.",
+  "sigma-notation": "Use sigma notation to write and evaluate sums.",
+  "arithmetic-series": "Find the total of terms in an arithmetic sequence.",
+  "geometric-series": "Find finite and infinite sums of geometric sequences.",
+  "induction": "Prove statements using mathematical induction.",
+  "sequence-applications": "Apply sequences and series to real-world patterns.",
+  "financial-mathematics": "Use mathematics to explore interest, savings, loans, and depreciation.",
+  "exponents": "Use exponent rules and solve exponential equations.",
+  "logarithms": "Use logarithms to work backwards from powers and solve equations.",
+};
+
+function PressButton({
+  children,
+  className = "",
+  onClick,
+  disabled,
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
+  const [pressed, setPressed] = useState(false);
+  const releaseInside = useRef(false);
+  const hitArea = useRef<DOMRect | null>(null);
+
+  function isInside(button: HTMLButtonElement, x: number, y: number) {
+    const bounds = hitArea.current ?? button.getBoundingClientRect();
+    return x >= bounds.left && x <= bounds.right && y >= bounds.top && y <= bounds.bottom;
+  }
+
+  return (
+    <button
+      {...props}
+      type="button"
+      disabled={disabled}
+      className={`${className} press-button ${pressed ? "is-pressed" : ""}`}
+      onPointerDown={(event) => {
+        if (event.button !== 0 || !event.isPrimary || disabled) {
+          return;
+        }
+
+        releaseInside.current = false;
+        hitArea.current = event.currentTarget.getBoundingClientRect();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        setPressed(true);
+      }}
+      onPointerMove={(event) => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          setPressed(isInside(event.currentTarget, event.clientX, event.clientY));
+        }
+      }}
+      onPointerUp={(event) => {
+        releaseInside.current = isInside(event.currentTarget, event.clientX, event.clientY);
+        setPressed(false);
+      }}
+      onPointerCancel={() => {
+        releaseInside.current = false;
+        setPressed(false);
+      }}
+      onLostPointerCapture={() => setPressed(false)}
+      onKeyDown={(event) => {
+        if (event.key === " " || event.key === "Enter") {
+          setPressed(true);
+        }
+      }}
+      onKeyUp={() => setPressed(false)}
+      onBlur={() => setPressed(false)}
+      onClick={(event) => {
+        if (event.detail === 0 || releaseInside.current) {
+          onClick?.(event);
+        }
+
+        releaseInside.current = false;
+        hitArea.current = null;
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function playAnswerSound(isCorrect: boolean) {
+  try {
+    const context = new AudioContext();
+    const notes = isCorrect ? [523.25, 659.25, 783.99] : [246.94, 196];
+    const noteLength = isCorrect ? 0.12 : 0.16;
+    const volume = context.createGain();
+
+    volume.gain.setValueAtTime(0.0001, context.currentTime);
+    volume.gain.exponentialRampToValueAtTime(0.055, context.currentTime + 0.02);
+    volume.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + notes.length * noteLength + 0.12);
+    volume.connect(context.destination);
+
+    notes.forEach((frequency, index) => {
+      const tone = context.createOscillator();
+      const start = context.currentTime + index * noteLength;
+
+      tone.type = isCorrect ? "sine" : "triangle";
+      tone.frequency.value = frequency;
+      tone.connect(volume);
+      tone.start(start);
+      tone.stop(start + noteLength);
+    });
+
+    window.setTimeout(() => void context.close(), 700);
+  } catch {
+    // Answer feedback stays available if the browser blocks audio.
+  }
+}
+
+function shuffledAnswers(question: string, options: string[]) {
+  let seed = 2166136261;
+
+  for (const character of question) {
+    seed = Math.imul(seed ^ character.charCodeAt(0), 16777619) >>> 0;
+  }
+
+  const shuffled = [...options];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    const swapIndex = Math.floor((seed / 4294967296) * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+
+  return shuffled;
+}
+
+function PracticeBlock({
+  block,
+  onCorrect,
+  onWrong,
+  completed,
+}: {
+  block: Extract<LessonBlock, { type: "quiz" }>;
+  onCorrect?: () => void;
+  onWrong?: () => void;
+  completed: boolean;
+}) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const [checked, setChecked] = useState(false);
+
+  const answer = completed ? block.answer : selected;
+  const showFeedback = completed || checked;
+
+  return (
+    <section className="practice-block">
+      <div className="block-label">YOUR TURN</div>
+      <h3>{block.question}</h3>
+      <div className="answer-grid" role="group" aria-label="Answer choices">
+        {shuffledAnswers(block.question, block.options).map((option) => (
+          <button
+            className={`answer ${answer === option ? "answer-selected" : ""} ${answer === option && showFeedback ? answer === block.answer ? "answer-correct" : "answer-wrong" : ""}`}
+            key={option}
+            aria-pressed={answer === option}
+            disabled={completed}
+            onClick={() => {
+              setSelected(option);
+              setChecked(false);
+            }}
+          >
+            <span className="answer-radio" />
+            {option}
+          </button>
+        ))}
+      </div>
+      {showFeedback && (
+        <div className={`answer-feedback ${answer === block.answer ? "feedback-right" : "feedback-try"}`} role="status">
+          {answer === block.answer ? <CheckCircle2 size={22} /> : <CircleX size={22} />}
+          <div>
+            <strong>{answer === block.answer ? "Great job!" : "Not quite yet"}</strong>
+            <span>{answer === block.answer ? block.explanation : "Give it another try."}</span>
+          </div>
+          {answer !== block.answer && <RotateCcw className="retry-mark" size={18} />}
+        </div>
+      )}
+      {!completed && <PressButton
+        className="primary-button"
+        disabled={!selected}
+        onClick={() => {
+          setChecked(true);
+          const isCorrect = selected === block.answer;
+          playAnswerSound(isCorrect);
+
+          if (isCorrect) {
+            onCorrect?.();
+          } else {
+            onWrong?.();
+          }
+        }}
+      >
+        Check answer
+      </PressButton>}
+    </section>
+  );
+}
+
+function LessonRenderer({
+  blocks,
+  onCorrect,
+  onWrong,
+  completedStepIds,
+  stepKey,
+}: {
+  blocks: LessonBlock[];
+  onCorrect: (key: string) => void;
+  onWrong?: () => void;
+  completedStepIds: string[];
+  stepKey: string;
+}) {
+  return (
+    <div className="lesson-blocks">
+      {blocks.map((block, index) => (
+        <div className={`lesson-block ${block.width === "half" ? "block-half" : "block-full"}`} key={index}>
+          {block.type === "text" && <p className="lesson-text">{block.text}</p>}
+          {block.type === "example" && (
+            <section className="example-block">
+              <div className="block-label">{block.label}</div>
+              <p className="example-expression">{block.expression}</p>
+              <p className="example-detail">{block.detail}</p>
+              {block.steps && (
+                <ol className="example-steps">
+                  {block.steps.map((step) => <li key={step}>{step}</li>)}
+                </ol>
+              )}
+            </section>
+          )}
+          {block.type === "quiz" && <PracticeBlock key={`${stepKey}:${index}:${completedStepIds.includes(`${stepKey}:${index}`)}`} block={block} onWrong={onWrong} completed={completedStepIds.includes(`${stepKey}:${index}`)} onCorrect={() => onCorrect(`${stepKey}:${index}`)} />}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [mode, setMode] = useState<"Learning" | "Practice" | "Play">("Learning");
+  const [showLogin, setShowLogin] = useState(false);
+  const [practiceTopics, setPracticeTopics] = useState<string[]>([]);
+  const [selectedTopicId, setSelectedTopicId] = useState(topics[0].id);
+  const [selectedLessonId, setSelectedLessonId] = useState(topics[0].lessons[0].id);
+  const [expandedTopicId, setExpandedTopicId] = useState<string | null>(topics[0].id);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [completedStepIds, setCompletedStepIds] = useState<string[]>([]);
+  const [lessonPositions, setLessonPositions] = useState<Record<string, number>>({});
+  const [startedLessonIds, setStartedLessonIds] = useState<string[]>([]);
+  const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
+  const [redoingLessonIds, setRedoingLessonIds] = useState<string[]>([]);
+  const [progressLoaded, setProgressLoaded] = useState(false);
+  const [testRestarted, setTestRestarted] = useState(false);
+  const [testAttempt, setTestAttempt] = useState(0);
+
+  useEffect(() => {
+    // Browser storage is available only after hydration.
+    /* eslint-disable react-hooks/set-state-in-effect */
+    try {
+      const saved = localStorage.getItem("matty-progress-v1");
+      if (saved) {
+        const progress = JSON.parse(saved);
+        if (Array.isArray(progress.completedStepIds)) setCompletedStepIds(progress.completedStepIds.filter((id: unknown) => typeof id === "string"));
+        if (Array.isArray(progress.startedLessonIds)) setStartedLessonIds(progress.startedLessonIds.filter((id: unknown) => typeof id === "string"));
+        if (Array.isArray(progress.redoingLessonIds)) setRedoingLessonIds(progress.redoingLessonIds.filter((id: unknown) => typeof id === "string"));
+        const savedCompletedLessons = Array.isArray(progress.completedLessonIds)
+          ? progress.completedLessonIds.filter((id: unknown): id is string => typeof id === "string")
+          : [];
+        // Existing completions stay earned when the final checks are added.
+        if (progress.knowledgeCheckVersion !== 1 && Array.isArray(progress.completedStepIds)) {
+          for (const topic of topics) {
+            for (const lesson of topic.lessons) {
+              if (!lesson.guidedSteps?.some((step) => step.part === "Final check")) continue;
+              const previousQuizKeys = lesson.guidedSteps.flatMap((step, stepIndex) =>
+                step.part === "Final check" ? [] : step.blocks.flatMap((block, blockIndex) =>
+                  block.type === "quiz" ? [`${lesson.id}:${stepIndex}:${blockIndex}`] : []));
+              if (previousQuizKeys.length > 0 && previousQuizKeys.every((key) => progress.completedStepIds.includes(key)) && !savedCompletedLessons.includes(lesson.id)) {
+                savedCompletedLessons.push(lesson.id);
+              }
+            }
+          }
+        }
+        // Preserve completion of the original one-question Number Sets lesson.
+        if (progress.completedStepIds?.includes("number-sets:0:5") && !savedCompletedLessons.includes("number-sets")) {
+          savedCompletedLessons.push("number-sets");
+        }
+        setCompletedLessonIds(savedCompletedLessons);
+        if (progress.lessonPositions && typeof progress.lessonPositions === "object") setLessonPositions(progress.lessonPositions);
+        const topic = topics.find((item) => item.id === progress.selectedTopicId);
+        const lesson = topic?.lessons.find((item) => item.id === progress.selectedLessonId);
+        if (topic && lesson) {
+          setSelectedTopicId(topic.id);
+          setSelectedLessonId(lesson.id);
+          setExpandedTopicId(topic.id);
+          const position = progress.lessonPositions?.[lesson.id];
+          if (lesson.guidedSteps && Number.isInteger(position)) {
+            setCurrentStepIndex(Math.max(0, Math.min(position, lesson.guidedSteps.length - 1)));
+          }
+        }
+      }
+    } catch {
+      // Ignore unavailable or invalid storage and start with empty progress.
+    }
+    setProgressLoaded(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
+
+  useEffect(() => {
+    if (!progressLoaded) return;
+    try {
+      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
+    } catch {
+      // The lesson remains usable even if browser storage is unavailable.
+    }
+  }, [completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId, progressLoaded]);
+
+  const selectedTopic = topics.find((topic) => topic.id === selectedTopicId) ?? topics[0];
+  const selectedLesson = selectedTopic.lessons.find((lesson) => lesson.id === selectedLessonId) ?? selectedTopic.lessons[0];
+  const lessonIndex = selectedTopic.lessons.findIndex((lesson) => lesson.id === selectedLesson.id);
+  const guidedSteps = selectedLesson.guidedSteps;
+  const currentGuidedStep = guidedSteps?.[currentStepIndex];
+  const parts = guidedSteps ? [...new Set(guidedSteps.map((step, index) => step.part ?? String(Math.floor(index / 7))))] : [];
+  const currentPart = currentGuidedStep?.part ?? String(Math.floor(currentStepIndex / 7));
+  const currentStepKey = `${selectedLesson.id}:${currentStepIndex}`;
+  const isExerciseStep = currentGuidedStep?.blocks.some((block) => block.type === "quiz") ?? false;
+  const canAdvance = !isExerciseStep || currentGuidedStep!.blocks.every((block, index) =>
+    block.type !== "quiz" || completedStepIds.includes(`${currentStepKey}:${index}`));
+
+  function lessonStatus(lesson: typeof selectedLesson) {
+    const steps = lesson.guidedSteps ?? [{ blocks: lesson.blocks }];
+    const quizKeys = steps.flatMap((step, stepIndex) => step.blocks.flatMap((block, blockIndex) =>
+      block.type === "quiz" ? [`${lesson.id}:${stepIndex}:${blockIndex}`] : []));
+    if (completedLessonIds.includes(lesson.id) || (quizKeys.length > 0 && quizKeys.every((key) => completedStepIds.includes(key)))) return "done";
+    if (startedLessonIds.includes(lesson.id) || quizKeys.some((key) => completedStepIds.includes(key))) return "in-progress";
+    return "not-started";
+  }
+
+  const currentLessonStatus = lessonStatus(selectedLesson);
+  const hasNextLesson = Boolean(selectedTopic.lessons[lessonIndex + 1]);
+
+  function selectLesson(topicId: string, lessonId: string) {
+    setTestRestarted(false);
+    setSelectedTopicId(topicId);
+    setSelectedLessonId(lessonId);
+    const lesson = topics.find((topic) => topic.id === topicId)?.lessons.find((item) => item.id === lessonId);
+    const savedPosition = lessonPositions[lessonId];
+    setCurrentStepIndex(lesson?.guidedSteps && Number.isInteger(savedPosition)
+      ? Math.max(0, Math.min(savedPosition, lesson.guidedSteps.length - 1))
+      : 0);
+    setExpandedTopicId(topicId);
+  }
+
+  function startLesson() {
+    setStartedLessonIds((current) => current.includes(selectedLesson.id) ? current : [...current, selectedLesson.id]);
+  }
+
+  function markCurrentStepComplete(key: string) {
+    setStartedLessonIds((current) => current.includes(selectedLesson.id) ? current : [...current, selectedLesson.id]);
+    setCompletedStepIds((current) => current.includes(key) ? current : [...current, key]);
+
+    const steps = selectedLesson.guidedSteps ?? [{ blocks: selectedLesson.blocks }];
+    const quizKeys = steps.flatMap((step, stepIndex) => step.blocks.flatMap((block, blockIndex) =>
+      block.type === "quiz" ? [`${selectedLesson.id}:${stepIndex}:${blockIndex}`] : []));
+    if (quizKeys.length > 0 && quizKeys.every((quizKey) => quizKey === key || completedStepIds.includes(quizKey))) {
+      setRedoingLessonIds((current) => current.filter((id) => id !== selectedLesson.id));
+    }
+  }
+
+  function moveToStep(index: number) {
+    setCurrentStepIndex(index);
+    setLessonPositions((current) => ({ ...current, [selectedLesson.id]: index }));
+    setStartedLessonIds((current) => current.includes(selectedLesson.id) ? current : [...current, selectedLesson.id]);
+  }
+
+  function restartUnitTest() {
+    const testStart = guidedSteps?.findIndex((step) => step.part === "Unit 0 test") ?? -1;
+    if (testStart < 0) return;
+
+    setCompletedStepIds((current) => current.filter((key) => {
+      const [lessonId, step] = key.split(":");
+      return lessonId !== selectedLesson.id || Number(step) < testStart;
+    }));
+    setLessonPositions((current) => ({ ...current, [selectedLesson.id]: testStart }));
+    setCurrentStepIndex(testStart);
+    setTestAttempt((current) => current + 1);
+    setTestRestarted(true);
+  }
+
+  function redoLesson() {
+    setTestRestarted(false);
+    setRedoingLessonIds((current) => current.includes(selectedLesson.id)
+      ? current
+      : [...current, selectedLesson.id]);
+    setCompletedLessonIds((current) => current.includes(selectedLesson.id)
+      ? current
+      : [...current, selectedLesson.id]);
+    setCompletedStepIds((current) => current.filter((key) => !key.startsWith(`${selectedLesson.id}:`)));
+    setLessonPositions((current) => ({ ...current, [selectedLesson.id]: 0 }));
+    setStartedLessonIds((current) => current.includes(selectedLesson.id) ? current : [...current, selectedLesson.id]);
+    setCurrentStepIndex(0);
+  }
+
+  function goToNextStep() {
+    if (guidedSteps && currentStepIndex < guidedSteps.length - 1) {
+      moveToStep(currentStepIndex + 1);
+      return;
+    }
+
+    if (guidedSteps && !guidedSteps.some((step) => step.blocks.some((block) => block.type === "quiz"))) {
+      setCompletedLessonIds((current) => current.includes(selectedLesson.id)
+        ? current
+        : [...current, selectedLesson.id]);
+      setRedoingLessonIds((current) => current.filter((id) => id !== selectedLesson.id));
+    }
+
+    const nextLesson = selectedTopic.lessons[lessonIndex + 1];
+
+    if (nextLesson) {
+      selectLesson(selectedTopic.id, nextLesson.id);
+    }
+  }
+
+  function toggleTopic(topicId: string) {
+    setExpandedTopicId((current) => current === topicId ? null : topicId);
+  }
+
+  function togglePracticeTopic(topicId: string) {
+    setPracticeTopics((current) => current.includes(topicId)
+      ? current.filter((id) => id !== topicId)
+      : [...current, topicId]);
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className={`app-shell ${sidebarExpanded ? "sidebar-expanded" : "sidebar-collapsed"}`}>
+      <aside className="app-sidebar" aria-label="Main navigation">
+        <div className="sidebar-top">
+          {sidebarExpanded && <span className="sidebar-caption">YOUR SPACE</span>}
+          <button
+            className="sidebar-toggle"
+            onClick={() => setSidebarExpanded((current) => !current)}
+            aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
+            aria-expanded={sidebarExpanded}
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+            {sidebarExpanded ? <ChevronLeft size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+
+        <nav className="mode-navigation">
+          {[
+            { name: "Learning" as const, icon: BookOpen },
+            { name: "Practice" as const, icon: Dumbbell },
+            { name: "Play" as const, icon: Gamepad2 },
+          ].map(({ name, icon: Icon }) => (
+            <button
+              key={name}
+              className={`mode-button ${mode === name ? "mode-selected" : ""}`}
+              onClick={() => setMode(name)}
+              aria-current={mode === name ? "page" : undefined}
+              aria-label={name}
+              title={!sidebarExpanded ? name : undefined}
+            >
+              <Icon size={23} strokeWidth={2.2} />
+              {sidebarExpanded && <span>{name}</span>}
+              {sidebarExpanded && name !== "Learning" && <small>SOON</small>}
+            </button>
+          ))}
+        </nav>
+
+        <div className="sidebar-account">
+          {sidebarExpanded && (
+            <div className="guest-profile">
+              <span className="guest-avatar"><UserRound size={20} /></span>
+              <span><strong>Guest learner</strong><small>Grade 10 · MYP 5</small></span>
+            </div>
+          )}
+          <button className="login-button" onClick={() => setShowLogin(true)} aria-label="Log in" title={!sidebarExpanded ? "Log in" : undefined}>
+            <LogIn size={20} />
+            {sidebarExpanded && <span>Log in</span>}
+          </button>
+        </div>
+      </aside>
+
+      <div className="workspace">
+      <header className="topbar">
+        <div className="header-location"><span>Mathematics</span><ChevronRight size={14} /><strong>{mode}</strong></div>
+        <div className="header-actions">
+          <span className="header-grade">Grade 10 · MYP 5</span>
+          <button className="header-account" onClick={() => setShowLogin(true)} aria-label="Open account"><UserRound size={19} /></button>
+        </div>
+      </header>
+
+      {mode === "Learning" ? <div className="app-layout">
+        <article className="lesson-area">
+          <div className="lesson-breadcrumb">{selectedTopic.title} <span>/</span> {selectedLesson.title}</div>
+
+          <header className="lesson-header">
+            <div className="lesson-header-copy">
+              <span className="lesson-tag">
+                {currentLessonStatus === "not-started"
+                  ? "TOPIC INTRODUCTION"
+                  : guidedSteps
+                  ? `STEP ${currentStepIndex + 1} OF ${guidedSteps.length}`
+                  : `LESSON ${lessonIndex + 1} OF ${selectedTopic.lessons.length}`}
+              </span>
+              <h1>{selectedLesson.title}</h1>
+              <span className="lesson-topic">{selectedTopic.title}</span>
+            </div>
+            <div className="header-number" aria-hidden="true">{String(lessonIndex + 1).padStart(2, "0")}</div>
+          </header>
+
+          {currentLessonStatus === "done" && !redoingLessonIds.includes(selectedLesson.id) && (
+            <div className="completed-lesson-banner">
+              <span><CheckCircle2 size={19} /> Topic completed</span>
+              <button type="button" onClick={redoLesson}><RotateCcw size={16} /> Redo topic</button>
+            </div>
+          )}
+
+          {progressLoaded && currentLessonStatus === "not-started" ? (
+            <section className="topic-introduction">
+              <span className="intro-icon"><BookOpen size={27} /></span>
+              <div className="block-label">READY TO LEARN?</div>
+              <h2>{selectedLesson.title}</h2>
+              <p>{topicIntroductions[selectedLesson.id]}</p>
+              <PressButton className="primary-button intro-start-button" onClick={startLesson}>
+                Start topic <ChevronRight size={19} />
+              </PressButton>
+            </section>
+          ) : progressLoaded && (
+            <>
+          <div className="lesson-content" key={`${selectedLesson.id}:${currentStepIndex}:${selectedLesson.id === "unit-zero-revision" ? testAttempt : 0}`}>
+            <div className="content-heading">
+              <span className="heading-dot" />
+              <h2>{currentGuidedStep?.title ?? "Let’s learn"}</h2>
+            </div>
+            {guidedSteps && <div className="guided-progress">
+              <span>PART {parts.indexOf(currentPart) + 1} OF {parts.length}</span>
+              <div className="guided-progress-track">
+                <span style={{ width: `${((currentStepIndex + 1) / guidedSteps.length) * 100}%` }} />
+              </div>
+              <span>{currentStepIndex + 1}/{guidedSteps.length}</span>
+            </div>}
+            {testRestarted && currentGuidedStep?.part === "Unit 0 test" && (
+              <div className="test-restart-notice" role="status">
+                Incorrect answer. The test has restarted from question 1; your revision pages are still available.
+              </div>
+            )}
+            <LessonRenderer
+              blocks={currentGuidedStep?.blocks ?? selectedLesson.blocks}
+              onCorrect={(key) => {
+                setTestRestarted(false);
+                markCurrentStepComplete(key);
+              }}
+              onWrong={currentGuidedStep?.part === "Unit 0 test" ? restartUnitTest : undefined}
+              completedStepIds={completedStepIds}
+              stepKey={currentStepKey}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+
+          <div className="lesson-navigation">
+            {guidedSteps ? (
+              <>
+                <PressButton
+                  className="guided-back-button"
+                  disabled={currentStepIndex === 0}
+                  onClick={() => {
+                    moveToStep(Math.max(0, currentStepIndex - 1));
+                  }}
+                >
+                  <ChevronLeft size={17} /> Back
+                </PressButton>
+                <PressButton className="next-button guided-next-button" disabled={!canAdvance} onClick={goToNextStep}>
+                  {currentStepIndex === guidedSteps.length - 1
+                    ? hasNextLesson ? "Next topic" : currentLessonStatus === "done" && !redoingLessonIds.includes(selectedLesson.id) ? "Completed" : "Finish test"
+                    : currentGuidedStep?.part === "Number sets" && selectedLesson.id === "unit-zero-revision" ? "Start test" : "Next"}
+                  <ChevronRight size={18} />
+                </PressButton>
+              </>
+            ) : (
+              <>
+                <span>{lessonIndex + 1} / {selectedTopic.lessons.length} lessons</span>
+                {hasNextLesson && (
+                  <button className="next-button" onClick={goToNextStep}>
+                    Next lesson <span aria-hidden="true">→</span>
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+            </>
+          )}
+        </article>
+
+        <aside className="topics-panel" aria-label="Course topics">
+          <div className="topics-heading">
+            <div>
+              <span className="topics-eyebrow">MATHEMATICS</span>
+              <h2>Units & topics</h2>
+            </div>
+            <span className="topic-count">{topics.length}</span>
+          </div>
+
+          <div className="progress-legend" aria-label="Progress status colors">
+            <span><i className="status-dot status-done" /> Done</span>
+            <span><i className="status-dot status-in-progress" /> In progress</span>
+            <span><i className="status-dot status-not-started" /> Not started</span>
+          </div>
+
+          <div className="topic-list">
+            {topics.map((topic, index) => {
+              const expanded = expandedTopicId === topic.id;
+
+              return (
+                <section className={`topic-group ${expanded ? "topic-expanded" : ""}`} key={topic.id}>
+                  <button className="topic-button" aria-expanded={expanded} onClick={() => toggleTopic(topic.id)}>
+                    <span className="topic-number">{String(index).padStart(2, "0")}</span>
+                    <span className="topic-title">{topic.title}<small>{topic.lessons.length} {topic.lessons.length === 1 ? "topic" : "topics"}</small></span>
+                    <span className={`topic-chevron ${expanded ? "chevron-open" : ""}`} aria-hidden="true" />
+                  </button>
+                  {expanded && (
+                    <div className="subtopic-list">
+                      {topic.lessons.map((lesson, lessonNumber) => (
+                        <button
+                          key={lesson.id}
+                          className={`subtopic-button subtopic-${lessonStatus(lesson)} ${selectedLessonId === lesson.id && selectedTopicId === topic.id ? "subtopic-selected" : ""}`}
+                          aria-current={selectedLessonId === lesson.id && selectedTopicId === topic.id ? "page" : undefined}
+                          onClick={() => selectLesson(topic.id, lesson.id)}
+                        >
+                          <span className="subtopic-number">{lessonStatus(lesson) === "done" ? <CheckCircle2 size={15} /> : lessonNumber + 1}</span>
+                          <span>{lesson.title}<span className="sr-only"> — {lessonStatus(lesson).replaceAll("-", " ")}</span></span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              );
+            })}
+          </div>
+        </aside>
+      </div> : (
+        <section className="mode-preview">
+          <span className="preview-label">PREVIEW</span>
+          <div className="preview-heading">
+            <span className="preview-icon">{mode === "Practice" ? <Dumbbell size={29} /> : <Gamepad2 size={29} />}</span>
+            <div>
+              <h1>{mode === "Practice" ? "Put it into practice" : "Ready to play?"}</h1>
+              <p>{mode === "Practice" ? "Multi-step problems from the topics you’ve learned." : "Challenge another student. Every topic is in play."}</p>
+            </div>
+          </div>
+
+          {mode === "Practice" ? (
+            <div className="preview-card">
+              <h2>What have you learned?</h2>
+              <p>Select your main topics.</p>
+              <div className="practice-topic-grid">
+                {topics.flatMap((unit) => unit.lessons).map((topic) => (
+                  <label className={`practice-topic ${practiceTopics.includes(topic.id) ? "practice-topic-selected" : ""}`} key={topic.id}>
+                    <input type="checkbox" checked={practiceTopics.includes(topic.id)} onChange={() => togglePracticeTopic(topic.id)} />
+                    <span>{topic.title}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="preview-bottom"><span>{practiceTopics.length} topics selected</span><button className="primary-button" disabled>Practice coming soon</button></div>
+            </div>
+          ) : (
+            <div className="preview-card play-card">
+              <div className="match-players"><span><UserRound size={28} /><strong>You</strong></span><b>VS</b><span><UserRound size={28} /><strong>Opponent</strong></span></div>
+              <h2>One match. All topics.</h2>
+              <div className="play-topics">{topics.map((topic) => <span key={topic.id}>{topic.title}</span>)}</div>
+              <button className="primary-button" disabled>Matches coming soon</button>
+            </div>
+          )}
+          <button className="return-learning" onClick={() => setMode("Learning")}><BookOpen size={17} /> Back to learning</button>
+        </section>
+      )}
+      </div>
+
+      {showLogin && (
+        <div className="account-backdrop" onClick={() => setShowLogin(false)}>
+          <section className="account-dialog" role="dialog" aria-modal="true" aria-labelledby="account-title" onClick={(event) => event.stopPropagation()}>
+            <button className="account-close" aria-label="Close account" onClick={() => setShowLogin(false)}><X size={21} /></button>
+            <span className="account-illustration"><Sparkles size={30} /></span>
+            <h2 id="account-title">Your learning space</h2>
+            <p>Login is coming soon. You can explore lessons as a guest.</p>
+            <button className="primary-button" onClick={() => {
+              setShowLogin(false);
+              setMode("Learning");
+            }}>Continue learning</button>
+          </section>
         </div>
-      </main>
-    </div>
+      )}
+    </main>
   );
 }
