@@ -1764,10 +1764,12 @@ button:focus-visible {
 }
 
 .lesson-math {
-  display: inline-block;
-  max-width: 100%;
-  margin: 0.2em 0.12em;
-  vertical-align: middle;
+  display: inline;
+  vertical-align: baseline;
+}
+
+.lesson-math .katex {
+  font-size: 1em;
 }
 
 .example-expression {
@@ -1776,6 +1778,3 @@ button:focus-visible {
   line-height: 1.6;
 }
 
-.answer .lesson-math {
-  margin: 0.25em 0;
-}
