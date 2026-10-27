@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ButtonHTMLAttributes } from "react";
+import katex from "katex";
 import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, CircleX, Dumbbell, Trophy, LogIn, Menu, RotateCcw, Sparkles, UserRound, X } from "lucide-react";
 import { topics, type LessonBlock } from "./content/course";
 
@@ -139,6 +140,25 @@ function shuffledAnswers(question: string, options: string[]) {
   return shuffled;
 }
 
+function MathText({ text }: { text: string }) {
+  const parts = text.split(/(\\\([\s\S]*?\\\))/g);
+
+  return parts.map((part, index) => {
+    if (!part.startsWith("\\(") || !part.endsWith("\\)")) {
+      return part;
+    }
+
+    const expression = part.slice(2, -2);
+    const html = katex.renderToString(expression, {
+      throwOnError: false,
+      output: "htmlAndMathml",
+      trust: false,
+    });
+
+    return <span className="lesson-math" key={index} dangerouslySetInnerHTML={{ __html: html }} />;
+  });
+}
+
 function PracticeBlock({
   block,
   onCorrect,
@@ -159,7 +179,7 @@ function PracticeBlock({
   return (
     <section className="practice-block">
       <div className="block-label">YOUR TURN</div>
-      <h3>{block.question}</h3>
+      <h3><MathText text={block.question} /></h3>
       <div className="answer-grid" role="group" aria-label="Answer choices">
         {shuffledAnswers(block.question, block.options).map((option) => (
           <button
@@ -173,7 +193,7 @@ function PracticeBlock({
             }}
           >
             <span className="answer-radio" />
-            {option}
+            <MathText text={option} />
           </button>
         ))}
       </div>
@@ -182,7 +202,7 @@ function PracticeBlock({
           {answer === block.answer ? <CheckCircle2 size={22} /> : <CircleX size={22} />}
           <div>
             <strong>{answer === block.answer ? "Great job!" : "Not quite yet"}</strong>
-            <span>{answer === block.answer ? block.explanation : "Give it another try."}</span>
+            <span><MathText text={answer === block.answer ? block.explanation : "Give it another try."} /></span>
           </div>
           {answer !== block.answer && <RotateCcw className="retry-mark" size={18} />}
         </div>
@@ -225,7 +245,7 @@ function LessonRenderer({
     <div className="lesson-blocks">
       {blocks.map((block, index) => (
         <div className={`lesson-block ${block.width === "half" ? "block-half" : "block-full"}`} key={index}>
-          {block.type === "text" && <p className="lesson-text">{block.text}</p>}
+          {block.type === "text" && <p className="lesson-text"><MathText text={block.text} /></p>}
           {block.type === "sequence-diagram" && (
             <figure className="sequence-diagram" aria-label={`Sequence: ${block.terms.join(", ")}. ${block.operation} at each step.`}>
               <figcaption>FOLLOW THE PATTERN</figcaption>
@@ -252,11 +272,11 @@ function LessonRenderer({
           {block.type === "example" && (
             <section className="example-block">
               <div className="block-label">{block.label}</div>
-              <p className="example-expression">{block.expression}</p>
-              <p className="example-detail">{block.detail}</p>
+              <p className="example-expression"><MathText text={block.expression} /></p>
+              <p className="example-detail"><MathText text={block.detail} /></p>
               {block.steps && (
                 <ol className="example-steps">
-                  {block.steps.map((step) => <li key={step}>{step}</li>)}
+                  {block.steps.map((step) => <li key={step}><MathText text={step} /></li>)}
                 </ol>
               )}
             </section>

@@ -1762,3 +1762,18 @@ button:focus-visible {
   font-size: 12px;
   font-weight: 600;
 }
+
+.lesson-math {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0.2em 0.12em;
+  vertical-align: middle;
+}
+
+.example-expression {
+  overflow-x: auto;
+}
+
+.answer .lesson-math {
+  margin: 0.25em 0;
+}
