@@ -294,6 +294,15 @@ export default function Home() {
         if (progress.completedStepIds?.includes("number-sets:0:5") && !savedCompletedLessons.includes("number-sets")) {
           savedCompletedLessons.push("number-sets");
         }
+        // Preserve completion of the original short sequence lessons.
+        for (const [lessonId, oldQuizKey] of [
+          ["nth-term", "nth-term:0:2"],
+          ["quadratic-sequence", "quadratic-sequence:0:3"],
+        ]) {
+          if (progress.completedStepIds?.includes(oldQuizKey) && !savedCompletedLessons.includes(lessonId)) {
+            savedCompletedLessons.push(lessonId);
+          }
+        }
         setCompletedLessonIds(savedCompletedLessons);
         if (progress.lessonPositions && typeof progress.lessonPositions === "object") setLessonPositions(progress.lessonPositions);
         const topic = topics.find((item) => item.id === progress.selectedTopicId);

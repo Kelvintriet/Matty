@@ -2,6 +2,7 @@ import { scientificNotationSteps } from "./scientific-notation";
 import { significantFiguresSteps } from "./significant-figures";
 import { absoluteErrorSteps } from "./absolute-error";
 import { numberSetsSteps } from "./number-sets";
+import { nthTermSteps, quadraticSequenceSteps } from "./sequences";
 import { unitZeroRevisionSteps, unitZeroTestSteps } from "./unit-zero-revision";
 import {
   absoluteErrorCheck,
@@ -79,21 +80,14 @@ export const topics: Topic[] = [
       {
         id: "nth-term",
         title: "1.1 Finding the nth Term of a Sequence",
-        blocks: [
-          { type: "text", text: "A sequence is an ordered list of numbers. The nth term, uₙ, gives the value at position n. Look for a pattern, then check your rule against several terms." },
-          { type: "example", label: "Find a rule", expression: "5, 7, 9, 11, …", detail: "The terms increase by 2. A rule is uₙ = 2n + 3: when n = 1, u₁ = 5." },
-          { type: "quiz", question: "What is the nth term of 3, 6, 9, 12, …?", options: ["n + 3", "3n", "3n + 1", "n²"], answer: "3n", explanation: "Each term is 3 times its position." },
-        ],
+        blocks: [],
+        guidedSteps: nthTermSteps,
       },
       {
         id: "quadratic-sequence",
         title: "1.2 Quadratic Sequence",
-        blocks: [
-          { type: "text", text: "A quadratic sequence has a constant second difference. Its nth term has the form uₙ = an² + bn + c, and the constant second difference is 2a." },
-          { type: "example", label: "Find the differences", expression: "2, 5, 10, 17, …", detail: "First differences: 3, 5, 7. Second differences: 2, 2. The rule is uₙ = n² + 1." },
-          { type: "text", text: "Once you know a, substitute term positions and values into an² + bn + c to find b and c. Check the rule using other terms." },
-          { type: "quiz", question: "What is the second difference of 1, 4, 9, 16, …?", options: ["1", "2", "3", "4"], answer: "2", explanation: "The first differences are 3, 5, 7, so the second difference is 2." },
-        ],
+        blocks: [],
+        guidedSteps: quadraticSequenceSteps,
       },
       {
         id: "arithmetic-sequence",
