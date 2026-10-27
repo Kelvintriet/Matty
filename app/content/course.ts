@@ -3,6 +3,7 @@ import { significantFiguresSteps } from "./significant-figures";
 import { absoluteErrorSteps } from "./absolute-error";
 import { numberSetsSteps } from "./number-sets";
 import { nthTermSteps, quadraticSequenceSteps } from "./sequences";
+import { arithmeticSequenceSteps, geometricSequenceSteps } from "./arithmetic-geometric";
 import { unitZeroRevisionSteps, unitZeroTestSteps } from "./unit-zero-revision";
 import {
   absoluteErrorCheck,
@@ -92,20 +93,14 @@ export const topics: Topic[] = [
       {
         id: "arithmetic-sequence",
         title: "1.3 Arithmetic Sequence",
-        blocks: [
-          { type: "text", text: "An arithmetic sequence adds the same common difference d each time. If the first term is a, then uₙ = a + (n − 1)d." },
-          { type: "example", label: "Example", expression: "4, 7, 10, 13, …", detail: "a = 4 and d = 3, so uₙ = 4 + 3(n − 1)." },
-          { type: "quiz", question: "What is the 5th term of 4, 7, 10, 13, …?", options: ["15", "16", "17", "19"], answer: "16", explanation: "Add 3 to 13, or use u₅ = 4 + 4 × 3." },
-        ],
+        blocks: [],
+        guidedSteps: arithmeticSequenceSteps,
       },
       {
         id: "geometric-sequence",
         title: "1.4 Geometric Sequence",
-        blocks: [
-          { type: "text", text: "A geometric sequence multiplies by the same common ratio r each time. If the first term is a, then uₙ = ar⁽ⁿ⁻¹⁾." },
-          { type: "example", label: "Example", expression: "3, 6, 12, 24, …", detail: "a = 3 and r = 2, so uₙ = 3 × 2⁽ⁿ⁻¹⁾." },
-          { type: "quiz", question: "What is the common ratio of 5, 15, 45, …?", options: ["2", "3", "5", "10"], answer: "3", explanation: "Each term is multiplied by 3." },
-        ],
+        blocks: [],
+        guidedSteps: geometricSequenceSteps,
       },
       {
         id: "recursive-sequence",

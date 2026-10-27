@@ -13,7 +13,7 @@ type Question = {
   explanation: string;
 };
 
-function section(title: string, text: string, examples: Example[], questions: Question[]): GuidedLessonStep[] {
+export function section(title: string, text: string, examples: Example[], questions: Question[]): GuidedLessonStep[] {
   return [
     {
       title,
@@ -35,7 +35,7 @@ function section(title: string, text: string, examples: Example[], questions: Qu
   ];
 }
 
-function finalCheck(questions: Question[]): GuidedLessonStep[] {
+export function finalCheck(questions: Question[]): GuidedLessonStep[] {
   return questions.map((question, index) => ({
     title: `Final check: question ${index + 1} of ${questions.length}`,
     part: "Final check",

@@ -297,6 +297,8 @@ export default function Home() {
         for (const [lessonId, oldQuizKey] of [
           ["nth-term", "nth-term:0:2"],
           ["quadratic-sequence", "quadratic-sequence:0:3"],
+          ["arithmetic-sequence", "arithmetic-sequence:0:2"],
+          ["geometric-sequence", "geometric-sequence:0:2"],
         ]) {
           if (progress.completedStepIds?.includes(oldQuizKey) && !savedCompletedLessons.includes(lessonId)) {
             savedCompletedLessons.push(lessonId);
