@@ -885,37 +885,8 @@ button:focus-visible {
   font-weight: 700;
 }
 
-.practice-topic-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 11px;
-  margin-top: 23px;
-}
-
-.practice-topic {
-  display: flex;
-  min-height: 56px;
-  align-items: center;
-  gap: 11px;
-  padding: 12px;
-  border: 2px solid #e7ece4;
-  border-radius: 10px;
-  color: #788876;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.practice-topic-selected {
-  border-color: #8bd664;
-  background: #f5feef;
-  color: #58a432;
-}
-
-.practice-topic input {
-  width: 17px;
-  height: 17px;
-  accent-color: #58c900;
+.practice-coming-soon {
+  margin-top: 22px;
 }
 
 .preview-bottom {
@@ -1135,10 +1106,6 @@ button:focus-visible {
 
   .preview-card {
     padding: 18px;
-  }
-
-  .practice-topic-grid {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .preview-bottom {

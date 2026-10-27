@@ -249,7 +249,6 @@ export default function Home() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mode, setMode] = useState<"Learning" | "Practice" | "Play">("Learning");
   const [showLogin, setShowLogin] = useState(false);
-  const [practiceTopics, setPracticeTopics] = useState<string[]>([]);
   const [selectedTopicId, setSelectedTopicId] = useState(topics[0].id);
   const [selectedLessonId, setSelectedLessonId] = useState(topics[0].lessons[0].id);
   const [expandedTopicId, setExpandedTopicId] = useState<string | null>(topics[0].id);
@@ -443,11 +442,6 @@ export default function Home() {
     setExpandedTopicId((current) => current === topicId ? null : topicId);
   }
 
-  function togglePracticeTopic(topicId: string) {
-    setPracticeTopics((current) => current.includes(topicId)
-      ? current.filter((id) => id !== topicId)
-      : [...current, topicId]);
-  }
 
   return (
     <main className={`app-shell ${sidebarExpanded ? "sidebar-expanded" : "sidebar-collapsed"}`}>
@@ -662,23 +656,15 @@ export default function Home() {
             <span className="preview-icon">{mode === "Practice" ? <Dumbbell size={29} /> : <Gamepad2 size={29} />}</span>
             <div>
               <h1>{mode === "Practice" ? "Put it into practice" : "Ready to play?"}</h1>
-              <p>{mode === "Practice" ? "Multi-step problems from the topics you’ve learned." : "Challenge another student. Every topic is in play."}</p>
+              <p>{mode === "Practice" ? "Practice problems across all topics." : "Challenge another student. Every topic is in play."}</p>
             </div>
           </div>
 
           {mode === "Practice" ? (
             <div className="preview-card">
-              <h2>What have you learned?</h2>
-              <p>Select your main topics.</p>
-              <div className="practice-topic-grid">
-                {topics.flatMap((unit) => unit.lessons).map((topic) => (
-                  <label className={`practice-topic ${practiceTopics.includes(topic.id) ? "practice-topic-selected" : ""}`} key={topic.id}>
-                    <input type="checkbox" checked={practiceTopics.includes(topic.id)} onChange={() => togglePracticeTopic(topic.id)} />
-                    <span>{topic.title}</span>
-                  </label>
-                ))}
-              </div>
-              <div className="preview-bottom"><span>{practiceTopics.length} topics selected</span><button className="primary-button" disabled>Practice coming soon</button></div>
+              <h2>All topics</h2>
+              <p>Practice problems and adaptive ratings are coming soon.</p>
+              <button className="primary-button practice-coming-soon" disabled>Practice coming soon</button>
             </div>
           ) : (
             <div className="preview-card play-card">
