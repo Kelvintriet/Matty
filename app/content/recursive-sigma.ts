@@ -93,7 +93,7 @@ recursiveSequenceSteps.find((step) => step.title === "Geometric recursive rules"
 
 const sigmaIntroduction = section(
   "Reading sigma notation",
-  "The capital Greek letter Σ means ‘add’. The lower limit gives the starting index, the upper limit gives the ending index, and the expression on the right gives each term.",
+  "Sigma notation adds a term for each integer index from the lower limit through the upper limit, including both endpoints.",
   [
     { expression: "\\(\\displaystyle \\sum_{n=1}^{3} n = 1 + 2 + 3 = 6\\)", detail: "Read the lower limit, upper limit, and term before expanding.", steps: ["Start at \\(n = 1\\) and finish at \\(n = 3\\).", "Substitute \\(n = 1\\), \\(2\\) and \\(3\\) into the expression n.", "Add the resulting terms: \\(1 + 2 + 3 = 6\\)."] },
     { expression: "\\(\\displaystyle \\sum_{n=1}^{3} 2n = 2 + 4 + 6 = 12\\)", detail: "Substitute each index into the whole expression \\(2n\\).", steps: ["At \\(n = 1\\), \\(2n = 2(1) = 2\\).", "At \\(n = 2\\) and \\(3\\), the terms are \\(4\\) and \\(6\\).", "Add the terms: \\(2 + 4 + 6 = 12\\)."] },
@@ -109,9 +109,6 @@ const sigmaIntroduction = section(
 
 sigmaIntroduction[0].blocks.splice(1, 0, {
   type: "sigma-diagram",
-  lower: "n = 1",
-  upper: "3",
-  expression: "\\(2n\\)",
 });
 
 export const sigmaNotationSteps: GuidedLessonStep[] = [

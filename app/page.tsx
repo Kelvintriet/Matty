@@ -279,12 +279,15 @@ function LessonRenderer({
             </figure>
           )}
           {block.type === "sigma-diagram" && (
-            <figure className="sigma-diagram" aria-label={`Sum ${block.expression}, from ${block.lower} to ${block.upper}.`}>
+            <figure className="sigma-diagram">
               <figcaption>READ THE NOTATION</figcaption>
-              <div className="sigma-diagram-content">
-                <span className="sigma-stack"><span>{block.upper}</span><strong>Σ</strong><span>{block.lower}</span></span>
-                <span className="sigma-expression">{block.expression}</span>
-                <span className="sigma-labels"><span>Top: last index</span><span>Bottom: first index</span><span>Right: term to add</span></span>
+              <div className="sigma-formula">
+                <MathText text="\\(\\displaystyle \\sum_{k=r}^{n} f(k) = f(r) + f(r+1) + \\cdots + f(n)\\)" />
+              </div>
+              <p><MathText text="\\(k\\)" /> is the index. For integers <MathText text="\\(r < n\\)" />, start at <MathText text="\\(r\\)" />, finish at <MathText text="\\(n\\)" />, and add <MathText text="\\(f(k)\\)" /> at each index. If <MathText text="\\(r = n\\)" />, the sum is just <MathText text="\\(f(r)\\)" />.</p>
+              <div className="sigma-example">
+                <span>EXAMPLE</span>
+                <MathText text="\\(\\displaystyle \\sum_{n=1}^{3} 2n = 2 + 4 + 6 = 12\\)" />
               </div>
             </figure>
           )}

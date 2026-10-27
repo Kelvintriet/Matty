@@ -1687,8 +1687,7 @@ button:focus-visible {
 }
 
 .sequence-diagram-flow,
-.sequence-diagram-step,
-.sigma-diagram-content {
+.sequence-diagram-step {
   display: flex;
   align-items: center;
 }
@@ -1731,36 +1730,40 @@ button:focus-visible {
   font-weight: 800;
 }
 
-.sigma-diagram-content {
-  gap: 18px;
+.sigma-formula {
+  overflow-x: auto;
+  padding: 10px 0;
   color: #356b2d;
+  font-size: clamp(17px, 3vw, 25px);
+  line-height: 1.6;
 }
 
-.sigma-stack {
-  display: grid;
-  justify-items: center;
-  font-size: 13px;
-  font-weight: 700;
+.sigma-diagram p {
+  margin: 8px 0 0;
+  color: #536d52;
+  font-size: 14px;
+  line-height: 1.8;
 }
 
-.sigma-stack strong {
-  font-size: 54px;
-  line-height: 0.95;
+.sigma-example {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: white;
+  color: #356b2d;
+  font-size: 19px;
+  line-height: 1.8;
 }
 
-.sigma-expression {
-  font-size: 26px;
+.sigma-example > span:first-child {
+  color: #58a432;
+  font-size: 10px;
   font-weight: 800;
-}
-
-.sigma-labels {
-  display: grid;
-  gap: 5px;
-  padding-left: 18px;
-  border-left: 2px solid #d7eccd;
-  color: #718471;
-  font-size: 12px;
-  font-weight: 600;
+  letter-spacing: 0.06em;
 }
 
 .lesson-math {
