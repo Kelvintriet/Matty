@@ -1734,7 +1734,7 @@ button:focus-visible {
   overflow-x: auto;
   padding: 10px 0;
   color: #356b2d;
-  font-size: clamp(17px, 3vw, 25px);
+  font-size: clamp(20px, 3.4vw, 28px);
   line-height: 1.6;
 }
 
@@ -1755,7 +1755,7 @@ button:focus-visible {
   border-radius: 10px;
   background: white;
   color: #356b2d;
-  font-size: 19px;
+  font-size: 21px;
   line-height: 1.8;
 }
 

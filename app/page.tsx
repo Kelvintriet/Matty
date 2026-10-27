@@ -250,19 +250,19 @@ function LessonRenderer({
               <figcaption>HOW THE SETS FIT TOGETHER</figcaption>
               <div className="number-set-figure" aria-hidden="true">
                 <div className="set-ring set-real">
-                  <span className="set-label"><MathText text="\\(\\mathbb{R}\\)" /></span>
+                  <span className="set-label"><MathText text={"\\(\\mathbb{R}\\)"} /></span>
                   <div className="set-ring set-rational">
-                    <span className="set-label"><MathText text="\\(\\mathbb{Q}\\)" /></span>
+                    <span className="set-label"><MathText text={"\\(\\mathbb{Q}\\)"} /></span>
                     <div className="set-ring set-integer">
-                      <span className="set-label"><MathText text="\\(\\mathbb{Z}\\)" /></span>
+                      <span className="set-label"><MathText text={"\\(\\mathbb{Z}\\)"} /></span>
                       <div className="set-ring set-natural">
-                        <span className="set-label"><MathText text="\\(\\mathbb{N}\\)" /></span>
+                        <span className="set-label"><MathText text={"\\(\\mathbb{N}\\)"} /></span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <p><MathText text="\\(\\mathbb{N} \\subset \\mathbb{Z} \\subset \\mathbb{Q} \\subset \\mathbb{R}\\)" /> · Irrational numbers are in <MathText text="\\(\\mathbb{R}\\)" /> outside <MathText text="\\(\\mathbb{Q}\\)" />.</p>
+              <p><MathText text={"\\(\\mathbb{N} \\subset \\mathbb{Z} \\subset \\mathbb{Q} \\subset \\mathbb{R}\\)"} /> · Irrational numbers are in <MathText text={"\\(\\mathbb{R}\\)"} /> outside <MathText text={"\\(\\mathbb{Q}\\)"} />.</p>
             </figure>
           )}
           {block.type === "sequence-diagram" && (
@@ -282,12 +282,12 @@ function LessonRenderer({
             <figure className="sigma-diagram">
               <figcaption>READ THE NOTATION</figcaption>
               <div className="sigma-formula">
-                <MathText text="\\(\\displaystyle \\sum_{k=r}^{n} f(k) = f(r) + f(r+1) + \\cdots + f(n)\\)" />
+                <MathText text={"\\(\\displaystyle \\sum_{k=r}^{n} f(k) = f(r) + f(r+1) + \\cdots + f(n)\\)"} />
               </div>
-              <p><MathText text="\\(k\\)" /> is the index. For integers <MathText text="\\(r < n\\)" />, start at <MathText text="\\(r\\)" />, finish at <MathText text="\\(n\\)" />, and add <MathText text="\\(f(k)\\)" /> at each index. If <MathText text="\\(r = n\\)" />, the sum is just <MathText text="\\(f(r)\\)" />.</p>
+              <p><MathText text={"\\(k\\)"} /> is the index. For integers <MathText text={"\\(r < n\\)"} />, start at <MathText text={"\\(r\\)"} />, finish at <MathText text={"\\(n\\)"} />, and add <MathText text={"\\(f(k)\\)"} /> at each index. If <MathText text={"\\(r = n\\)"} />, the sum is just <MathText text={"\\(f(r)\\)"} />.</p>
               <div className="sigma-example">
                 <span>EXAMPLE</span>
-                <MathText text="\\(\\displaystyle \\sum_{n=1}^{3} 2n = 2 + 4 + 6 = 12\\)" />
+                <MathText text={"\\(\\displaystyle \\sum_{n=1}^{3} 2n = 2 + 4 + 6 = 12\\)"} />
               </div>
             </figure>
           )}
