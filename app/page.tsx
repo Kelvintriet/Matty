@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ButtonHTMLAttributes } from "react";
-import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, CircleX, Dumbbell, Gamepad2, LogIn, Menu, RotateCcw, Sparkles, UserRound, X } from "lucide-react";
+import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, CircleX, Dumbbell, Trophy, LogIn, Menu, RotateCcw, Sparkles, UserRound, X } from "lucide-react";
 import { topics, type LessonBlock } from "./content/course";
 
 const topicIntroductions: Record<string, string> = {
@@ -270,7 +270,7 @@ function LessonRenderer({
 
 export default function Home() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
-  const [mode, setMode] = useState<"Learning" | "Practice" | "Play">("Learning");
+  const [mode, setMode] = useState<"Learning" | "Practice" | "Leaderboard">("Learning");
   const [showLogin, setShowLogin] = useState(false);
   const [selectedTopicId, setSelectedTopicId] = useState(topics[0].id);
   const [selectedLessonId, setSelectedLessonId] = useState(topics[0].lessons[0].id);
@@ -553,7 +553,7 @@ export default function Home() {
           {[
             { name: "Learning" as const, icon: BookOpen },
             { name: "Practice" as const, icon: Dumbbell },
-            { name: "Play" as const, icon: Gamepad2 },
+            { name: "Leaderboard" as const, icon: Trophy },
           ].map(({ name, icon: Icon }) => (
             <button
               key={name}
@@ -744,10 +744,10 @@ export default function Home() {
         <section className="mode-preview">
           <span className="preview-label">PREVIEW</span>
           <div className="preview-heading">
-            <span className="preview-icon">{mode === "Practice" ? <Dumbbell size={29} /> : <Gamepad2 size={29} />}</span>
+            <span className="preview-icon">{mode === "Practice" ? <Dumbbell size={29} /> : <Trophy size={29} />}</span>
             <div>
-              <h1>{mode === "Practice" ? "Put it into practice" : "Ready to play?"}</h1>
-              <p>{mode === "Practice" ? "Practice problems across all topics." : "Challenge another student. Every topic is in play."}</p>
+              <h1>{mode === "Practice" ? "Put it into practice" : "Leaderboard"}</h1>
+              {mode === "Practice" && <p>Practice problems across all topics.</p>}
             </div>
           </div>
 
@@ -758,11 +758,29 @@ export default function Home() {
               <button className="primary-button practice-coming-soon" disabled>Practice coming soon</button>
             </div>
           ) : (
-            <div className="preview-card play-card">
-              <div className="match-players"><span><UserRound size={28} /><strong>You</strong></span><b>VS</b><span><UserRound size={28} /><strong>Opponent</strong></span></div>
-              <h2>One match. All topics.</h2>
-              <div className="play-topics">{topics.map((topic) => <span key={topic.id}>{topic.title}</span>)}</div>
-              <button className="primary-button" disabled>Matches coming soon</button>
+            <div className="leaderboard-card">
+              <table className="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Rank</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Elo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { rank: 1, username: "Sample learner 1", elo: 1450 },
+                    { rank: 2, username: "Sample learner 2", elo: 1280 },
+                    { rank: 3, username: "Sample learner 3", elo: 1100 },
+                  ].map((entry) => (
+                    <tr key={entry.rank}>
+                      <td><span className="leaderboard-rank">{entry.rank}</span></td>
+                      <td>{entry.username}</td>
+                      <td>{entry.elo}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
           <button className="return-learning" onClick={() => setMode("Learning")}><BookOpen size={17} /> Back to learning</button>
