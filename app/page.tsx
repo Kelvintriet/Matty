@@ -269,6 +269,49 @@ export default function Home() {
       const saved = localStorage.getItem("matty-progress-v1");
       if (saved) {
         const progress = JSON.parse(saved);
+        if (progress.slideReviewVersion !== 1 && Array.isArray(progress.completedStepIds)) {
+          const addedSteps: Record<string, number> = {
+            "scientific-notation": 6,
+            "significant-figures": 12,
+            "absolute-percentage-error": 12,
+            "number-sets": 6,
+            "nth-term": 6,
+          };
+          const previousCompletedLessons: string[] = [];
+
+          for (const lesson of topics.flatMap((topic) => topic.lessons)) {
+            const added = addedSteps[lesson.id];
+            const finalStart = lesson.guidedSteps?.findIndex((step) => step.part === "Final check") ?? -1;
+            if (!added || finalStart < added || !lesson.guidedSteps) continue;
+
+            const oldFinalStart = finalStart - added;
+            const oldQuizKeys = lesson.guidedSteps.flatMap((step, index) => {
+              if (index >= oldFinalStart && index < finalStart) return [];
+              const oldIndex = index >= finalStart ? index - added : index;
+              return step.blocks.flatMap((block, blockIndex) =>
+                block.type === "quiz" ? [`${lesson.id}:${oldIndex}:${blockIndex}`] : []);
+            });
+            if (oldQuizKeys.length > 0 && oldQuizKeys.every((key) => progress.completedStepIds.includes(key))) {
+              previousCompletedLessons.push(lesson.id);
+            }
+            progress.completedStepIds = progress.completedStepIds.map((key: unknown) => {
+              if (typeof key !== "string") return key;
+              const [id, index, block] = key.split(":");
+              const stepIndex = Number(index);
+              return id === lesson.id && stepIndex >= oldFinalStart
+                ? `${id}:${stepIndex + added}:${block}`
+                : key;
+            });
+            const position = progress.lessonPositions?.[lesson.id];
+            if (Number.isInteger(position) && position >= oldFinalStart) {
+              progress.lessonPositions[lesson.id] = position + added;
+            }
+          }
+          progress.completedLessonIds = [
+            ...(Array.isArray(progress.completedLessonIds) ? progress.completedLessonIds : []),
+            ...previousCompletedLessons,
+          ];
+        }
         if (Array.isArray(progress.completedStepIds)) setCompletedStepIds(progress.completedStepIds.filter((id: unknown) => typeof id === "string"));
         if (Array.isArray(progress.startedLessonIds)) setStartedLessonIds(progress.startedLessonIds.filter((id: unknown) => typeof id === "string"));
         if (Array.isArray(progress.redoingLessonIds)) setRedoingLessonIds(progress.redoingLessonIds.filter((id: unknown) => typeof id === "string"));
@@ -328,7 +371,7 @@ export default function Home() {
   useEffect(() => {
     if (!progressLoaded) return;
     try {
-      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
+      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, slideReviewVersion: 1, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
     } catch {
       // The lesson remains usable even if browser storage is unavailable.
     }

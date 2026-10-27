@@ -4,6 +4,13 @@ import { absoluteErrorSteps } from "./absolute-error";
 import { numberSetsSteps } from "./number-sets";
 import { nthTermSteps, quadraticSequenceSteps } from "./sequences";
 import { arithmeticSequenceSteps, geometricSequenceSteps } from "./arithmetic-geometric";
+import {
+  errorSlideSteps,
+  nthTermSlideSteps,
+  numberSetsSlideSteps,
+  scientificSlideSteps,
+  significantSlideSteps,
+} from "./slide-review";
 import { unitZeroRevisionSteps, unitZeroTestSteps } from "./unit-zero-revision";
 import {
   absoluteErrorCheck,
@@ -46,25 +53,25 @@ export const topics: Topic[] = [
         id: "scientific-notation",
         title: "0.1 Scientific Notation",
         blocks: [],
-        guidedSteps: [...scientificNotationSteps, ...scientificNotationCheck],
+        guidedSteps: [...scientificNotationSteps, ...scientificSlideSteps, ...scientificNotationCheck],
       },
       {
         id: "significant-figures",
         title: "0.2 Significant Figures",
         blocks: [],
-        guidedSteps: [...significantFiguresSteps, ...significantFiguresCheck],
+        guidedSteps: [...significantFiguresSteps, ...significantSlideSteps, ...significantFiguresCheck],
       },
       {
         id: "absolute-percentage-error",
         title: "0.3 Absolute and Percentage Error",
         blocks: [],
-        guidedSteps: [...absoluteErrorSteps, ...absoluteErrorCheck],
+        guidedSteps: [...absoluteErrorSteps, ...errorSlideSteps, ...absoluteErrorCheck],
       },
       {
         id: "number-sets",
         title: "0.4 Number Sets",
         blocks: [],
-        guidedSteps: [...numberSetsSteps, ...numberSetsCheck],
+        guidedSteps: [...numberSetsSteps, ...numberSetsSlideSteps, ...numberSetsCheck],
       },
       {
         id: "unit-zero-revision",
@@ -82,7 +89,7 @@ export const topics: Topic[] = [
         id: "nth-term",
         title: "1.1 Finding the nth Term of a Sequence",
         blocks: [],
-        guidedSteps: nthTermSteps,
+        guidedSteps: [...nthTermSteps.filter((step) => step.part !== "Final check"), ...nthTermSlideSteps, ...nthTermSteps.filter((step) => step.part === "Final check")],
       },
       {
         id: "quadratic-sequence",
