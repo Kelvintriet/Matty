@@ -4,6 +4,7 @@ import { absoluteErrorSteps } from "./absolute-error";
 import { numberSetsSteps } from "./number-sets";
 import { nthTermSteps, quadraticSequenceSteps } from "./sequences";
 import { arithmeticSequenceSteps, geometricSequenceSteps } from "./arithmetic-geometric";
+import { recursiveSequenceSteps, sigmaNotationSteps } from "./recursive-sigma";
 import {
   errorSlideSteps,
   nthTermSlideSteps,
@@ -22,6 +23,8 @@ import {
 export type LessonBlock =
   | { type: "text"; text: string; width?: "full" | "half" }
   | { type: "example"; label: string; expression: string; detail: string; steps?: string[]; width?: "full" | "half" }
+  | { type: "sequence-diagram"; terms: string[]; operation: string; width?: "full" | "half" }
+  | { type: "sigma-diagram"; lower: string; upper: string; expression: string; width?: "full" | "half" }
   | { type: "quiz"; question: string; options: string[]; answer: string; explanation: string; width?: "full" | "half" };
 
 export type Lesson = {
@@ -112,20 +115,14 @@ export const topics: Topic[] = [
       {
         id: "recursive-sequence",
         title: "1.5 Recursive Sequence",
-        blocks: [
-          { type: "text", text: "A recursive rule defines a term using earlier terms. You need a starting value as well as the rule for finding the next term." },
-          { type: "example", label: "Example", expression: "u₁ = 2; uₙ₊₁ = uₙ + 3", detail: "Start at 2 and add 3: 2, 5, 8, 11, …" },
-          { type: "quiz", question: "If u₁ = 4 and uₙ₊₁ = 2uₙ, what is u₃?", options: ["6", "8", "12", "16"], answer: "16", explanation: "u₂ = 8 and u₃ = 16." },
-        ],
+        blocks: [],
+        guidedSteps: recursiveSequenceSteps,
       },
       {
         id: "sigma-notation",
         title: "1.6 Sigma Notation",
-        blocks: [
-          { type: "text", text: "The symbol Σ means ‘add’. The index starts at the lower value, ends at the upper value, and is substituted into the expression for each term." },
-          { type: "example", label: "Expand and add", expression: "Σ (n = 1 to 4) n = 1 + 2 + 3 + 4 = 10", detail: "Substitute n = 1, 2, 3 and 4." },
-          { type: "quiz", question: "What is Σ (n = 1 to 3) 2n?", options: ["6", "9", "12", "18"], answer: "12", explanation: "2(1) + 2(2) + 2(3) = 2 + 4 + 6 = 12." },
-        ],
+        blocks: [],
+        guidedSteps: sigmaNotationSteps,
       },
       {
         id: "arithmetic-series",

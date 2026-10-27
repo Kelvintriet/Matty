@@ -226,6 +226,29 @@ function LessonRenderer({
       {blocks.map((block, index) => (
         <div className={`lesson-block ${block.width === "half" ? "block-half" : "block-full"}`} key={index}>
           {block.type === "text" && <p className="lesson-text">{block.text}</p>}
+          {block.type === "sequence-diagram" && (
+            <figure className="sequence-diagram" aria-label={`Sequence: ${block.terms.join(", ")}. ${block.operation} at each step.`}>
+              <figcaption>FOLLOW THE PATTERN</figcaption>
+              <div className="sequence-diagram-flow">
+                {block.terms.map((term, termIndex) => (
+                  <div className="sequence-diagram-step" key={`${termIndex}-${term}`}>
+                    <span className="sequence-diagram-term"><small>u{termIndex + 1}</small>{term}</span>
+                    {termIndex < block.terms.length - 1 && <span className="sequence-diagram-arrow" aria-hidden="true"><small>{block.operation}</small>→</span>}
+                  </div>
+                ))}
+              </div>
+            </figure>
+          )}
+          {block.type === "sigma-diagram" && (
+            <figure className="sigma-diagram" aria-label={`Sum ${block.expression}, from ${block.lower} to ${block.upper}.`}>
+              <figcaption>READ THE NOTATION</figcaption>
+              <div className="sigma-diagram-content">
+                <span className="sigma-stack"><span>{block.upper}</span><strong>Σ</strong><span>{block.lower}</span></span>
+                <span className="sigma-expression">{block.expression}</span>
+                <span className="sigma-labels"><span>Top: last index</span><span>Bottom: first index</span><span>Right: term to add</span></span>
+              </div>
+            </figure>
+          )}
           {block.type === "example" && (
             <section className="example-block">
               <div className="block-label">{block.label}</div>
@@ -363,6 +386,8 @@ export default function Home() {
           ["quadratic-sequence", "quadratic-sequence:0:3"],
           ["arithmetic-sequence", "arithmetic-sequence:0:2"],
           ["geometric-sequence", "geometric-sequence:0:2"],
+          ["recursive-sequence", "recursive-sequence:0:2"],
+          ["sigma-notation", "sigma-notation:0:2"],
         ]) {
           if (progress.completedStepIds?.includes(oldQuizKey) && !savedCompletedLessons.includes(lessonId)) {
             savedCompletedLessons.push(lessonId);
