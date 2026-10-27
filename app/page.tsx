@@ -245,6 +245,26 @@ function LessonRenderer({
       {blocks.map((block, index) => (
         <div className={`lesson-block ${block.width === "half" ? "block-half" : "block-full"}`} key={index}>
           {block.type === "text" && <p className="lesson-text"><MathText text={block.text} /></p>}
+          {block.type === "number-set-diagram" && (
+            <figure className="number-set-diagram" aria-label="Natural numbers are inside integers, integers are inside rational numbers, and rational numbers are inside real numbers. Irrational numbers are real but outside the rational numbers.">
+              <figcaption>HOW THE SETS FIT TOGETHER</figcaption>
+              <div className="number-set-figure" aria-hidden="true">
+                <div className="set-ring set-real">
+                  <span className="set-label"><MathText text="\\(\\mathbb{R}\\)" /></span>
+                  <div className="set-ring set-rational">
+                    <span className="set-label"><MathText text="\\(\\mathbb{Q}\\)" /></span>
+                    <div className="set-ring set-integer">
+                      <span className="set-label"><MathText text="\\(\\mathbb{Z}\\)" /></span>
+                      <div className="set-ring set-natural">
+                        <span className="set-label"><MathText text="\\(\\mathbb{N}\\)" /></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p><MathText text="\\(\\mathbb{N} \\subset \\mathbb{Z} \\subset \\mathbb{Q} \\subset \\mathbb{R}\\)" /> · Irrational numbers are in <MathText text="\\(\\mathbb{R}\\)" /> outside <MathText text="\\(\\mathbb{Q}\\)" />.</p>
+            </figure>
+          )}
           {block.type === "sequence-diagram" && (
             <figure className="sequence-diagram" aria-label={`Sequence: ${block.terms.join(", ")}. ${block.operation} at each step.`}>
               <figcaption>FOLLOW THE PATTERN</figcaption>

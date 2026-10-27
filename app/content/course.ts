@@ -27,6 +27,7 @@ export type LessonBlock =
   | { type: "example"; label: string; expression: string; detail: string; steps?: string[]; width?: "full" | "half" }
   | { type: "sequence-diagram"; terms: string[]; operation: string; width?: "full" | "half" }
   | { type: "sigma-diagram"; lower: string; upper: string; expression: string; width?: "full" | "half" }
+  | { type: "number-set-diagram"; width?: "full" | "half" }
   | { type: "quiz"; question: string; options: string[]; answer: string; explanation: string; width?: "full" | "half" };
 
 export type Lesson = {

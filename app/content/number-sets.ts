@@ -180,3 +180,7 @@ export const numberSetsSteps: GuidedLessonStep[] = [
     ],
   ),
 ];
+
+numberSetsSteps.find((step) => step.title === "Set notation and relationships")?.blocks.splice(1, 0, {
+  type: "number-set-diagram",
+});
