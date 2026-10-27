@@ -7,7 +7,7 @@ const recursiveIntroduction = section(
   [
     {
       expression: "u₁ = 2; uₙ = uₙ₋₁ + 2, for n ≥ 2",
-      detail: "The slide’s sequence starts at 2 and adds 2 each time.",
+      detail: "This sequence starts at 2 and adds 2 each time.",
       steps: ["Start with u₁ = 2.", "Use the previous term: u₂ = u₁ + 2 = 2 + 2 = 4.", "Then u₃ = u₂ + 2 = 4 + 2 = 6.", "Continue: u₄ = 6 + 2 = 8."],
     },
     {
@@ -37,7 +37,7 @@ export const recursiveSequenceSteps: GuidedLessonStep[] = [
     "Arithmetic recursive rules",
     "For an arithmetic sequence, add the common difference to the previous term: uₙ = uₙ₋₁ + d, for n ≥ 2.",
     [
-      { expression: "−2, −9, −16, −23, … → u₅ = −30", detail: "The slide example subtracts 7 at each step.", steps: ["Find the difference: −9 − (−2) = −7.", "Write u₁ = −2 and uₙ = uₙ₋₁ − 7, for n ≥ 2.", "Use u₄ = −23: u₅ = −23 − 7 = −30."] },
+      { expression: "−2, −9, −16, −23, … → u₅ = −30", detail: "This sequence subtracts 7 at each step.", steps: ["Find the difference: −9 − (−2) = −7.", "Write u₁ = −2 and uₙ = uₙ₋₁ − 7, for n ≥ 2.", "Use u₄ = −23: u₅ = −23 − 7 = −30."] },
       { expression: "10, 7, 4, 1, … → u₁ = 10; uₙ = uₙ₋₁ − 3", detail: "A recursive rule needs both the starting value and the repeated change.", steps: ["The first term is 10.", "Each term is 3 less than the previous one, so d = −3.", "Write u₁ = 10 and uₙ = uₙ₋₁ − 3, for n ≥ 2."] },
     ],
     [
@@ -52,8 +52,8 @@ export const recursiveSequenceSteps: GuidedLessonStep[] = [
     "Geometric recursive rules",
     "For a geometric sequence, multiply the previous term by the common ratio: uₙ = ruₙ₋₁, for n ≥ 2.",
     [
-      { expression: "4, 12, 36, 108, … → u₅ = 324", detail: "In the slide, every term is 3 times the previous term.", steps: ["Find r: 12 ÷ 4 = 3.", "Write u₁ = 4 and uₙ = 3uₙ₋₁, for n ≥ 2.", "Use u₄ = 108: u₅ = 3 × 108 = 324."] },
-      { expression: "3, 6, 12, 24, … → u₁ = 3; uₙ = 2uₙ₋₁", detail: "The slide’s second geometric example starts at 3 and doubles.", steps: ["The first term is 3.", "6 ÷ 3 = 2, and 12 ÷ 6 = 2, so r = 2.", "Write u₁ = 3 and uₙ = 2uₙ₋₁, for n ≥ 2."] },
+      { expression: "4, 12, 36, 108, … → u₅ = 324", detail: "Every term is 3 times the previous term.", steps: ["Find r: 12 ÷ 4 = 3.", "Write u₁ = 4 and uₙ = 3uₙ₋₁, for n ≥ 2.", "Use u₄ = 108: u₅ = 3 × 108 = 324."] },
+      { expression: "3, 6, 12, 24, … → u₁ = 3; uₙ = 2uₙ₋₁", detail: "This sequence starts at 3 and doubles.", steps: ["The first term is 3.", "6 ÷ 3 = 2, and 12 ÷ 6 = 2, so r = 2.", "Write u₁ = 3 and uₙ = 2uₙ₋₁, for n ≥ 2."] },
     ],
     [
       { question: "For 4, 12, 36, 108, … what is the common ratio?", options: ["3", "4", "8", "12"], answer: "3", explanation: "12 ÷ 4 = 3 and 36 ÷ 12 = 3." },
@@ -67,7 +67,7 @@ export const recursiveSequenceSteps: GuidedLessonStep[] = [
     "Recursive and explicit rules",
     "A recursive rule uses an earlier term. An explicit rule gives a term directly from its position n. Both can describe the same sequence.",
     [
-      { expression: "2, 4, 6, 8, …", detail: "Compare two ways to describe the slide’s arithmetic sequence.", steps: ["Recursive: start with u₁ = 2, then use uₙ = uₙ₋₁ + 2.", "Explicit: uₙ = 2n.", "At n = 4 the explicit rule gives u₄ = 2(4) = 8, matching the recursive sequence."] },
+      { expression: "2, 4, 6, 8, …", detail: "Compare two ways to describe this arithmetic sequence.", steps: ["Recursive: start with u₁ = 2, then use uₙ = uₙ₋₁ + 2.", "Explicit: uₙ = 2n.", "At n = 4 the explicit rule gives u₄ = 2(4) = 8, matching the recursive sequence."] },
       { expression: "3, 6, 12, 24, …", detail: "Both rules generate the same geometric sequence.", steps: ["Recursive: u₁ = 3 and uₙ = 2uₙ₋₁.", "Explicit: uₙ = 3 × 2⁽ⁿ⁻¹⁾.", "At n = 3 the explicit rule gives 3 × 2² = 12."] },
     ],
     [
@@ -120,7 +120,7 @@ export const sigmaNotationSteps: GuidedLessonStep[] = [
     "Expanding and calculating sums",
     "Substitute every integer index from the lower limit through the upper limit, inclusive. Write the terms first, then add them.",
     [
-      { expression: "Σ (n = 1 to 5) 3n = 3 + 6 + 9 + 12 + 15 = 45", detail: "The slide groups the same calculation as 3(1 + 2 + 3 + 4 + 5).", steps: ["Use indices 1, 2, 3, 4 and 5.", "Substitute into 3n: 3, 6, 9, 12, 15.", "Add the terms to get 45; equivalently calculate 3(1 + 2 + 3 + 4 + 5) = 45."] },
+      { expression: "Σ (n = 1 to 5) 3n = 3 + 6 + 9 + 12 + 15 = 45", detail: "You can also group the calculation as 3(1 + 2 + 3 + 4 + 5).", steps: ["Use indices 1, 2, 3, 4 and 5.", "Substitute into 3n: 3, 6, 9, 12, 15.", "Add the terms to get 45; equivalently calculate 3(1 + 2 + 3 + 4 + 5) = 45."] },
       { expression: "Σ (n = 1 to 4) (2n + 1) = 3 + 5 + 7 + 9 = 24", detail: "Use parentheses so the full expression is substituted.", steps: ["For n = 1, 2n + 1 = 2(1) + 1 = 3.", "For n = 2, 3 and 4, the terms are 5, 7 and 9.", "Add 3 + 5 + 7 + 9 = 24."] },
     ],
     [
@@ -150,9 +150,9 @@ export const sigmaNotationSteps: GuidedLessonStep[] = [
     "Writing a sum in sigma notation",
     "To write a sum using Σ, find a rule for each term and choose limits that reproduce the first and last terms. Check by expanding it.",
     [
-      { expression: "3 + 6 + 9 + 12 + 15 = Σ (n = 1 to 5) 3n", detail: "This is the sum from the slide’s 3(1 + 2 + 3 + 4 + 5) example.", steps: ["The terms are 3 times 1, 2, 3, 4 and 5.", "Use 3n for the term and let n run from 1 to 5.", "Check: n = 1 gives 3, and n = 5 gives 15."],
+      { expression: "3 + 6 + 9 + 12 + 15 = Σ (n = 1 to 5) 3n", detail: "Each term is a multiple of 3.", steps: ["The terms are 3 times 1, 2, 3, 4 and 5.", "Use 3n for the term and let n run from 1 to 5.", "Check: n = 1 gives 3, and n = 5 gives 15."],
       },
-      { expression: "10 + 17 + 26 + 37 = Σ (n = 3 to 6) (n² + 1)", detail: "The slide gives this four-term sum; n² + 1 describes its terms.", steps: ["Recognize 10 = 3² + 1 and 17 = 4² + 1.", "Also 26 = 5² + 1 and 37 = 6² + 1.", "Use n² + 1 for n from 3 to 6. The sum is 90."],
+      { expression: "10 + 17 + 26 + 37 = Σ (n = 3 to 6) (n² + 1)", detail: "The expression n² + 1 describes these four terms.", steps: ["Recognize 10 = 3² + 1 and 17 = 4² + 1.", "Also 26 = 5² + 1 and 37 = 6² + 1.", "Use n² + 1 for n from 3 to 6. The sum is 90."],
       },
     ],
     [

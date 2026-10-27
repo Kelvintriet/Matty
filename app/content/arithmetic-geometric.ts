@@ -54,12 +54,12 @@ export const arithmeticSequenceSteps: GuidedLessonStep[] = [
     [
       {
         expression: "Find u₂₅ for 4, 7, 10, 13, …",
-        detail: "This is the slide example: u₁ = 4 and d = 3.",
+        detail: "The first term is 4 and the common difference is 3.",
         steps: ["Write u₂₅ = 4 + (25 − 1)3.", "Calculate the 24 jumps: 24 × 3 = 72.", "Add the first term: 4 + 72 = 76.", "Therefore u₂₅ = 76."],
       },
       {
         expression: "Find u₃₂ when u₁ = 79 and d = −4",
-        detail: "This slide example uses a negative difference.",
+        detail: "This example uses a negative difference.",
         steps: ["Substitute: u₃₂ = 79 + (32 − 1)(−4).", "Calculate 31 × (−4) = −124.", "Add: 79 − 124 = −45, so u₃₂ = −45."],
       },
     ],
@@ -136,7 +136,7 @@ export const geometricSequenceSteps: GuidedLessonStep[] = [
       },
       {
         expression: "−252, 126, −63, 31.5, … → r = −1/2",
-        detail: "This slide example alternates signs while the magnitudes halve.",
+        detail: "The signs alternate while the magnitudes halve.",
         steps: ["126 ÷ (−252) = −1/2.", "Check: −63 ÷ 126 = −1/2.", "Multiply 31.5 by −1/2 to get −15.75."],
       },
     ],
@@ -154,7 +154,7 @@ export const geometricSequenceSteps: GuidedLessonStep[] = [
     [
       {
         expression: "7, 21, 63, … → uₙ = 7 × 3⁽ⁿ⁻¹⁾",
-        detail: "This slide example starts at 7 and multiplies by 3.",
+        detail: "This sequence starts at 7 and multiplies by 3.",
         steps: ["Identify u₁ = 7 and r = 21 ÷ 7 = 3.", "Substitute into uₙ = u₁r⁽ⁿ⁻¹⁾: uₙ = 7 × 3⁽ⁿ⁻¹⁾.", "Check n = 1: 7 × 3⁰ = 7.", "Check n = 3: 7 × 3² = 63."],
       },
       {
@@ -177,12 +177,12 @@ export const geometricSequenceSteps: GuidedLessonStep[] = [
     [
       {
         expression: "Find u₉ for 7, 21, 63, …",
-        detail: "The slide uses u₁ = 7 and r = 3.",
+        detail: "The first term is 7 and the common ratio is 3.",
         steps: ["Substitute n = 9: u₉ = 7 × 3⁸.", "Calculate 3⁸ = 6561.", "Multiply: u₉ = 7 × 6561 = 45,927."],
       },
       {
         expression: "u₄ = 125, u₁₀ = 125/64; find u₁₄",
-        detail: "As in the slide, assume all terms are positive.",
+        detail: "Assume all terms are positive.",
         steps: ["From term 4 to term 10 there are 6 multiplications, so r⁶ = (125/64) ÷ 125 = 1/64.", "All terms are positive, so r = 1/2 because (1/2)⁶ = 1/64.", "From term 10 to term 14 there are 4 multiplications: u₁₄ = (125/64)(1/2)⁴.", "Calculate u₁₄ = 125/1024."],
       },
     ],
