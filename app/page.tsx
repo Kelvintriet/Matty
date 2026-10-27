@@ -269,6 +269,27 @@ export default function Home() {
       const saved = localStorage.getItem("matty-progress-v1");
       if (saved) {
         const progress = JSON.parse(saved);
+        if (progress.unitZeroTestVersion !== 2 && Array.isArray(progress.completedStepIds)) {
+          const testStart = 4;
+          const testKeys = Array.from({ length: 10 }, (_, index) => `unit-zero-revision:${testStart + index}:0`);
+          const hasTestProgress = testKeys.some((key) => progress.completedStepIds.includes(key));
+
+          if (hasTestProgress) {
+            if (testKeys.every((key) => progress.completedStepIds.includes(key))) {
+              progress.completedLessonIds = [
+                ...(Array.isArray(progress.completedLessonIds) ? progress.completedLessonIds : []),
+                "unit-zero-revision",
+              ];
+            }
+            progress.completedStepIds = progress.completedStepIds.filter((key: unknown) =>
+              typeof key !== "string" || !testKeys.includes(key));
+            progress.lessonPositions = { ...progress.lessonPositions, "unit-zero-revision": testStart };
+            progress.redoingLessonIds = [
+              ...(Array.isArray(progress.redoingLessonIds) ? progress.redoingLessonIds : []),
+              "unit-zero-revision",
+            ];
+          }
+        }
         if (progress.slideReviewVersion !== 1 && Array.isArray(progress.completedStepIds)) {
           const addedSteps: Record<string, number> = {
             "scientific-notation": 6,
@@ -371,7 +392,7 @@ export default function Home() {
   useEffect(() => {
     if (!progressLoaded) return;
     try {
-      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, slideReviewVersion: 1, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
+      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, slideReviewVersion: 1, unitZeroTestVersion: 2, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
     } catch {
       // The lesson remains usable even if browser storage is unavailable.
     }
