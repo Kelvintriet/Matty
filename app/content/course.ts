@@ -159,7 +159,7 @@ export const topics: Topic[] = [
         blocks: [
           { type: "text", text: "Simple interest is calculated on the original principal P: \\(A = P(1\\) + rt), where r is the annual rate as a decimal and t is years. Compound interest also earns interest on earlier interest." },
           { type: "example", label: "Compound interest", expression: "$\\(100 \\times  1.05^{2}\\) = $\\(110.25\\)", detail: "$\\(100\\) invested at \\(5\\%\\) per year, compounded annually, grows to $\\(110.25\\) in \\(2\\) years." },
-          { type: "example", label: "Simple interest", expression: "$\\(100\\) × (\\(1 + 0.05 \\times  2)\\) = $\\(110\\)", detail: "At \\(5\\%\\) simple interest for \\(2\\) years, the interest is $\\(5\\) each year." },
+          { type: "example", label: "Simple interest", expression: "$\\(100 \\times (1 + 0.05 \\times  2)\\) = $\\(110\\)", detail: "At \\(5\\%\\) simple interest for \\(2\\) years, the interest is $\\(5\\) each year." },
           { type: "text", text: "For m compounding periods per year, \\(A = P(1 + \\dfrac{r}{m})\\)ᵐᵗ. For depreciation, replace the plus with a minus. An annuity involves regular payments; loans combine borrowing, interest and repayments." },
           { type: "example", label: "Depreciation", expression: "$\\(1{,}000 \\times  0.9\\) = $\\(900\\)", detail: "A \\(10\\%\\) decrease leaves \\(90\\%\\) of the value after one year." },
           { type: "example", label: "Regular payments", expression: "$\\(100 \\times  1.1\\) + $\\(100\\) = $\\(210\\)", detail: "With deposits at the end of each year, a $\\(100\\) first deposit earns \\(10\\%\\) for one year before a second $\\(100\\) deposit. This is an annuity example." },
@@ -184,10 +184,10 @@ export const topics: Topic[] = [
         title: "1.13 Logarithms and Logarithmic Equations",
         blocks: [
           { type: "text", text: "A logarithm answers: ‘What power gives this number?’ logᵦ(x) = y means bʸ = x, where \\(b > 0\\), b ≠ \\(1\\) and \\(x > 0\\)." },
-          { type: "example", label: "Convert", expression: "log₂(\\(8) = 3\\)", detail: "This is equivalent to \\(2^{3} = 8\\)." },
-          { type: "text", text: "For positive x and y: logᵦ(xy) = logᵦ(x) + logᵦ(y), logᵦ(\\(\\dfrac{x}{y})\\) = logᵦ(x) − logᵦ(y), and logᵦ(xᵖ) = p logᵦ(x). Change of base: logᵦ(x) = log(x)/log(b)." },
+          { type: "example", label: "Convert", expression: "log₂\\((8) = 3\\)", detail: "This is equivalent to \\(2^{3} = 8\\)." },
+          { type: "text", text: "For positive x and y: logᵦ(xy) = logᵦ(x) + logᵦ(y), logᵦ\\((\\dfrac{x}{y})\\) = logᵦ(x) − logᵦ(y), and logᵦ(xᵖ) = p logᵦ(x). Change of base: logᵦ(x) = log(x)/log(b)." },
           { type: "example", label: "Solve and check", expression: "log₂(x) = \\(4 \\to  x = 16\\)", detail: "\\(2^{4} = 16\\), and the logarithm’s argument is positive." },
-          { type: "quiz", question: "What is log₁₀(\\(100)\\)?", options: ["\\(1\\)", "\\(2\\)", "\\(10\\)", "\\(100\\)"], answer: "\\(2\\)", explanation: "\\(10^{2} = 100\\), so log₁₀(\\(100) = 2\\)." },
+          { type: "quiz", question: "What is log₁₀\\((100)\\)?", options: ["\\(1\\)", "\\(2\\)", "\\(10\\)", "\\(100\\)"], answer: "\\(2\\)", explanation: "\\(10^{2} = 100\\), so log₁₀\\((100) = 2\\)." },
         ],
       },
     ],

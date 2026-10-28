@@ -37,13 +37,13 @@ export const recursiveSequenceSteps: GuidedLessonStep[] = [
     "Arithmetic recursive rules",
     "For an arithmetic sequence, add the common difference to the previous term: \\(u_{n} = u_{n-1} + d\\), for \\(n \\ge  2\\).",
     [
-      { expression: "\\(-2\\), \\(-9\\), \\(-16\\), \\(-23\\), … → \\(u_{5} = -30\\)", detail: "This sequence subtracts \\(7\\) at each step.", steps: ["Find the difference: \\(-9\\) − (\\(-2) = -7\\).", "Write \\(u_{1} = -2\\) and \\(u_{n} = u_{n-1} - 7\\), for \\(n \\ge  2\\).", "Use \\(u_{4} = -23\\): \\(u_{5} = -23 - 7 = -30\\)."] },
+      { expression: "\\(-2\\), \\(-9\\), \\(-16\\), \\(-23\\), … → \\(u_{5} = -30\\)", detail: "This sequence subtracts \\(7\\) at each step.", steps: ["Find the difference: \\(-9\\) − \\((-2) = -7\\).", "Write \\(u_{1} = -2\\) and \\(u_{n} = u_{n-1} - 7\\), for \\(n \\ge  2\\).", "Use \\(u_{4} = -23\\): \\(u_{5} = -23 - 7 = -30\\)."] },
       { expression: "\\(10\\), \\(7\\), \\(4\\), \\(1\\), … → \\(u_{1} = 10\\); \\(u_{n} = u_{n-1} - 3\\)", detail: "A recursive rule needs both the starting value and the repeated change.", steps: ["The first term is \\(10\\).", "Each term is \\(3\\) less than the previous one, so \\(d = -3\\).", "Write \\(u_{1} = 10\\) and \\(u_{n} = u_{n-1} - 3\\), for \\(n \\ge  2\\)."] },
     ],
     [
       { question: "What is d for \\(-2\\), \\(-9\\), \\(-16\\), \\(-23\\), …?", options: ["\\(-7\\)", "\\(7\\)", "\\(-9\\)", "\\(-2\\)"], answer: "\\(-7\\)", explanation: "Each term is \\(7\\) less than the one before it." },
       { question: "For \\(u_{1} = -2\\) and \\(u_{n} = u_{n-1} - 7\\), what is \\(u_{5}\\)?", options: ["\\(-30\\)", "\\(-23\\)", "\\(-28\\)", "\\(-35\\)"], answer: "\\(-30\\)", explanation: "The first four terms are \\(-2\\), \\(-9\\), \\(-16\\), \\(-23\\), so \\(u_{5} = -23 - 7\\)." },
-      { question: "Which rule generates \\(2\\), \\(4\\), \\(6\\), \\(8\\), …?", options: ["\\(u_{1} = 2\\); \\(u_{n} = u_{n-1} + 2\\)", "\\(u_{1} = 2\\); \\(u_{n} = 2u\\)ₙ₋₁", "\\(u_{1} = 4\\); \\(u_{n} = u_{n-1} + 2\\)", "\\(u_{1} = 2\\); \\(u_{n} = u_{n-1} - 2\\)"], answer: "\\(u_{1} = 2\\); \\(u_{n} = u_{n-1} + 2\\)", explanation: "Start at \\(2\\) and add \\(2\\) each time." },
+      { question: "Which rule generates \\(2\\), \\(4\\), \\(6\\), \\(8\\), …?", options: ["\\(u_{1} = 2\\); \\(u_{n} = u_{n-1} + 2\\)", "\\(u_{1} = 2\\); \\(u_{n} = 2u_{n}\\)₋₁", "\\(u_{1} = 4\\); \\(u_{n} = u_{n-1} + 2\\)", "\\(u_{1} = 2\\); \\(u_{n} = u_{n-1} - 2\\)"], answer: "\\(u_{1} = 2\\); \\(u_{n} = u_{n-1} + 2\\)", explanation: "Start at \\(2\\) and add \\(2\\) each time." },
       { question: "If \\(u_{1} = 10\\) and \\(u_{n} = u_{n-1} - 3\\), what is \\(u_{3}\\)?", options: ["\\(4\\)", "\\(7\\)", "\\(1\\)", "\\(13\\)"], answer: "\\(4\\)", explanation: "\\(u_{2} = 10 - 3 = 7\\), then \\(u_{3} = 7 - 3 = 4\\)." },
       { question: "An arithmetic sequence begins \\(8\\), \\(13\\), \\(18\\), …. Which recursive change is correct?", options: ["Add \\(5\\)", "Multiply by \\(5\\)", "Add \\(8\\)", "Subtract \\(5\\)"], answer: "Add \\(5\\)", explanation: "The common difference is \\(13 - 8 = 5\\)." },
     ],
@@ -52,15 +52,15 @@ export const recursiveSequenceSteps: GuidedLessonStep[] = [
     "Geometric recursive rules",
     "For a geometric sequence, multiply the previous term by the common ratio: \\(u_{n}\\) = ruₙ₋₁, for \\(n \\ge  2\\).",
     [
-      { expression: "\\(4\\), \\(12\\), \\(36\\), \\(108\\), … → \\(u_{5} = 324\\)", detail: "Every term is \\(3\\) times the previous term.", steps: ["Find r: \\(12 \\div  4 = 3\\).", "Write \\(u_{1} = 4\\) and \\(u_{n} = 3u\\)ₙ₋₁, for \\(n \\ge  2\\).", "Use \\(u_{4} = 108\\): \\(u_{5} = 3 \\times  108 = 324\\)."] },
-      { expression: "\\(3\\), \\(6\\), \\(12\\), \\(24\\), … → \\(u_{1} = 3\\); \\(u_{n} = 2u\\)ₙ₋₁", detail: "This sequence starts at \\(3\\) and doubles.", steps: ["The first term is \\(3\\).", "\\(6 \\div  3 = 2\\), and \\(12 \\div  6 = 2\\), so \\(r = 2\\).", "Write \\(u_{1} = 3\\) and \\(u_{n} = 2u\\)ₙ₋₁, for \\(n \\ge  2\\)."] },
+      { expression: "\\(4\\), \\(12\\), \\(36\\), \\(108\\), … → \\(u_{5} = 324\\)", detail: "Every term is \\(3\\) times the previous term.", steps: ["Find r: \\(12 \\div  4 = 3\\).", "Write \\(u_{1} = 4\\) and \\(u_{n} = 3u_{n}\\)₋₁, for \\(n \\ge  2\\).", "Use \\(u_{4} = 108\\): \\(u_{5} = 3 \\times  108 = 324\\)."] },
+      { expression: "\\(3\\), \\(6\\), \\(12\\), \\(24\\), … → \\(u_{1} = 3\\); \\(u_{n} = 2u_{n}\\)₋₁", detail: "This sequence starts at \\(3\\) and doubles.", steps: ["The first term is \\(3\\).", "\\(6 \\div  3 = 2\\), and \\(12 \\div  6 = 2\\), so \\(r = 2\\).", "Write \\(u_{1} = 3\\) and \\(u_{n} = 2u_{n}\\)₋₁, for \\(n \\ge  2\\)."] },
     ],
     [
       { question: "For \\(4\\), \\(12\\), \\(36\\), \\(108\\), … what is the common ratio?", options: ["\\(3\\)", "\\(4\\)", "\\(8\\)", "\\(12\\)"], answer: "\\(3\\)", explanation: "\\(12 \\div  4 = 3\\) and \\(36 \\div  12 = 3\\)." },
-      { question: "If \\(u_{1} = 4\\) and \\(u_{n} = 3u\\)ₙ₋₁, what is \\(u_{3}\\)?", options: ["\\(36\\)", "\\(12\\)", "\\(27\\)", "\\(108\\)"], answer: "\\(36\\)", explanation: "\\(u_{2} = 12\\) and \\(u_{3} = 3 \\times  12 = 36\\)." },
-      { question: "Which recursive rule generates \\(3\\), \\(6\\), \\(12\\), \\(24\\), …?", options: ["\\(u_{1} = 3\\); \\(u_{n} = 2u\\)ₙ₋₁", "\\(u_{1} = 3\\); \\(u_{n} = u_{n-1} + 2\\)", "\\(u_{1} = 6\\); \\(u_{n} = 2u\\)ₙ₋₁", "\\(u_{1} = 3\\); \\(u_{n} = 3u\\)ₙ₋₁"], answer: "\\(u_{1} = 3\\); \\(u_{n} = 2u\\)ₙ₋₁", explanation: "Start at \\(3\\) and multiply by \\(2\\) each time." },
+      { question: "If \\(u_{1} = 4\\) and \\(u_{n} = 3u_{n}\\)₋₁, what is \\(u_{3}\\)?", options: ["\\(36\\)", "\\(12\\)", "\\(27\\)", "\\(108\\)"], answer: "\\(36\\)", explanation: "\\(u_{2} = 12\\) and \\(u_{3} = 3 \\times  12 = 36\\)." },
+      { question: "Which recursive rule generates \\(3\\), \\(6\\), \\(12\\), \\(24\\), …?", options: ["\\(u_{1} = 3\\); \\(u_{n} = 2u_{n}\\)₋₁", "\\(u_{1} = 3\\); \\(u_{n} = u_{n-1} + 2\\)", "\\(u_{1} = 6\\); \\(u_{n} = 2u_{n}\\)₋₁", "\\(u_{1} = 3\\); \\(u_{n} = 3u_{n}\\)₋₁"], answer: "\\(u_{1} = 3\\); \\(u_{n} = 2u_{n}\\)₋₁", explanation: "Start at \\(3\\) and multiply by \\(2\\) each time." },
       { question: "If \\(u_{1} = 8\\) and \\(u_{n} = \\dfrac{1}{2}\\)\\(u_{n-1}\\), what is \\(u_{3}\\)?", options: ["\\(2\\)", "\\(4\\)", "\\(1\\)", "\\(16\\)"], answer: "\\(2\\)", explanation: "\\(u_{2} = 4\\) and \\(u_{3} = 2\\)." },
-      { question: "If \\(u_{1} = 2\\) and \\(u_{n} = -2u\\)ₙ₋₁, what is \\(u_{3}\\)?", options: ["\\(8\\)", "\\(-8\\)", "\\(4\\)", "\\(-4\\)"], answer: "\\(8\\)", explanation: "\\(u_{2} = -4\\) and \\(u_{3} = -2\\) × (\\(-4) = 8\\)." },
+      { question: "If \\(u_{1} = 2\\) and \\(u_{n} = -2u_{n}\\)₋₁, what is \\(u_{3}\\)?", options: ["\\(8\\)", "\\(-8\\)", "\\(4\\)", "\\(-4\\)"], answer: "\\(8\\)", explanation: "\\(u_{2} = -4\\) and \\(u_{3} = -2 \\times (-4) = 8\\)." },
     ],
   ),
   ...section(
@@ -68,19 +68,19 @@ export const recursiveSequenceSteps: GuidedLessonStep[] = [
     "A recursive rule uses an earlier term. An explicit rule gives a term directly from its position n. Both can describe the same sequence.",
     [
       { expression: "\\(2\\), \\(4\\), \\(6\\), \\(8\\), …", detail: "Compare two ways to describe this arithmetic sequence.", steps: ["Recursive: start with \\(u_{1} = 2\\), then use \\(u_{n} = u_{n-1} + 2\\).", "Explicit: \\(u_{n} = 2n\\).", "At \\(n = 4\\) the explicit rule gives \\(u_{4} = 2(4) = 8\\), matching the recursive sequence."] },
-      { expression: "\\(3\\), \\(6\\), \\(12\\), \\(24\\), …", detail: "Both rules generate the same geometric sequence.", steps: ["Recursive: \\(u_{1} = 3\\) and \\(u_{n} = 2u\\)ₙ₋₁.", "Explicit: \\(u_{n} = 3 \\times  2^{n-1}\\).", "At \\(n = 3\\) the explicit rule gives \\(3 \\times  2^{2} = 12\\)."] },
+      { expression: "\\(3\\), \\(6\\), \\(12\\), \\(24\\), …", detail: "Both rules generate the same geometric sequence.", steps: ["Recursive: \\(u_{1} = 3\\) and \\(u_{n} = 2u_{n}\\)₋₁.", "Explicit: \\(u_{n} = 3 \\times  2^{n-1}\\).", "At \\(n = 3\\) the explicit rule gives \\(3 \\times  2^{2} = 12\\)."] },
     ],
     [
       { question: "Which is a recursive rule?", options: ["\\(u_{1} = 2\\); \\(u_{n} = u_{n-1} + 2\\)", "\\(u_{n} = 2n\\)", "\\(u_{n} = n^{2}\\)", "\\(u_{n} = 3n + 1\\)"], answer: "\\(u_{1} = 2\\); \\(u_{n} = u_{n-1} + 2\\)", explanation: "It uses \\(u_{n-1}\\), the previous term." },
       { question: "Which explicit rule matches \\(2\\), \\(4\\), \\(6\\), \\(8\\), …?", options: ["\\(u_{n} = 2n\\)", "\\(u_{n} = n + 2\\)", "\\(u_{n} = 2^{n}\\)", "\\(u_{n} = 2n + 2\\)"], answer: "\\(u_{n} = 2n\\)", explanation: "At positions \\(1\\), \\(2\\), \\(3\\) and \\(4\\), \\(2n\\) gives \\(2\\), \\(4\\), \\(6\\) and \\(8\\)." },
       { question: "What does an explicit rule let you use to find \\(u_{10}\\) directly?", options: ["The position \\(n = 10\\)", "Only \\(u_{9}\\)", "Only the previous term", "The sum of all terms"], answer: "The position \\(n = 10\\)", explanation: "An explicit rule gives the term directly from its position." },
-      { question: "If \\(u_{1} = 3\\) and \\(u_{n} = 2u\\)ₙ₋₁, which explicit rule matches?", options: ["\\(3 \\times  2^{n-1}\\)", "\\(3 + 2(n - 1)\\)", "\\(3 \\times  2^{n}\\)", "\\(2n + 1\\)"], answer: "\\(3 \\times  2^{n-1}\\)", explanation: "The initial value is \\(3\\) and there are \\(n - 1\\) doublings." },
+      { question: "If \\(u_{1} = 3\\) and \\(u_{n} = 2u_{n}\\)₋₁, which explicit rule matches?", options: ["\\(3 \\times  2^{n-1}\\)", "\\(3 + 2(n - 1)\\)", "\\(3 \\times  2^{n}\\)", "\\(2n + 1\\)"], answer: "\\(3 \\times  2^{n-1}\\)", explanation: "The initial value is \\(3\\) and there are \\(n - 1\\) doublings." },
       { question: "If \\(u_{1} = 7\\) and \\(u_{n} = u_{n-1} + 4\\), what is \\(u_{3}\\)?", options: ["\\(15\\)", "\\(11\\)", "\\(19\\)", "\\(12\\)"], answer: "\\(15\\)", explanation: "Start at \\(7\\) and add \\(4\\) twice: \\(7\\), \\(11\\), \\(15\\)." },
     ],
   ),
   ...finalCheck([
     { question: "\\(u_{1} = 20\\) and \\(u_{n} = u_{n-1} - 6\\). What is \\(u_{4}\\)?", options: ["\\(2\\)", "\\(-4\\)", "\\(8\\)", "\\(14\\)"], answer: "\\(2\\)", explanation: "The terms are \\(20\\), \\(14\\), \\(8\\) and \\(2\\)." },
-    { question: "Which recursive rule generates \\(5\\), \\(-10\\), \\(20\\), \\(-40\\), …?", options: ["\\(u_{1} = 5\\); \\(u_{n} = -2u\\)ₙ₋₁", "\\(u_{1} = 5\\); \\(u_{n} = u_{n-1} - 15\\)", "\\(u_{1} = -10\\); \\(u_{n} = -2u\\)ₙ₋₁", "\\(u_{1} = 5\\); \\(u_{n} = 2u\\)ₙ₋₁"], answer: "\\(u_{1} = 5\\); \\(u_{n} = -2u\\)ₙ₋₁", explanation: "The first term is \\(5\\) and each following term is multiplied by \\(-2\\)." },
+    { question: "Which recursive rule generates \\(5\\), \\(-10\\), \\(20\\), \\(-40\\), …?", options: ["\\(u_{1} = 5\\); \\(u_{n} = -2u_{n}\\)₋₁", "\\(u_{1} = 5\\); \\(u_{n} = u_{n-1} - 15\\)", "\\(u_{1} = -10\\); \\(u_{n} = -2u_{n}\\)₋₁", "\\(u_{1} = 5\\); \\(u_{n} = 2u_{n}\\)₋₁"], answer: "\\(u_{1} = 5\\); \\(u_{n} = -2u_{n}\\)₋₁", explanation: "The first term is \\(5\\) and each following term is multiplied by \\(-2\\)." },
     { question: "A rule is \\(u_{n} = u_{n-1} + 5\\), but the starting term is missing. Can you determine \\(u_{2}\\) uniquely?", options: ["No", "Yes, it is \\(5\\)", "Yes, it is \\(10\\)", "Yes, it is \\(2\\)"], answer: "No", explanation: "Different starting terms give different values of \\(u_{2}\\), even with the same recursive rule." },
   ]),
 ];

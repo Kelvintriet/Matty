@@ -23,13 +23,13 @@ export const scientificNotationCheck = finalCheck([
     explanation: "Move the decimal five places right to make \\(7.2\\). Because the original number is less than \\(1\\), the exponent is \\(-5\\).",
   },
   {
-    question: "Which is (\\(6 \\times  10^{3})(2 \\times  10^{2})\\) in scientific notation?",
+    question: "Which is \\((6 \\times  10^{3})(2 \\times  10^{2})\\) in scientific notation?",
     options: ["\\(1.2 \\times  10^{6}\\)", "\\(12 \\times  10^{5}\\)", "\\(1.2 \\times  10^{5}\\)", "\\(8 \\times  10^{5}\\)"],
     answer: "\\(1.2 \\times  10^{6}\\)",
     explanation: "\\(6 \\times  2 = 12\\) and \\(10^{3} \\times  10^{2} = 10^{5}\\). Rewrite \\(12 \\times  10^{5}\\) as \\(1.2 \\times  10^{6}\\).",
   },
   {
-    question: "Which is (\\(4 \\times  10^{5})\\) ÷ (\\(8 \\times  10^{2})\\) in scientific notation?",
+    question: "Which is \\((4 \\times  10^{5}) \\div (8 \\times  10^{2})\\) in scientific notation?",
     options: ["\\(5 \\times  10^{2}\\)", "\\(0.5 \\times  10^{3}\\)", "\\(5 \\times  10^{3}\\)", "\\(2 \\times  10^{3}\\)"],
     answer: "\\(5 \\times  10^{2}\\)",
     explanation: "\\(4 \\div  8 = 0.5\\) and \\(5 - 2 = 3\\). Rewrite \\(0.5 \\times  10^{3}\\) as \\(5 \\times  10^{2}\\).",

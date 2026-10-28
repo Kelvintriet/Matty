@@ -45,14 +45,14 @@ export const arithmeticSeriesSteps: GuidedLessonStep[] = [
       { question: "For \\(3 + 6 + 9 + 12\\), what is the sum of the first and last terms?", options: ["\\(15\\)", "\\(12\\)", "\\(9\\)", "\\(18\\)"], answer: "\\(15\\)", explanation: "\\(3 + 12 = 15\\), matching the middle pair \\(6 + 9\\)." },
       { question: "What is \\(S_{4}\\) if \\(u_{1} = 3\\) and \\(u_{4} = 12\\)?", options: ["\\(30\\)", "\\(15\\)", "\\(60\\)", "\\(24\\)"], answer: "\\(30\\)", explanation: "\\(S_{4} = \\dfrac{4(3 + 12)}{2} = 30\\)." },
       { question: "What does n represent in \\(S_{n} = \\dfrac{n(u_{1} + u_{n})}{2}\\)?", options: ["The number of terms", "The common ratio", "The first term", "The sum"], answer: "The number of terms", explanation: "n counts how many terms are being added." },
-      { question: "What is the average of the first and last terms, \\(5\\) and \\(15\\)?", options: ["\\(10\\)", "\\(20\\)", "\\(5\\)", "\\(15\\)"], answer: "\\(10\\)", explanation: "(\\(5 + 15) \\div  2 = 10\\)." },
+      { question: "What is the average of the first and last terms, \\(5\\) and \\(15\\)?", options: ["\\(10\\)", "\\(20\\)", "\\(5\\)", "\\(15\\)"], answer: "\\(10\\)", explanation: "\\((5 + 15) \\div  2 = 10\\)." },
     ],
   ),
   ...section(
     "Using the first term and difference",
-    "When the last term is unknown, use \\(S_{n} = n\\)[\\(2u\\)₁ + (\\(n - 1)d\\)]/\\(2\\). This combines the nth-term rule with the sum formula.",
+    "When the last term is unknown, use \\(S_{n} = n\\)[\\(2u_{1}\\) + \\((n - 1)d\\)]/\\(2\\). This combines the nth-term rule with the sum formula.",
     [
-      { expression: "\\(4\\), \\(7\\), \\(10\\), \\(13\\), … → \\(S_{6} = 69\\)", detail: "Here \\(u_{1} = 4\\), \\(d = 3\\) and \\(n = 6\\).", steps: ["Substitute: \\(S_{6} = 6\\)[\\(2(4)\\) + (\\(6 - 1)3\\)]/\\(2\\).", "Inside the brackets: \\(8 + 15 = 23\\).", "Calculate \\(S_{6} = 3 \\times  23 = 69\\).", "Check: \\(4 + 7 + 10 + 13 + 16 + 19 = 69\\)."] },
+      { expression: "\\(4\\), \\(7\\), \\(10\\), \\(13\\), … → \\(S_{6} = 69\\)", detail: "Here \\(u_{1} = 4\\), \\(d = 3\\) and \\(n = 6\\).", steps: ["Substitute: \\(S_{6} = 6\\)[\\(2(4)\\) + \\((6 - 1)3\\)]/\\(2\\).", "Inside the brackets: \\(8 + 15 = 23\\).", "Calculate \\(S_{6} = 3 \\times  23 = 69\\).", "Check: \\(4 + 7 + 10 + 13 + 16 + 19 = 69\\)."] },
       { expression: "\\(-19\\), \\(-13\\), \\(-7\\), … → \\(S_{63} = 10{,}521\\)", detail: "A negative first term is fine; the common difference is \\(6\\).", steps: ["Find the last term: \\(u_{63} = -19 + 62(6) = 353\\).", "Use \\(S_{n} = \\dfrac{n(u_{1} + u_{n})}{2}\\).", "\\(S_{63} = \\dfrac{63(-19 + 353)}{2} = 63 \\times  167 = 10{,}521\\)."] },
     ],
     [
@@ -60,7 +60,7 @@ export const arithmeticSeriesSteps: GuidedLessonStep[] = [
       { question: "If \\(u_{1} = 4\\) and \\(d = 3\\), what is \\(u_{6}\\)?", options: ["\\(19\\)", "\\(22\\)", "\\(16\\)", "\\(18\\)"], answer: "\\(19\\)", explanation: "\\(u_{6} = 4 + 5(3) = 19\\)." },
       { question: "If \\(u_{1} = 4\\) and \\(d = 3\\), what is \\(S_{6}\\)?", options: ["\\(69\\)", "\\(57\\)", "\\(72\\)", "\\(23\\)"], answer: "\\(69\\)", explanation: "\\(S_{6} = \\dfrac{6(4 + 19)}{2} = 69\\)." },
       { question: "What is \\(S_{3}\\) for \\(u_{1} = 10\\) and \\(d = -2\\)?", options: ["\\(24\\)", "\\(18\\)", "\\(30\\)", "\\(6\\)"], answer: "\\(24\\)", explanation: "The first three terms are \\(10\\), \\(8\\) and \\(6\\); their sum is \\(24\\)." },
-      { question: "For \\(u_{1} = 2\\), \\(d = 5\\) and \\(n = 4\\), which substitution is correct?", options: ["\\(4\\)[\\(2(2) + 3(5)\\)]/\\(2\\)", "\\(4\\)[\\(2 + 4(5)\\)]/\\(2\\)", "\\(4\\)[\\(2(5) + 3(2)\\)]/\\(2\\)", "\\(2\\)[\\(2(2) + 4(5)\\)]/\\(2\\)"], answer: "\\(4\\)[\\(2(2) + 3(5)\\)]/\\(2\\)", explanation: "Substitute \\(n = 4\\), \\(u_{1} = 2\\) and \\(d = 5\\) into n[\\(2u\\)₁ + (\\(n - 1)d\\)]/\\(2\\)." },
+      { question: "For \\(u_{1} = 2\\), \\(d = 5\\) and \\(n = 4\\), which substitution is correct?", options: ["\\(4\\)[\\(2(2) + 3(5)\\)]/\\(2\\)", "\\(4\\)[\\(2 + 4(5)\\)]/\\(2\\)", "\\(4\\)[\\(2(5) + 3(2)\\)]/\\(2\\)", "\\(2\\)[\\(2(2) + 4(5)\\)]/\\(2\\)"], answer: "\\(4\\)[\\(2(2) + 3(5)\\)]/\\(2\\)", explanation: "Substitute \\(n = 4\\), \\(u_{1} = 2\\) and \\(d = 5\\) into n[\\(2u_{1}\\) + \\((n - 1)d\\)]/\\(2\\)." },
     ],
   ),
   ...section(
@@ -143,19 +143,19 @@ export const geometricSeriesSteps: GuidedLessonStep[] = [
     "The infinite geometric sum",
     "When |r| < \\(1\\), use S∞ = \\(\\dfrac{u_{1}}{(1 - r)}\\). Check convergence first; the formula does not give an infinite sum for a divergent series.",
     [
-      { expression: "\\(2 + 1 + \\dfrac{1}{2}\\) + … = \\(4\\)", detail: "The first term is \\(2\\) and \\(r = \\dfrac{1}{2}\\).", steps: ["Check |\\(\\dfrac{1}{2}\\)| < \\(1\\), so the series converges.", "Substitute: S∞ = \\(2\\)/(\\(1 - \\dfrac{1}{2})\\).", "Calculate \\(2 \\div  \\dfrac{1}{2} = 4\\)."] },
-      { expression: "\\(6 - 3 + 1.5\\) − … = \\(4\\)", detail: "A negative ratio can converge when its absolute value is less than \\(1\\).", steps: ["The ratio is \\(r = \\dfrac{-1}{2}\\) and |r| = \\(\\dfrac{1}{2} < 1\\).", "S∞ = \\(6\\)/(\\(1\\) − (\\(\\dfrac{-1}{2})) = 6\\)/(\\(\\dfrac{3}{2})\\).", "Divide: \\(6 \\div  1.5 = 4\\)."] },
+      { expression: "\\(2 + 1 + \\dfrac{1}{2}\\) + … = \\(4\\)", detail: "The first term is \\(2\\) and \\(r = \\dfrac{1}{2}\\).", steps: ["Check |\\(\\dfrac{1}{2}\\)| < \\(1\\), so the series converges.", "Substitute: S∞ = \\(2\\)/\\((1 - \\dfrac{1}{2})\\).", "Calculate \\(2 \\div  \\dfrac{1}{2} = 4\\)."] },
+      { expression: "\\(6 - 3 + 1.5\\) − … = \\(4\\)", detail: "A negative ratio can converge when its absolute value is less than \\(1\\).", steps: ["The ratio is \\(r = \\dfrac{-1}{2}\\) and |r| = \\(\\dfrac{1}{2} < 1\\).", "S∞ = \\(6\\)/(\\(1\\) − \\((\\dfrac{-1}{2})) = 6\\)/\\((\\dfrac{3}{2})\\).", "Divide: \\(6 \\div  1.5 = 4\\)."] },
     ],
     [
-      { question: "What is the sum of \\(1 + \\dfrac{1}{2} + \\dfrac{1}{4}\\) + …?", options: ["\\(2\\)", "\\(1\\)", "\\(4\\)", "It diverges"], answer: "\\(2\\)", explanation: "\\(r = \\dfrac{1}{2}\\), so S∞ = \\(1\\)/(\\(1 - \\dfrac{1}{2}) = 2\\)." },
-      { question: "What is the sum of \\(2 + 1 + \\dfrac{1}{2}\\) + …?", options: ["\\(4\\)", "\\(2\\)", "\\(3\\)", "It diverges"], answer: "\\(4\\)", explanation: "S∞ = \\(2\\)/(\\(1 - \\dfrac{1}{2}) = 4\\)." },
+      { question: "What is the sum of \\(1 + \\dfrac{1}{2} + \\dfrac{1}{4}\\) + …?", options: ["\\(2\\)", "\\(1\\)", "\\(4\\)", "It diverges"], answer: "\\(2\\)", explanation: "\\(r = \\dfrac{1}{2}\\), so S∞ = \\(1\\)/\\((1 - \\dfrac{1}{2}) = 2\\)." },
+      { question: "What is the sum of \\(2 + 1 + \\dfrac{1}{2}\\) + …?", options: ["\\(4\\)", "\\(2\\)", "\\(3\\)", "It diverges"], answer: "\\(4\\)", explanation: "S∞ = \\(2\\)/\\((1 - \\dfrac{1}{2}) = 4\\)." },
       { question: "What must be checked before using S∞ = \\(\\dfrac{u_{1}}{(1 - r)}\\)?", options: ["|r| < \\(1\\)", "\\(r > 1\\)", "\\(n = 1\\)", "\\(u_{1} = 0\\)"], answer: "|r| < \\(1\\)", explanation: "The formula applies when the infinite geometric series converges, with |r| < \\(1\\)." },
-      { question: "What is S∞ when \\(u_{1} = 6\\) and \\(r = \\dfrac{-1}{2}\\)?", options: ["\\(4\\)", "\\(12\\)", "\\(3\\)", "It diverges"], answer: "\\(4\\)", explanation: "S∞ = \\(6\\)/(\\(1 + \\dfrac{1}{2}) = 4\\)." },
+      { question: "What is S∞ when \\(u_{1} = 6\\) and \\(r = \\dfrac{-1}{2}\\)?", options: ["\\(4\\)", "\\(12\\)", "\\(3\\)", "It diverges"], answer: "\\(4\\)", explanation: "S∞ = \\(6\\)/\\((1 + \\dfrac{1}{2}) = 4\\)." },
       { question: "Does a non-zero geometric series with \\(r = 1\\) have a finite infinite sum?", options: ["No", "Yes, always \\(1\\)", "Yes, always \\(0\\)", "Only when \\(n = 1\\)"], answer: "No", explanation: "Its non-zero terms repeat forever, so its partial sums do not approach a finite limit." },
     ],
   ),
   ...finalCheck([
-    { question: "What is the sum of the first \\(10\\) terms of \\(4 + 2 + 1 + \\dfrac{1}{2}\\) + …?", options: ["\\(7.9921875\\)", "\\(8\\)", "\\(7.984375\\)", "\\(4\\)"], answer: "\\(7.9921875\\)", explanation: "\\(S_{10} = 4(1\\) − (\\(\\dfrac{1}{2})\\)¹⁰)/(\\(1 - \\dfrac{1}{2}) = 7.9921875\\)." },
+    { question: "What is the sum of the first \\(10\\) terms of \\(4 + 2 + 1 + \\dfrac{1}{2}\\) + …?", options: ["\\(7.9921875\\)", "\\(8\\)", "\\(7.984375\\)", "\\(4\\)"], answer: "\\(7.9921875\\)", explanation: "\\(S_{10} = 4(1\\) − \\((\\dfrac{1}{2})^{10}\\))/\\((1 - \\dfrac{1}{2}) = 7.9921875\\)." },
     { question: "Which infinite geometric series converges?", options: ["\\(3 - 1.5 + 0.75\\) − …", "\\(3 - 6 + 12\\) − …", "\\(3 + 3 + 3\\) + …", "\\(3 + 6 + 12\\) + …"], answer: "\\(3 - 1.5 + 0.75\\) − …", explanation: "Its ratio is \\(\\dfrac{-1}{2}\\), whose absolute value is less than \\(1\\)." },
     { question: "A non-zero geometric series has \\(r = -1\\). What happens to its infinite sum?", options: ["It diverges", "It always equals zero", "It always equals the first term", "It converges because \\(r < 1\\)"], answer: "It diverges", explanation: "The partial sums alternate; the correct convergence condition is |r| < \\(1\\), which \\(r = -1\\) does not satisfy." },
   ]),

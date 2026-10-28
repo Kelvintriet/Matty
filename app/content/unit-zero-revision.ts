@@ -16,8 +16,8 @@ export const unitZeroRevisionSteps: GuidedLessonStep[] = [
         detail: "Large numbers use positive powers; numbers between \\(0\\) and \\(1\\) use negative powers.",
         steps: [
           "Convert back: \\(1.23 \\times  10^{-5} = 0.0000123\\); move the decimal \\(5\\) places left.",
-          "Multiply: (\\(2 \\times  10^{3})(3 \\times  10^{2}) = 6 \\times  10^{5}\\).",
-          "Divide: (\\(8 \\times  10^{6})\\) ÷ (\\(2 \\times  10^{2}) = 4 \\times  10^{4}\\).",
+          "Multiply: \\((2 \\times  10^{3})(3 \\times  10^{2}) = 6 \\times  10^{5}\\).",
+          "Divide: \\((8 \\times  10^{6}) \\div (2 \\times  10^{2}) = 4 \\times  10^{4}\\).",
         ],
       },
     ],
@@ -104,7 +104,7 @@ const testQuestions = [
     explanation: "The lower length bounds are \\(1.5 m\\) and \\(2.5 m\\); multiply them to get \\(3.75\\) \\(m^{2}\\).",
   },
   { question: "Which is the smallest set in ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ that contains \\(0.666\\)…?", options: ["ℚ", "ℕ", "ℤ", "ℝ"], answer: "ℚ", explanation: "\\(0.666\\)… = \\(\\dfrac{2}{3}\\), so it is rational. It is not an integer or a natural number." },
-  { question: "What is (\\(8 \\times  10^{-3})\\) ÷ (\\(2 \\times  10^{2})\\), written in scientific notation?", options: ["\\(4 \\times  10^{-5}\\)", "\\(4 \\times  10^{-1}\\)", "\\(4 \\times  10^{5}\\)", "\\(6 \\times  10^{-5}\\)"], answer: "\\(4 \\times  10^{-5}\\)", explanation: "Divide the coefficients: \\(8 \\div  2 = 4\\). Subtract exponents: \\(-3 - 2 = -5\\)." },
+  { question: "What is \\((8 \\times  10^{-3}) \\div (2 \\times  10^{2})\\), written in scientific notation?", options: ["\\(4 \\times  10^{-5}\\)", "\\(4 \\times  10^{-1}\\)", "\\(4 \\times  10^{5}\\)", "\\(6 \\times  10^{-5}\\)"], answer: "\\(4 \\times  10^{-5}\\)", explanation: "Divide the coefficients: \\(8 \\div  2 = 4\\). Subtract exponents: \\(-3 - 2 = -5\\)." },
   { question: "The accepted value is \\(0.020\\) and an estimate is \\(0.019\\). What is the percentage error?", options: ["\\(5\\%\\)", "\\(0.1\\%\\)", "\\(1\\%\\)", "\\(10\\%\\)"], answer: "\\(5\\%\\)", explanation: "The absolute error is \\(0.001\\). Divide by \\(0.020\\) and multiply by \\(100\\%\\) to get \\(5\\%\\)." },
   { question: "Which statement is true about \\(0.04040\\)?", options: ["It has \\(4\\) significant figures and is rational", "It has \\(3\\) significant figures and is rational", "It has \\(4\\) significant figures and is irrational", "It has \\(5\\) significant figures and is rational"], answer: "It has \\(4\\) significant figures and is rational", explanation: "Count \\(4\\), \\(0\\), \\(4\\) and the final decimal zero. The decimal terminates, so it is rational." },
 ];
