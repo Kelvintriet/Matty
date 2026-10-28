@@ -2586,3 +2586,72 @@ button:focus-visible {
     min-height: 420px;
   }
 }
+
+.working-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.working-modes, .board-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.working-modes {
+  padding: 4px;
+  border-radius: 10px;
+  background: #f1f5f1;
+}
+
+.working-modes button, .board-actions button, .board-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #829188;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.working-modes button.active {
+  background: #fff;
+  color: #4eac29;
+  box-shadow: 0 1px 3px #dce5dc;
+}
+
+.board-actions button:hover, .board-more:hover {
+  background: #f1f8ef;
+  color: #4eac29;
+}
+
+.board-actions button:disabled, .board-more:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.working-board {
+  display: block;
+  width: 100%;
+  border: 2px solid #e9eee9;
+  border-radius: 12px;
+  background: #fcfefb;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.board-more {
+  margin-top: 10px;
+  color: #4eac29;
+}
+
+.workspace-storage-error {
+  margin: 10px 0 0;
+  color: #be564d;
+  font-size: 12px;
+}

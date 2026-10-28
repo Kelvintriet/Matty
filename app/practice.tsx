@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import { ArrowLeft, CheckCircle2, Search, Trophy } from "lucide-react";
+import PracticeWorkspace from "./practice-workspace";
 
 type Problem = {
   id: string;
@@ -123,9 +124,7 @@ export default function Practice({ MathText, navigate }: {
   const [tab, setTab] = useState<"Problems" | "Contests" | "Test">("Problems");
   const [selected, setSelected] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
-  const [work, setWork] = useState("");
   const [feedback, setFeedback] = useState<{ correct: boolean } | null>(null);
-  const notesRef = useRef<HTMLTextAreaElement>(null);
   const problem = problems.find((item) => item.id === selected);
   const rank = rankFor(progress.rating);
   const query = search.trim().toLowerCase();
@@ -193,7 +192,6 @@ export default function Practice({ MathText, navigate }: {
     navigate(`/practice/problems/${id}`);
     setSelected(id);
     setAnswer("");
-    setWork("");
     setFeedback(null);
     setProgress((current) => ({ ...current, started: [...new Set([...current.started, id])] }));
   }
@@ -233,8 +231,7 @@ export default function Practice({ MathText, navigate }: {
               navigate(`/practice/${item.toLowerCase()}`);
               setTab(item);
               setSelected(null);
-              setWork("");
-              setFeedback(null);
+                        setFeedback(null);
             }}
           >
             {item}
@@ -316,7 +313,7 @@ export default function Practice({ MathText, navigate }: {
         </section>
       ) : problem ? (
         <div className="problem-detail">
-          <button className="problem-back" onClick={() => { navigate("/practice/problems"); setSelected(null); setWork(""); setFeedback(null); }}><ArrowLeft size={17} /> All problems</button>
+          <button className="problem-back" onClick={() => { navigate("/practice/problems"); setSelected(null); setFeedback(null); }}><ArrowLeft size={17} /> All problems</button>
           <div className="problem-detail-grid">
             <section className="problem-card">
               <div className="problem-meta"><span>{problem.id}</span><span>{problem.unit}</span><span>Level {problem.level}</span><span>{problem.rating} rating</span></div>
@@ -329,22 +326,7 @@ export default function Practice({ MathText, navigate }: {
               {feedback && <div className={`practice-feedback ${feedback.correct ? "is-correct" : "is-wrong"}`} role="status"><strong>{feedback.correct ? "Correct answer!" : "Wrong answer"}</strong></div>}
               {progress.solved.includes(problem.id) && <div className="problem-explanation"><h3><CheckCircle2 size={18} /> Explanation</h3>{problem.explanation.map((line) => <p key={line}><MathText text={line} /></p>)}</div>}
             </section>
-            <section className="workspace-card" aria-label="Working notes">
-              <label className="sr-only" htmlFor="practice-work">Your working</label>
-              <textarea
-                ref={notesRef}
-                id="practice-work"
-                value={work}
-                onChange={(event) => {
-                  setWork(event.target.value);
-                  const field = event.currentTarget;
-                  if (field.scrollHeight > field.clientHeight) {
-                    field.style.height = `${field.scrollHeight}px`;
-                  }
-                }}
-                placeholder="Start writing..."
-              />
-            </section>
+            <PracticeWorkspace key={problem.id} problemId={problem.id} />
           </div>
         </div>
       ) : selected ? (
