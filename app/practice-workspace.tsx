@@ -9,7 +9,7 @@ type WorkspaceData = { notes: string; strokes: Stroke[]; boardHeight: number };
 
 const emptyWorkspace: WorkspaceData = { notes: "", strokes: [], boardHeight: 900 };
 
-export default function PracticeWorkspace({ problemId }: { problemId: string }) {
+export default function PracticeWorkspace({ problemId, userId }: { problemId: string; userId?: string }) {
   const [mode, setMode] = useState<"notes" | "whiteboard">("notes");
   const [data, setData] = useState<WorkspaceData>(emptyWorkspace);
   const [tool, setTool] = useState<"pen" | "eraser">("pen");
@@ -18,36 +18,80 @@ export default function PracticeWorkspace({ problemId }: { problemId: string }) 
   const [storageError, setStorageError] = useState(false);
   const drawing = useRef(false);
   const notesRef = useRef<HTMLTextAreaElement>(null);
-  const storageKey = `matty-workspace-v1:${problemId}`;
+  const latestData = useRef(data);
+  const readyToSave = useRef(false);
+  const storageKey = userId ? `matty-workspace-v2:${userId}:${problemId}` : `matty-workspace-v1:${problemId}`;
 
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect */
-    try {
-      const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
-      if (saved && typeof saved.notes === "string" && Array.isArray(saved.strokes)) {
-        setData({
-          notes: saved.notes,
-          strokes: saved.strokes.filter((stroke: unknown) => Array.isArray(stroke)),
-          boardHeight: Number.isFinite(saved.boardHeight) ? Math.max(900, Math.min(saved.boardHeight, 10000)) : 900,
-        });
+    let cancelled = false;
+
+    async function loadWorkspace() {
+      try {
+        if (userId) {
+          const response = await fetch(`/api/problems/${encodeURIComponent(problemId)}/progress`);
+          if (!response.ok) throw new Error();
+          const saved = await response.json();
+          const board = saved.whiteboard;
+          if (!cancelled) setData({
+            notes: typeof saved.notes === "string" ? saved.notes : "",
+            strokes: Array.isArray(board?.strokes) ? board.strokes : [],
+            boardHeight: Number.isFinite(board?.boardHeight) ? Math.max(900, Math.min(board.boardHeight, 10000)) : 900,
+          });
+        } else {
+          const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
+          if (saved && typeof saved.notes === "string" && Array.isArray(saved.strokes) && !cancelled) {
+            setData({
+              notes: saved.notes,
+              strokes: saved.strokes.filter((stroke: unknown) => Array.isArray(stroke)),
+              boardHeight: Number.isFinite(saved.boardHeight) ? Math.max(900, Math.min(saved.boardHeight, 10000)) : 900,
+            });
+          }
+        }
+        if (!cancelled) setLoaded(true);
+      } catch {
+        if (!cancelled) setStorageError(true);
       }
-    } catch {
-      setStorageError(true);
     }
-    setLoaded(true);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [storageKey]);
+
+    void loadWorkspace();
+    return () => { cancelled = true; };
+  }, [storageKey, userId, problemId]);
 
   useEffect(() => {
+    latestData.current = data;
+    readyToSave.current = loaded;
     if (!loaded) return;
     try {
       localStorage.setItem(storageKey, JSON.stringify(data));
     } catch {
-      // Surface storage failures while keeping the workspace usable.
       /* eslint-disable-next-line react-hooks/set-state-in-effect */
       setStorageError(true);
     }
-  }, [data, loaded, storageKey]);
+    if (!userId) return;
+    const timer = window.setTimeout(() => {
+      void fetch(`/api/problems/${encodeURIComponent(problemId)}/progress`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: data.notes, whiteboard: { strokes: data.strokes, boardHeight: data.boardHeight } }),
+      }).then((response) => {
+        if (!response.ok) setStorageError(true);
+      }).catch(() => setStorageError(true));
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [data, loaded, storageKey, userId, problemId]);
+
+  useEffect(() => {
+    return () => {
+      if (!userId || !readyToSave.current) return;
+      const current = latestData.current;
+      void fetch(`/api/problems/${encodeURIComponent(problemId)}/progress`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: current.notes, whiteboard: { strokes: current.strokes, boardHeight: current.boardHeight } }),
+        keepalive: true,
+      }).catch(() => {});
+    };
+  }, [userId, problemId]);
 
   useEffect(() => {
     const field = notesRef.current;
@@ -87,7 +131,7 @@ export default function PracticeWorkspace({ problemId }: { problemId: string }) 
   }
 
   function startStroke(event: PointerEvent<SVGSVGElement>) {
-    if (!event.isPrimary || event.button !== 0) return;
+    if (!loaded || !event.isPrimary || event.button !== 0) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     drawing.current = true;
@@ -127,6 +171,7 @@ export default function PracticeWorkspace({ problemId }: { problemId: string }) 
 
   return (
     <section className="workspace-card" aria-label="Working area">
+      {!loaded && !storageError && <p className="workspace-storage-error">Loading workspace...</p>}
       <div className="working-toolbar">
         <div className="working-modes" aria-label="Working mode">
           <button type="button" className={mode === "notes" ? "active" : ""} aria-pressed={mode === "notes"} onClick={() => setMode("notes")}><FileText size={16} /> Notes</button>
@@ -151,6 +196,7 @@ export default function PracticeWorkspace({ problemId }: { problemId: string }) 
             ref={notesRef}
             id="practice-work"
             value={data.notes}
+            disabled={!loaded}
             onChange={(event) => {
               const field = event.currentTarget;
               setData((current) => ({ ...current, notes: field.value }));
@@ -182,7 +228,7 @@ export default function PracticeWorkspace({ problemId }: { problemId: string }) 
           <button className="board-more" type="button" disabled={data.boardHeight >= 10000} onClick={() => setData((current) => ({ ...current, boardHeight: Math.min(10000, current.boardHeight + 500) }))}><Plus size={16} /> Add space</button>
         </>
       )}
-      {storageError && <p className="workspace-storage-error" role="status">Unable to save your work in this browser.</p>}
+      {storageError && <p className="workspace-storage-error" role="status">Unable to load or save your work. Please try again.</p>}
     </section>
   );
 }

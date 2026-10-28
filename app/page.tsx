@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState, type ButtonHTMLAttributes } from "react";
 import katex from "katex";
-import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, CircleX, Dumbbell, Trophy, LogIn, Menu, RotateCcw, Sparkles, UserRound, X } from "lucide-react";
+import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, CircleX, Dumbbell, Trophy, LogIn, Menu, RotateCcw, UserRound } from "lucide-react";
 import { topics, type LessonBlock } from "./content/course";
 import Practice from "./practice";
+import AccountDialog from "./account-dialog";
+import { authClient } from "@/lib/auth-client";
 
 const topicIntroductions: Record<string, string> = {
   "scientific-notation": "Write and calculate with very large and very small numbers.",
@@ -470,6 +472,7 @@ export default function Home() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mode, setMode] = useState<"Learning" | "Practice" | "Leaderboard">("Learning");
   const [showLogin, setShowLogin] = useState(false);
+  const { data: accountSession } = authClient.useSession();
   const [selectedTopicId, setSelectedTopicId] = useState(topics[0].id);
   const [selectedLessonId, setSelectedLessonId] = useState(topics[0].lessons[0].id);
   const [expandedTopicId, setExpandedTopicId] = useState<string | null>(topics[0].id);
@@ -925,12 +928,12 @@ export default function Home() {
           {sidebarExpanded && (
             <div className="guest-profile">
               <span className="guest-avatar"><UserRound size={20} /></span>
-              <span><strong>Guest learner</strong><small>Grade 10 · MYP 5</small></span>
+              <span><strong>{accountSession?.user.name ?? "Guest learner"}</strong><small>Grade 10 · MYP 5</small></span>
             </div>
           )}
-          <button className="login-button" onClick={() => setShowLogin(true)} aria-label="Log in" title={!sidebarExpanded ? "Log in" : undefined}>
+          <button className="login-button" onClick={() => setShowLogin(true)} aria-label={accountSession ? "Account" : "Log in"} title={!sidebarExpanded ? "Account" : undefined}>
             <LogIn size={20} />
-            {sidebarExpanded && <span>Log in</span>}
+            {sidebarExpanded && <span>{accountSession ? "Account" : "Log in"}</span>}
           </button>
         </div>
       </aside>
@@ -1111,17 +1114,6 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { rank: 1, username: "Sample learner 1", elo: 1450 },
-                    { rank: 2, username: "Sample learner 2", elo: 1280 },
-                    { rank: 3, username: "Sample learner 3", elo: 1100 },
-                  ].map((entry) => (
-                    <tr key={entry.rank}>
-                      <td><span className="leaderboard-rank">{entry.rank}</span></td>
-                      <td>{entry.username}</td>
-                      <td>{entry.elo}</td>
-                    </tr>
-                  ))}
                 </tbody>
               </table>
             </div>
@@ -1130,20 +1122,7 @@ export default function Home() {
       )}
       </div>
 
-      {showLogin && (
-        <div className="account-backdrop" onClick={() => setShowLogin(false)}>
-          <section className="account-dialog" role="dialog" aria-modal="true" aria-labelledby="account-title" onClick={(event) => event.stopPropagation()}>
-            <button className="account-close" aria-label="Close account" onClick={() => setShowLogin(false)}><X size={21} /></button>
-            <span className="account-illustration"><Sparkles size={30} /></span>
-            <h2 id="account-title">Your learning space</h2>
-            <p>Login is coming soon. You can explore lessons as a guest.</p>
-            <button className="primary-button" onClick={() => {
-              setShowLogin(false);
-              navigate(`/learning/${selectedTopicId}/${selectedLessonId}`);
-            }}>Continue learning</button>
-          </section>
-        </div>
-      )}
+      {showLogin && <AccountDialog onClose={() => setShowLogin(false)} />}
     </main>
   );
 }
