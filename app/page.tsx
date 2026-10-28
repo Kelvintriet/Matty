@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ButtonHTMLAttributes } from "react";
 import katex from "katex";
 import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, CircleX, Dumbbell, Trophy, LogIn, Menu, RotateCcw, Sparkles, UserRound, X } from "lucide-react";
 import { topics, type LessonBlock } from "./content/course";
+import Practice from "./practice";
 
 const topicIntroductions: Record<string, string> = {
   "scientific-notation": "Write and calculate with very large and very small numbers.",
@@ -869,7 +870,7 @@ export default function Home() {
             >
               <Icon size={23} strokeWidth={2.2} />
               {sidebarExpanded && <span>{name}</span>}
-              {sidebarExpanded && name !== "Learning" && <small>SOON</small>}
+              {sidebarExpanded && name === "Leaderboard" && <small>SOON</small>}
             </button>
           ))}
         </nav>
@@ -1044,24 +1045,16 @@ export default function Home() {
             })}
           </div>
         </aside>
-      </div> : (
+      </div> : mode === "Practice" ? <Practice MathText={MathText} /> : (
         <section className="mode-preview">
           <span className="preview-label">PREVIEW</span>
           <div className="preview-heading">
-            <span className="preview-icon">{mode === "Practice" ? <Dumbbell size={29} /> : <Trophy size={29} />}</span>
+            <span className="preview-icon"><Trophy size={29} /></span>
             <div>
-              <h1>{mode === "Practice" ? "Put it into practice" : "Leaderboard"}</h1>
-              {mode === "Practice" && <p>Practice problems across all topics.</p>}
+              <h1>Leaderboard</h1>
             </div>
           </div>
 
-          {mode === "Practice" ? (
-            <div className="preview-card">
-              <h2>All topics</h2>
-              <p>Practice problems and adaptive ratings are coming soon.</p>
-              <button className="primary-button practice-coming-soon" disabled>Practice coming soon</button>
-            </div>
-          ) : (
             <div className="leaderboard-card">
               <table className="leaderboard-table">
                 <thead>
@@ -1086,7 +1079,6 @@ export default function Home() {
                 </tbody>
               </table>
             </div>
-          )}
           <button className="return-learning" onClick={() => setMode("Learning")}><BookOpen size={17} /> Back to learning</button>
         </section>
       )}
