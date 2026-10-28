@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useState, type ComponentType } from "react";
-import { ArrowLeft, ArrowRight, CheckCircle2, Circle, Clock3, ListChecks, Trophy } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Trophy } from "lucide-react";
 
 type Problem = {
   id: string;
   title: string;
   unit: string;
   rating: number;
+  level: number;
+  author: string;
+  published: string | null;
   question: string;
   answer: number;
   explanation: string[];
@@ -20,6 +23,9 @@ const problems: Problem[] = [
     title: "A closer measurement",
     unit: "Numbers and Accuracy",
     rating: 1000,
+    level: 2,
+    author: "Sample",
+    published: null,
     question: "A length is measured as \\(48\\) cm, but its actual length is \\(50\\) cm. Find the percentage error. Enter the percentage as a number.",
     answer: 4,
     explanation: ["The absolute error is \\(50-48=2\\) cm.", "Percentage error is \\(\\frac{2}{50}\\times100=4\\%\\)."],
@@ -29,6 +35,9 @@ const problems: Problem[] = [
     title: "The growing pattern",
     unit: "Sequences and Series",
     rating: 1200,
+    level: 3,
+    author: "Sample",
+    published: null,
     question: "The sequence \\(7, 11, 15, 19, \\ldots\\) is arithmetic. Find the \\(25\\)th term.",
     answer: 103,
     explanation: ["The first term is \\(7\\) and the common difference is \\(4\\).", "\\(u_{25}=7+(25-1)(4)=103\\)."],
@@ -38,6 +47,9 @@ const problems: Problem[] = [
     title: "A small deposit",
     unit: "Financial Mathematics",
     rating: 1300,
+    level: 4,
+    author: "Sample",
+    published: null,
     question: "An investment of \\(1000\\) earns \\(10\\%\\) compound interest annually for \\(2\\) years. Find its final value.",
     answer: 1210,
     explanation: ["The annual multiplier is \\(1.10\\).", "\\(FV=1000(1.10)^2=1210\\)."],
@@ -47,6 +59,9 @@ const problems: Problem[] = [
     title: "A quadratic pattern",
     unit: "Sequences and Series",
     rating: 1500,
+    level: 5,
+    author: "Sample",
+    published: null,
     question: "A sequence has the rule \\(u_n=2n^2-3n+1\\). Find \\(u_8\\).",
     answer: 105,
     explanation: ["Substitute \\(n=8\\): \\(u_8=2(8)^2-3(8)+1\\).", "\\(u_8=128-24+1=105\\)."],
@@ -56,6 +71,9 @@ const problems: Problem[] = [
     title: "Working backwards",
     unit: "Financial Mathematics",
     rating: 1600,
+    level: 6,
+    author: "Sample",
+    published: null,
     question: "An investment grows to \\(1452\\) after \\(2\\) years at \\(10\\%\\) compound interest annually. Find its starting value.",
     answer: 1200,
     explanation: ["Use \\(1452=PV(1.10)^2\\).", "\\(PV=\\frac{1452}{1.21}=1200\\)."],
@@ -65,6 +83,9 @@ const problems: Problem[] = [
     title: "A geometric total",
     unit: "Sequences and Series",
     rating: 1800,
+    level: 7,
+    author: "Sample",
+    published: null,
     question: "Find the sum of the first \\(6\\) terms of \\(3, 6, 12, 24, \\ldots\\).",
     answer: 189,
     explanation: ["The first term is \\(3\\), with common ratio \\(2\\).", "\\(S_6=3\\left(\\frac{2^6-1}{2-1}\\right)=189\\)."],
@@ -92,6 +113,7 @@ function rankFor(rating: number) {
 export default function Practice({ MathText }: { MathText: ComponentType<{ text: string }> }) {
   const [progress, setProgress] = useState<PracticeState>(initialState);
   const [loaded, setLoaded] = useState(false);
+  const [tab, setTab] = useState<"Problems" | "Contests" | "Test">("Problems");
   const [selected, setSelected] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
   const [work, setWork] = useState("");
@@ -150,16 +172,66 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
   return (
     <div className="practice-page">
       <div className="practice-heading">
-        <div><span className="practice-eyebrow">PROBLEM SET · PROTOTYPE</span><h1>Practice</h1><p>Choose a problem and work at your own pace.</p></div>
-        <div className={`practice-rating rank-${rank.color}`}><Trophy size={20} /><div><strong>{progress.rating}</strong><span>{rank.title} · MYP {rank.level}</span></div></div>
+        <h1>Practice</h1>
+        <div className={`practice-rating rank-${rank.color}`} aria-label={`Rating ${progress.rating}`}>
+          <Trophy size={19} />
+          <strong>{progress.rating}</strong>
+        </div>
       </div>
 
-      {problem ? (
+      <nav className="practice-tabs" aria-label="Practice sections">
+        {(["Problems", "Contests", "Test"] as const).map((item) => (
+          <button
+            key={item}
+            className={tab === item ? "active" : ""}
+            aria-current={tab === item ? "page" : undefined}
+            onClick={() => {
+              setTab(item);
+              setSelected(null);
+              setWork("");
+              setFeedback(null);
+            }}
+          >
+            {item}
+          </button>
+        ))}
+      </nav>
+
+      {tab === "Contests" ? (
+        <section className="practice-empty">
+          <h2>Contests</h2>
+          <div className="contest-columns"><span>CONTEST</span><span>START</span><span>STATUS</span></div>
+          <p>No contests yet.</p>
+        </section>
+      ) : tab === "Test" ? (
+        <section className="test-preview">
+          <div className="test-preview-heading">
+            <div>
+              <span className="test-label">MYP 5 · CRITERION A</span>
+              <h2>Practice test</h2>
+            </div>
+            <span className="test-preview-badge">COMING SOON</span>
+          </div>
+          <div className="test-facts">
+            <div><strong>60</strong><span>minutes</span></div>
+            <div><strong>20</strong><span>questions</span></div>
+            <div><strong>1–8</strong><span>levels</span></div>
+          </div>
+          <h3>Question mix</h3>
+          <div className="test-distribution">
+            <span>Levels 1–2<strong>4 questions</strong></span>
+            <span>Levels 3–4<strong>7 questions</strong></span>
+            <span>Levels 5–6<strong>6 questions</strong></span>
+            <span>Levels 7–8<strong>3 questions</strong></span>
+          </div>
+          <button className="test-start" disabled>Start test</button>
+        </section>
+      ) : problem ? (
         <div className="problem-detail">
           <button className="problem-back" onClick={() => { setSelected(null); setWork(""); setFeedback(null); }}><ArrowLeft size={17} /> All problems</button>
           <div className="problem-detail-grid">
             <section className="problem-card">
-              <div className="problem-meta"><span>{problem.id}</span><span>{problem.unit}</span><span>{problem.rating} rating</span></div>
+              <div className="problem-meta"><span>{problem.id}</span><span>{problem.unit}</span><span>Level {problem.level}</span><span>{problem.rating} rating</span></div>
               <h2>{problem.title}</h2>
               <p className="problem-question"><MathText text={problem.question} /></p>
               <form onSubmit={submitAnswer} className="answer-form">
@@ -173,17 +245,43 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
           </div>
         </div>
       ) : (
-        <section className="problem-list-card">
-          <div className="problem-list-heading"><div><span className="list-icon"><ListChecks size={21} /></span><div><h2>Problem set</h2><p>{progress.solved.length} of {problems.length} solved</p></div></div><span className="sample-label">SAMPLE PROBLEMS</span></div>
-          <div className="problem-list-columns"><span>PROBLEM</span><span>RATING</span><span>STATUS</span></div>
-          {problems.map((item) => {
-            const solved = progress.solved.includes(item.id);
-            const started = progress.started.includes(item.id);
-            return <button className="problem-row" key={item.id} onClick={() => openProblem(item.id)}><span className="problem-name"><span className={`problem-status-icon ${solved ? "solved" : started ? "started" : "new"}`}>{solved ? <CheckCircle2 size={20} /> : started ? <Clock3 size={20} /> : <Circle size={20} />}</span><span><strong>{item.title}</strong><small>{item.id} · {item.unit}</small></span></span><span className="problem-difficulty">{item.rating}</span><span className={`problem-status ${solved ? "solved" : started ? "started" : "new"}`}>{solved ? "Solved" : started ? "In progress" : "Not started"}</span><ArrowRight className="problem-arrow" size={18} /></button>;
-          })}
+        <section className="problem-list-card" aria-label="Problems">
+          <div className="problem-table-scroll">
+            <table className="problem-table">
+              <thead>
+                <tr>
+                  <th scope="col">Status</th>
+                  <th scope="col">Problem</th>
+                  <th scope="col">Topic</th>
+                  <th scope="col">Level</th>
+                  <th scope="col">Rating</th>
+                  <th scope="col">Author</th>
+                  <th scope="col">Published</th>
+                </tr>
+              </thead>
+              <tbody>
+                {problems.map((item) => {
+                  const solved = progress.solved.includes(item.id);
+                  const started = progress.started.includes(item.id);
+                  const status = solved ? "solved" : started ? "started" : "new";
+
+                  return (
+                    <tr key={item.id}>
+                      <td><span className={`problem-status ${status}`}>{solved ? "Solved" : started ? "In progress" : "Not started"}</span></td>
+                      <td><button className="problem-link" onClick={() => openProblem(item.id)}><span>{item.id}</span>{item.title}</button></td>
+                      <td>{item.unit}</td>
+                      <td><span className={`level-badge level-${item.level}`}>{item.level}</span></td>
+                      <td className="problem-difficulty">{item.rating}</td>
+                      <td>{item.author}</td>
+                      <td>{item.published ?? "—"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </section>
       )}
-      <p className="practice-footnote">Prototype ratings and progress are saved only in this browser. MYP levels are indicative.</p>
     </div>
   );
 }
