@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ComponentType } from "react";
-import { ArrowLeft, CheckCircle2, Trophy } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Search, Trophy } from "lucide-react";
 
 type Problem = {
   id: string;
@@ -113,6 +113,10 @@ function rankFor(rating: number) {
 export default function Practice({ MathText }: { MathText: ComponentType<{ text: string }> }) {
   const [progress, setProgress] = useState<PracticeState>(initialState);
   const [loaded, setLoaded] = useState(false);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [levelFilter, setLevelFilter] = useState("all");
+  const [topicFilter, setTopicFilter] = useState("all");
   const [tab, setTab] = useState<"Problems" | "Contests" | "Test">("Problems");
   const [selected, setSelected] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
@@ -120,6 +124,20 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
   const [feedback, setFeedback] = useState<{ correct: boolean; change: number } | null>(null);
   const problem = problems.find((item) => item.id === selected);
   const rank = rankFor(progress.rating);
+  const query = search.trim().toLowerCase();
+  const visibleProblems = problems.filter((item) => {
+    const status = progress.solved.includes(item.id)
+      ? "solved"
+      : progress.started.includes(item.id) ? "started" : "new";
+    const matchesSearch = [item.id, item.title, item.unit, item.author, item.published ?? "", String(item.level), String(item.rating)]
+      .some((value) => value.toLowerCase().includes(query));
+
+    return matchesSearch
+      && (statusFilter === "all" || status === statusFilter)
+      && (levelFilter === "all" || String(item.level) === levelFilter)
+      && (topicFilter === "all" || item.unit === topicFilter);
+  });
+  const testMatches = query && "test practice test myp 5 criterion a".includes(query);
 
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect */
@@ -197,7 +215,47 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
         ))}
       </nav>
 
-      {tab === "Contests" ? (
+      <div className="practice-search-bar">
+        <label className="practice-search">
+          <Search size={18} aria-hidden="true" />
+          <span className="sr-only">Search all practice</span>
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              if (event.target.value.trim()) setSelected(null);
+            }}
+            placeholder="Search practice"
+          />
+        </label>
+        {(tab === "Problems" || query) && !problem && (
+          <div className="practice-filters">
+            <label><span className="sr-only">Filter by status</span><select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All statuses</option><option value="new">Not started</option><option value="started">In progress</option><option value="solved">Solved</option></select></label>
+            <label><span className="sr-only">Filter by level</span><select value={levelFilter} onChange={(event) => setLevelFilter(event.target.value)}><option value="all">All levels</option>{[1, 2, 3, 4, 5, 6, 7, 8].map((level) => <option value={level} key={level}>Level {level}</option>)}</select></label>
+            <label><span className="sr-only">Filter by topic</span><select value={topicFilter} onChange={(event) => setTopicFilter(event.target.value)}><option value="all">All topics</option>{[...new Set(problems.map((item) => item.unit))].map((unit) => <option value={unit} key={unit}>{unit}</option>)}</select></label>
+          </div>
+        )}
+      </div>
+
+      {query && !problem ? (
+        <section className="search-results" aria-live="polite">
+          <h2>Search results</h2>
+          {visibleProblems.map((item) => (
+            <button key={item.id} className="search-result" onClick={() => { setTab("Problems"); openProblem(item.id); }}>
+              <span><strong>{item.title}</strong><small>{item.id} · {item.unit}</small></span>
+              <span>Level {item.level} · {item.rating}</span>
+            </button>
+          ))}
+          {testMatches && (
+            <button className="search-result" onClick={() => { setSearch(""); setTab("Test"); }}>
+              <span><strong>Practice test</strong><small>MYP 5 · Criterion A</small></span>
+              <span>Test</span>
+            </button>
+          )}
+          {visibleProblems.length === 0 && !testMatches && <p>No results found.</p>}
+        </section>
+      ) : tab === "Contests" ? (
         <section className="practice-empty">
           <h2>Contests</h2>
           <div className="contest-columns"><span>CONTEST</span><span>START</span><span>STATUS</span></div>
@@ -260,7 +318,7 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
                 </tr>
               </thead>
               <tbody>
-                {problems.map((item) => {
+                {visibleProblems.map((item) => {
                   const solved = progress.solved.includes(item.id);
                   const started = progress.started.includes(item.id);
                   const status = solved ? "solved" : started ? "started" : "new";
@@ -279,6 +337,7 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
                 })}
               </tbody>
             </table>
+            {visibleProblems.length === 0 && <p className="practice-no-results">No problems found.</p>}
           </div>
         </section>
       )}
