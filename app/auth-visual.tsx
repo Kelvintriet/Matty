@@ -2,6 +2,31 @@
 
 import { useEffect, useRef } from "react";
 
+function randomInteger(min: number, max: number) {
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+function makeEquation() {
+  const a = randomInteger(2, 9);
+  const b = randomInteger(1, 9);
+  const c = randomInteger(2, 9);
+
+  switch (randomInteger(0, 5)) {
+    case 0:
+      return `${a}x + ${b} = ${a * c + b}`;
+    case 1:
+      return `${a} × ${b} = ${a * b}`;
+    case 2:
+      return `${a} + ${b} = ${a + b}`;
+    case 3:
+      return `${a * c + b} − ${b} = ${a * c}`;
+    case 4:
+      return `${a} × (${b} + ${c}) = ${a * (b + c)}`;
+    default:
+      return `${a}x − ${b} = ${a * c - b}`;
+  }
+}
+
 export default function AuthVisual() {
   const container = useRef<HTMLDivElement>(null);
 
@@ -24,88 +49,144 @@ export default function AuthVisual() {
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-        camera.position.set(0, 0, 11);
+        camera.position.set(0, 0, 10);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setClearColor(0x000000, 0);
         element.appendChild(renderer.domElement);
-
-        const characters = [
-          { value: "2", color: 0x62c934, x: -1.8, y: 1.65, z: 0.3, size: 1.25, speed: 0.33 },
-          { value: "π", color: 0x8399ef, x: 0.2, y: 1.9, z: -0.3, size: 1.1, speed: -0.26 },
-          { value: "+", color: 0xf4bb55, x: 2, y: 1.25, z: 0.3, size: 1.05, speed: 0.29 },
-          { value: "7", color: 0xf28f83, x: 1.25, y: -0.25, z: 0.5, size: 1.45, speed: -0.3 },
-          { value: "=", color: 0x8bcfbb, x: -1.15, y: -0.25, z: -0.2, size: 1.0, speed: 0.23 },
-          { value: "3", color: 0x79bceb, x: -2, y: -1.65, z: 0, size: 1.1, speed: -0.22 },
-          { value: "×", color: 0xb095d9, x: 0.15, y: -1.8, z: 0.25, size: 1.1, speed: 0.31 },
-          { value: "5", color: 0x78c95c, x: 2, y: -1.85, z: -0.4, size: 1.0, speed: -0.27 },
-        ];
-        const meshes = characters.map((item, index) => {
-          const outline = font.getPath(item.value, 0, 0, 1);
-          const path = new THREE.ShapePath();
-          for (const command of outline.commands) {
-            if (command.type === "M") path.moveTo(command.x, -command.y);
-            if (command.type === "L") path.lineTo(command.x, -command.y);
-            if (command.type === "Q") path.quadraticCurveTo(command.x1, -command.y1, command.x, -command.y);
-            if (command.type === "C") path.bezierCurveTo(command.x1, -command.y1, command.x2, -command.y2, command.x, -command.y);
-            if (command.type === "Z") path.currentPath?.closePath();
-          }
-          const geometry = new THREE.ExtrudeGeometry(path.toShapes(), {
-            depth: 0.14,
-            bevelEnabled: true,
-            bevelThickness: 0.035,
-            bevelSize: 0.025,
-            bevelSegments: 3,
-            curveSegments: 16,
-          });
-          geometry.computeBoundingBox();
-          geometry.center();
-          const material = new THREE.MeshStandardMaterial({ color: item.color, roughness: 0.48, metalness: 0.03 });
-          const mesh = new THREE.Mesh(geometry, material);
-          mesh.position.set(item.x, item.y, item.z);
-          mesh.scale.setScalar(item.size);
-          mesh.rotation.set(0.12 * (index % 3 - 1), 0.18 * (index % 2 ? 1 : -1), 0.16 * (index % 3 - 1));
-          scene.add(mesh);
-          return { mesh, geometry, material, item, phase: index * 1.2 };
-        });
-
         scene.add(new THREE.AmbientLight(0xffffff, 2.2));
         const light = new THREE.DirectionalLight(0xffffff, 2.5);
         light.position.set(-3, 5, 8);
         scene.add(light);
 
+        const colors = [0x62c934, 0x8399ef, 0xf0ae42, 0xe8867a, 0x70bd9f, 0x78afe6, 0xa88bd0];
+        const recent = new Set<string>();
+        let colorOffset = 0;
+
+        function nextEquation() {
+          let equation = makeEquation();
+          while (recent.has(equation)) equation = makeEquation();
+          recent.add(equation);
+          if (recent.size > 24) recent.delete(recent.values().next().value!);
+          return equation;
+        }
+
+        function makeGroup(equation: string) {
+          const group = new THREE.Group();
+          let cursor = 0;
+          for (const character of equation) {
+            const advance = font.getAdvanceWidth(character, 1);
+            if (character !== " ") {
+              const outline = font.getPath(character, 0, 0, 1);
+              const path = new THREE.ShapePath();
+              for (const command of outline.commands) {
+                if (command.type === "M") path.moveTo(command.x, -command.y);
+                if (command.type === "L") path.lineTo(command.x, -command.y);
+                if (command.type === "Q") path.quadraticCurveTo(command.x1, -command.y1, command.x, -command.y);
+                if (command.type === "C") path.bezierCurveTo(command.x1, -command.y1, command.x2, -command.y2, command.x, -command.y);
+                if (command.type === "Z") path.currentPath?.closePath();
+              }
+              const geometry = new THREE.ExtrudeGeometry(path.toShapes(), {
+                depth: 0.12,
+                bevelEnabled: true,
+                bevelThickness: 0.025,
+                bevelSize: 0.018,
+                bevelSegments: 2,
+                curveSegments: 10,
+              });
+              const material = new THREE.MeshStandardMaterial({
+                color: colors[colorOffset % colors.length],
+                roughness: 0.48,
+                metalness: 0.03,
+              });
+              colorOffset += 1;
+              const mesh = new THREE.Mesh(geometry, material);
+              mesh.position.x = cursor;
+              group.add(mesh);
+            }
+            cursor += advance + 0.035;
+          }
+          for (const child of group.children) child.position.x -= cursor / 2;
+          const scale = Math.min(1.18, 4.4 / cursor);
+          group.scale.setScalar(scale);
+          group.position.y = -0.34;
+          scene.add(group);
+          return group;
+        }
+
+        function removeGroup(group: import("three").Group) {
+          scene.remove(group);
+          for (const child of group.children) {
+            const mesh = child as import("three").Mesh;
+            mesh.geometry.dispose();
+            const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+            materials.forEach((material) => material.dispose());
+          }
+        }
+
+        let current = makeGroup(nextEquation());
+        let incoming: import("three").Group | null = null;
         const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
         let frame = 0;
         let previous = 0;
         let elapsed = 0;
+        const holdDuration = 4.6;
+        const transitionDuration = 0.85;
+
         const resize = () => {
           const width = element.clientWidth;
           const height = element.clientHeight;
           if (!width || !height) return;
           renderer.setSize(width, height, false);
           camera.aspect = width / height;
-          camera.position.z = width / height < 0.8 ? 13 : 11;
+          camera.position.z = camera.aspect < 0.8 ? 12 : 10;
           camera.updateProjectionMatrix();
           renderer.render(scene, camera);
         };
+
         const animate = (time: number) => {
           if (disposed || motion.matches) return;
           const delta = previous ? Math.min((time - previous) / 1000, 0.05) : 0;
           previous = time;
           elapsed += delta;
-          for (const { mesh, item, phase } of meshes) {
-            mesh.rotation.y += item.speed * delta;
-            mesh.rotation.x = Math.sin(elapsed * 0.45 + phase) * 0.18;
-            mesh.position.y = item.y + Math.sin(elapsed * 0.7 + phase) * 0.12;
+          if (elapsed >= holdDuration && !incoming) incoming = makeGroup(nextEquation());
+
+          if (incoming) {
+            const progress = Math.min((elapsed - holdDuration) / transitionDuration, 1);
+            const eased = progress * progress * (3 - 2 * progress);
+            current.position.x = -7 * eased;
+            current.rotation.y = -0.35 * eased;
+            incoming.position.x = 7 * (1 - eased);
+            incoming.rotation.y = 0.35 * (1 - eased);
+            if (progress >= 1) {
+              removeGroup(current);
+              current = incoming;
+              incoming = null;
+              elapsed = 0;
+            }
+          } else {
+            current.rotation.y = Math.sin(elapsed * 0.7) * 0.10;
+            current.rotation.x = Math.sin(elapsed * 0.5) * 0.035;
           }
           renderer.render(scene, camera);
           frame = requestAnimationFrame(animate);
         };
+
         const updateMotion = () => {
           cancelAnimationFrame(frame);
           previous = 0;
-          if (!motion.matches) frame = requestAnimationFrame(animate);
-          else renderer.render(scene, camera);
+          if (!motion.matches) {
+            frame = requestAnimationFrame(animate);
+          } else {
+            if (incoming) {
+              removeGroup(incoming);
+              incoming = null;
+            }
+            current.position.x = 0;
+            current.rotation.set(0, 0, 0);
+            elapsed = 0;
+            renderer.render(scene, camera);
+          }
         };
         const observer = new ResizeObserver(resize);
         observer.observe(element);
@@ -117,15 +198,13 @@ export default function AuthVisual() {
           cancelAnimationFrame(frame);
           observer.disconnect();
           motion.removeEventListener("change", updateMotion);
-          for (const { geometry, material } of meshes) {
-            geometry.dispose();
-            material.dispose();
-          }
+          removeGroup(current);
+          if (incoming) removeGroup(incoming);
           renderer.dispose();
           renderer.domElement.remove();
         };
       } catch {
-        // The quiet fallback remains if the font or WebGL is unavailable.
+        // The page remains usable if the font or WebGL is unavailable.
       }
     }
 
