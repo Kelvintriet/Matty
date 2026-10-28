@@ -504,6 +504,9 @@ export default function Home() {
           ["geometric-series", "geometric-series:0:4"],
           ["induction", "induction:0:3"],
           ["sequence-applications", "sequence-applications:0:2"],
+          ["financial-mathematics", "financial-mathematics:0:8"],
+          ["exponents", "exponents:0:4"],
+          ["logarithms", "logarithms:0:4"],
         ]) {
           if (progress.completedStepIds?.includes(oldQuizKey) && !savedCompletedLessons.includes(lessonId)) {
             savedCompletedLessons.push(lessonId);
