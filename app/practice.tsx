@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, CheckCircle2, Search, Trophy } from "lucide-react";
 import PracticeWorkspace from "./practice-workspace";
+import ProblemContent from "./problem-content";
+import ProblemEditor from "./problem-editor";
 
 type Problem = {
   id: string;
@@ -27,7 +29,11 @@ const problems: Problem[] = [
     level: 2,
     author: "Sample",
     published: null,
-    question: "A length is measured as \\(48\\) cm, but its actual length is \\(50\\) cm. Find the percentage error. Enter the percentage as a number.",
+    question: String.raw`A length is measured as $48$ cm, but its actual length is $50$ cm.
+
+![Measured and actual lengths](/problems/measurement.svg)
+
+Find the **percentage error**. Enter the percentage as a number.`,
     answer: 4,
     explanation: ["The absolute error is \\(50-48=2\\) cm.", "Percentage error is \\(\\frac{2}{50}\\times100=4\\%\\)."],
   },
@@ -111,12 +117,12 @@ function rankFor(rating: number) {
   return { title: "Master / Grandmaster", level: "7–8", color: "orange" };
 }
 
-export default function Practice({ MathText, navigate }: {
-  MathText: ComponentType<{ text: string }>;
+export default function Practice({ navigate }: {
   navigate: (path: string) => void;
 }) {
   const [progress, setProgress] = useState<PracticeState>(initialState);
   const [loaded, setLoaded] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [levelFilter, setLevelFilter] = useState("all");
@@ -173,6 +179,7 @@ export default function Practice({ MathText, navigate }: {
     function syncRoute() {
       const segments = window.location.pathname.split("/").filter(Boolean);
       const section = segments[1];
+      setEditing(section === "editor");
       setTab(section === "contests" ? "Contests" : section === "test" ? "Test" : "Problems");
       setSelected(section === "problems" && segments[2] ? segments[2] : null);
       setAnswer("");
@@ -265,7 +272,7 @@ export default function Practice({ MathText, navigate }: {
         )}
       </div>
 
-      {query && !problem ? (
+      {editing ? <ProblemEditor onBack={() => navigate("/practice/problems")} /> : query && !problem ? (
         <section className="search-results" aria-live="polite">
           <h2>Search results</h2>
           {visibleProblems.map((item) => (
@@ -318,13 +325,13 @@ export default function Practice({ MathText, navigate }: {
             <section className="problem-card">
               <div className="problem-meta"><span>{problem.id}</span><span>{problem.unit}</span><span>Level {problem.level}</span><span>{problem.rating} rating</span></div>
               <h2>{problem.title}</h2>
-              <p className="problem-question"><MathText text={problem.question} /></p>
+              <div className="problem-question"><ProblemContent markdown={problem.question} /></div>
               <form onSubmit={submitAnswer} className="answer-form">
                 <label htmlFor="practice-answer">Your answer</label>
                 <div className="answer-row"><input id="practice-answer" inputMode="decimal" value={answer} onChange={(event) => { setAnswer(event.target.value); setFeedback(null); }} placeholder="Enter a number" autoComplete="off" /><button type="submit" disabled={!answer.trim() || !Number.isFinite(Number(answer.trim()))}>Submit answer</button></div>
               </form>
               {feedback && <div className={`practice-feedback ${feedback.correct ? "is-correct" : "is-wrong"}`} role="status"><strong>{feedback.correct ? "Correct answer!" : "Wrong answer"}</strong></div>}
-              {progress.solved.includes(problem.id) && <div className="problem-explanation"><h3><CheckCircle2 size={18} /> Explanation</h3>{problem.explanation.map((line) => <p key={line}><MathText text={line} /></p>)}</div>}
+              {progress.solved.includes(problem.id) && <div className="problem-explanation"><h3><CheckCircle2 size={18} /> Explanation</h3>{problem.explanation.map((line) => <ProblemContent key={line} markdown={line} />)}</div>}
             </section>
             <PracticeWorkspace key={problem.id} problemId={problem.id} />
           </div>
@@ -332,6 +339,8 @@ export default function Practice({ MathText, navigate }: {
       ) : selected ? (
         <section className="practice-empty"><p>Problem not found.</p><button className="problem-back" onClick={() => navigate("/practice/problems")}>All problems</button></section>
       ) : (
+        <div className="problem-list-wrap">
+          <div className="problem-list-actions"><button onClick={() => navigate("/practice/editor")}>Try problem editor</button></div>
         <section className="problem-list-card" aria-label="Problems">
           <div className="problem-table-scroll">
             <table className="problem-table">
@@ -369,6 +378,7 @@ export default function Practice({ MathText, navigate }: {
             {visibleProblems.length === 0 && <p className="practice-no-results">No problems found.</p>}
           </div>
         </section>
+        </div>
       )}
     </div>
   );

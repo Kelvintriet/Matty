@@ -1091,7 +1091,7 @@ export default function Home() {
             })}
           </div>
         </aside>
-      </div> : mode === "Practice" ? <Practice MathText={MathText} navigate={navigate} /> : (
+      </div> : mode === "Practice" ? <Practice navigate={navigate} /> : (
         <section className="mode-preview">
           <span className="preview-label">PREVIEW</span>
           <div className="preview-heading">
