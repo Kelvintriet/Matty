@@ -178,6 +178,12 @@ function PracticeBlock({
   return (
     <section className="practice-block">
       <div className="block-label">YOUR TURN</div>
+      {block.proof && (
+        <div className="proof-template">
+          <strong><MathText text={block.proof.heading} /></strong>
+          {block.proof.lines.map((line, index) => <p key={index}><MathText text={line} /></p>)}
+        </div>
+      )}
       <h3><MathText text={block.question} /></h3>
       <div className="answer-grid" role="group" aria-label="Answer choices">
         {shuffledAnswers(block.question, block.options).map((option) => (
@@ -355,6 +361,40 @@ export default function Home() {
             ];
           }
         }
+        if (progress.sequenceExtensionsVersion !== 1 && Array.isArray(progress.completedStepIds)) {
+          for (const lessonId of ["quadratic-sequence", "sigma-notation"]) {
+            const lesson = topics.flatMap((topic) => topic.lessons).find((item) => item.id === lessonId);
+            const finalStart = lesson?.guidedSteps?.findIndex((step) => step.part === "Final check") ?? -1;
+            const added = 6;
+            if (!lesson?.guidedSteps || finalStart < added) continue;
+
+            const oldFinalStart = finalStart - added;
+            const oldQuizKeys = lesson.guidedSteps.flatMap((step, index) => {
+              if (index >= oldFinalStart && index < finalStart) return [];
+              const oldIndex = index >= finalStart ? index - added : index;
+              return step.blocks.flatMap((block, blockIndex) =>
+                block.type === "quiz" ? [`${lesson.id}:${oldIndex}:${blockIndex}`] : []);
+            });
+            if (oldQuizKeys.length > 0 && oldQuizKeys.every((key) => progress.completedStepIds.includes(key))) {
+              progress.completedLessonIds = [
+                ...(Array.isArray(progress.completedLessonIds) ? progress.completedLessonIds : []),
+                lessonId,
+              ];
+            }
+            progress.completedStepIds = progress.completedStepIds.map((key: unknown) => {
+              if (typeof key !== "string") return key;
+              const [id, index, block] = key.split(":");
+              const stepIndex = Number(index);
+              return id === lessonId && stepIndex >= oldFinalStart
+                ? `${id}:${stepIndex + added}:${block}`
+                : key;
+            });
+            const position = progress.lessonPositions?.[lessonId];
+            if (Number.isInteger(position) && position >= oldFinalStart) {
+              progress.lessonPositions[lessonId] = position + added;
+            }
+          }
+        }
         if (progress.slideReviewVersion !== 1 && Array.isArray(progress.completedStepIds)) {
           const addedSteps: Record<string, number> = {
             "scientific-notation": 6,
@@ -432,6 +472,8 @@ export default function Home() {
           ["sigma-notation", "sigma-notation:0:2"],
           ["arithmetic-series", "arithmetic-series:0:2"],
           ["geometric-series", "geometric-series:0:4"],
+          ["induction", "induction:0:3"],
+          ["sequence-applications", "sequence-applications:0:2"],
         ]) {
           if (progress.completedStepIds?.includes(oldQuizKey) && !savedCompletedLessons.includes(lessonId)) {
             savedCompletedLessons.push(lessonId);
@@ -461,7 +503,7 @@ export default function Home() {
   useEffect(() => {
     if (!progressLoaded) return;
     try {
-      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, slideReviewVersion: 1, unitZeroTestVersion: 2, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
+      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, slideReviewVersion: 1, sequenceExtensionsVersion: 1, unitZeroTestVersion: 2, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
     } catch {
       // The lesson remains usable even if browser storage is unavailable.
     }

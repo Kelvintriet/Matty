@@ -160,7 +160,7 @@ export const geometricSequenceSteps: GuidedLessonStep[] = [
       {
         expression: "\\(4\\), \\(-8\\), \\(16\\), \\(-32\\), … → \\(u_{n} = 4\\) × (\\(-2)\\)⁽ⁿ⁻¹⁾",
         detail: "Keep the negative ratio inside parentheses.",
-        steps: ["\\(u_{1} = 4\\) and \\(r = -8 \\div  4 = -2\\).", "Substitute: \\(u_{n} = 4\\) × (\\(-2)\\)⁽ⁿ⁻¹⁾.", "Check \\(n = 3\\): \\(4\\) × (\\(-2)\\)² = \\(4 \\times  4 = 16\\)."],
+        steps: ["\\(u_{1} = 4\\) and \\(r = -8 \\div  4 = -2\\).", "Substitute: \\(u_{n} = 4\\) × (\\(-2)\\)⁽ⁿ⁻¹⁾.", "Check \\(n = 3\\): \\(4\\) × (\\(-2)^{2}\\) = \\(4 \\times  4 = 16\\)."],
       },
     ],
     [
@@ -183,20 +183,20 @@ export const geometricSequenceSteps: GuidedLessonStep[] = [
       {
         expression: "\\(u_{4} = 125\\), \\(u_{10} = \\dfrac{125}{64}\\); find \\(u_{14}\\)",
         detail: "Assume all terms are positive.",
-        steps: ["From term \\(4\\) to term \\(10\\) there are \\(6\\) multiplications, so \\(r^{6}\\) = (\\(\\dfrac{125}{64}) \\div  125 = \\dfrac{1}{64}\\).", "All terms are positive, so \\(r = \\dfrac{1}{2}\\) because (\\(\\dfrac{1}{2})\\)⁶ = \\(\\dfrac{1}{64}\\).", "From term \\(10\\) to term \\(14\\) there are \\(4\\) multiplications: \\(u_{14}\\) = (\\(\\dfrac{125}{64})(\\dfrac{1}{2})\\)⁴.", "Calculate \\(u_{14} = \\dfrac{125}{1024}\\)."],
+        steps: ["From term \\(4\\) to term \\(10\\) there are \\(6\\) multiplications, so \\(r^{6}\\) = (\\(\\dfrac{125}{64}) \\div  125 = \\dfrac{1}{64}\\).", "All terms are positive, so \\(r=\\frac{1}{2}\\) because \\(\\left(\\frac{1}{2}\\right)^6=\\frac{1}{64}\\).", "From term \\(10\\) to term \\(14\\) there are \\(4\\) multiplications: \\(u_{14}=\\frac{125}{64}\\left(\\frac{1}{2}\\right)^4\\).", "Calculate \\(u_{14} = \\dfrac{125}{1024}\\)."],
       },
     ],
     [
       { question: "Find \\(u_{4}\\) when \\(u_{1} = 2\\) and \\(r = 3\\).", options: ["\\(54\\)", "\\(18\\)", "\\(162\\)", "\\(11\\)"], answer: "\\(54\\)", explanation: "\\(u_{4} = 2 \\times  3^{3} = 54\\)." },
       { question: "Fill the gap: \\(5\\), __, \\(45\\), \\(135\\), …", options: ["\\(15\\)", "\\(10\\)", "\\(20\\)", "\\(30\\)"], answer: "\\(15\\)", explanation: "The ratio is \\(3\\), so \\(5 \\times  3 = 15\\)." },
       { question: "If \\(u_{3} = 20\\) and \\(r = 2\\), what is \\(u_{4}\\)?", options: ["\\(40\\)", "\\(22\\)", "\\(10\\)", "\\(80\\)"], answer: "\\(40\\)", explanation: "Multiply the third term by the ratio: \\(20 \\times  2 = 40\\)." },
-      { question: "If \\(u_{1} = 32\\) and \\(r = \\dfrac{1}{2}\\), what is \\(u_{4}\\)?", options: ["\\(4\\)", "\\(8\\)", "\\(2\\)", "\\(16\\)"], answer: "\\(4\\)", explanation: "\\(32\\) × (\\(\\dfrac{1}{2})\\)³ = \\(4\\)." },
-      { question: "A geometric sequence has \\(u_{1} = 3\\) and \\(r = -2\\). What is \\(u_{4}\\)?", options: ["\\(-24\\)", "\\(24\\)", "\\(-12\\)", "\\(12\\)"], answer: "\\(-24\\)", explanation: "\\(u_{4} = 3\\) × (\\(-2)\\)³ = \\(3\\) × (\\(-8) = -24\\)." },
+      { question: "If \\(u_{1} = 32\\) and \\(r = \\dfrac{1}{2}\\), what is \\(u_{4}\\)?", options: ["\\(4\\)", "\\(8\\)", "\\(2\\)", "\\(16\\)"], answer: "\\(4\\)", explanation: "\\(32\\) × (\\(\\dfrac{1}{2})^{3}\\) = \\(4\\)." },
+      { question: "A geometric sequence has \\(u_{1} = 3\\) and \\(r = -2\\). What is \\(u_{4}\\)?", options: ["\\(-24\\)", "\\(24\\)", "\\(-12\\)", "\\(12\\)"], answer: "\\(-24\\)", explanation: "\\(u_{4} = 3\\) × (\\(-2)^{3}\\) = \\(3\\) × (\\(-8) = -24\\)." },
     ],
   ),
   ...finalCheck([
     { question: "A geometric sequence starts \\(7\\), \\(21\\), \\(63\\), …. What is \\(u_{9}\\)?", options: ["\\(45{,}927\\)", "\\(15{,}309\\)", "\\(137{,}781\\)", "\\(459\\)"], answer: "\\(45{,}927\\)", explanation: "The ratio is \\(3\\), so \\(u_{9} = 7 \\times  3^{8} = 45{,}927\\)." },
     { question: "Which rule generates \\(-2\\), \\(6\\), \\(-18\\), \\(54\\), …?", options: ["\\(-2\\) × (\\(-3)\\)⁽ⁿ⁻¹⁾", "\\(-2 \\times  3^{n-1}\\)", "\\(-2\\) + (\\(n - 1)(-3)\\)", "\\(6\\) × (\\(-3)\\)⁽ⁿ⁻¹⁾"], answer: "\\(-2\\) × (\\(-3)\\)⁽ⁿ⁻¹⁾", explanation: "The first term is \\(-2\\) and each term is multiplied by \\(-3\\)." },
-    { question: "A positive geometric sequence has \\(u_{1} = 4\\) and \\(u_{3} = 36\\). What is r?", options: ["\\(3\\)", "\\(9\\)", "\\(2\\)", "\\(-3\\)"], answer: "\\(3\\)", explanation: "Two multiplications give \\(4r\\)² = \\(36\\), so \\(r^{2} = 9\\). The positive-terms condition gives \\(r = 3\\)." },
+    { question: "A positive geometric sequence has \\(u_{1} = 4\\) and \\(u_{3} = 36\\). What is r?", options: ["\\(3\\)", "\\(9\\)", "\\(2\\)", "\\(-3\\)"], answer: "\\(3\\)", explanation: "Two multiplications give \\(4r^{2}\\) = \\(36\\), so \\(r^{2} = 9\\). The positive-terms condition gives \\(r = 3\\)." },
   ]),
 ];

@@ -113,7 +113,7 @@ export const geometricSeriesSteps: GuidedLessonStep[] = [
     "Finite geometric sums",
     "For n terms with first term \\(u_{1}\\) and ratio r ≠ \\(1\\), use \\(S_{n} = \\dfrac{u_{1}(1 - r^{n})}{(1 - r)}\\). When \\(r = 1\\), all n terms equal \\(u_{1}\\), so \\(S_{n}\\) = nu₁.",
     [
-      { expression: "\\(1 + 0.7 + 0.49 + 0.343 + 0.2401 = 2.7731\\)", detail: "The first term is \\(1\\), the ratio is \\(0.7\\) and there are \\(5\\) terms.", steps: ["Substitute \\(u_{1} = 1\\), \\(r = 0.7\\) and \\(n = 5\\).", "\\(S_{5} = \\dfrac{1(1 - 0.7^{5})}{(1 - 0.7)}\\).", "\\(0.7\\)⁵ = \\(0.16807\\), so \\(S_{5} = 0.83193 \\div  0.3 = 2.7731\\)."] },
+      { expression: "\\(1 + 0.7 + 0.49 + 0.343 + 0.2401 = 2.7731\\)", detail: "The first term is \\(1\\), the ratio is \\(0.7\\) and there are \\(5\\) terms.", steps: ["Substitute \\(u_{1} = 1\\), \\(r = 0.7\\) and \\(n = 5\\).", "\\(S_{5} = \\dfrac{1(1 - 0.7^{5})}{(1 - 0.7)}\\).", "\\(0.7^5=0.16807\\), so \\(S_5=0.83193\\div0.3=2.7731\\)."] },
       { expression: "\\(2 + 4 + 8 + 16 = 30\\)", detail: "The same formula works when r is greater than \\(1\\).", steps: ["Identify \\(u_{1} = 2\\), \\(r = 2\\) and \\(n = 4\\).", "\\(S_{4} = \\dfrac{2(1 - 2^{4})}{(1 - 2)}\\).", "Calculate \\(\\dfrac{2(-15)}{(-1)} = 30\\)."] },
     ],
     [

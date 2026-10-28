@@ -6,6 +6,8 @@ import { nthTermSteps, quadraticSequenceSteps } from "./sequences";
 import { arithmeticSequenceSteps, geometricSequenceSteps } from "./arithmetic-geometric";
 import { recursiveSequenceSteps, sigmaNotationSteps } from "./recursive-sigma";
 import { arithmeticSeriesSteps, geometricSeriesSteps } from "./series";
+import { inductionSteps, sequenceApplicationsSteps } from "./induction-applications";
+import { quadraticSubstitutionSteps, sumRelationshipSteps } from "./sequence-extensions";
 import {
   errorSlideSteps,
   nthTermSlideSteps,
@@ -28,7 +30,7 @@ export type LessonBlock =
   | { type: "sequence-diagram"; terms: string[]; operation: string; width?: "full" | "half" }
   | { type: "sigma-diagram"; width?: "full" | "half" }
   | { type: "number-set-diagram"; width?: "full" | "half" }
-  | { type: "quiz"; question: string; options: string[]; answer: string; explanation: string; width?: "full" | "half" };
+  | { type: "quiz"; question: string; options: string[]; answer: string; explanation: string; proof?: { heading: string; lines: string[] }; width?: "full" | "half" };
 
 export type Lesson = {
   id: string;
@@ -101,7 +103,7 @@ export const topics: Topic[] = [
         id: "quadratic-sequence",
         title: "1.2 Quadratic Sequence",
         blocks: [],
-        guidedSteps: quadraticSequenceSteps,
+        guidedSteps: [...quadraticSequenceSteps.filter((step) => step.part !== "Final check"), ...quadraticSubstitutionSteps, ...quadraticSequenceSteps.filter((step) => step.part === "Final check")],
       },
       {
         id: "arithmetic-sequence",
@@ -125,7 +127,7 @@ export const topics: Topic[] = [
         id: "sigma-notation",
         title: "1.6 Sigma Notation",
         blocks: [],
-        guidedSteps: sigmaNotationSteps,
+        guidedSteps: [...sigmaNotationSteps.filter((step) => step.part !== "Final check"), ...sumRelationshipSteps, ...sigmaNotationSteps.filter((step) => step.part === "Final check")],
       },
       {
         id: "arithmetic-series",
@@ -142,28 +144,21 @@ export const topics: Topic[] = [
       {
         id: "induction",
         title: "1.9 Principle of Mathematical Induction",
-        blocks: [
-          { type: "text", text: "Mathematical induction proves a statement for all integers from a starting value. First check the base case. Then assume the statement is true for \\(n = k\\), and use that assumption to prove it for \\(n = k + 1\\)." },
-          { type: "example", label: "Base case", expression: "\\(1 + 2\\) + … + \\(n = \\dfrac{n(n + 1)}{2}\\)", detail: "At \\(n = 1\\), the left side is \\(1\\) and the right side is \\(\\dfrac{1(2)}{2} = 1\\)." },
-          { type: "example", label: "Inductive step", expression: "\\(\\dfrac{k(k + 1)}{2}\\) + (\\(k + 1)\\)", detail: "Using the hypothesis and adding the next term gives (\\(k + 1)\\dfrac{(k + 2)}{2}\\), the rule for \\(n = k + 1\\)." },
-          { type: "quiz", question: "In the inductive hypothesis, what do you assume?", options: ["The statement is true for \\(n = k\\)", "The statement is false for \\(n = 1\\)", "k is always \\(1\\)", "The proof is already complete"], answer: "The statement is true for \\(n = k\\)", explanation: "Assume the rule holds for k, then use it to prove the next case." },
-        ],
+        blocks: [],
+        guidedSteps: inductionSteps,
       },
       {
         id: "sequence-applications",
         title: "1.10 Applications of Sequences and Series",
-        blocks: [
-          { type: "text", text: "A fixed amount added each time suggests an arithmetic sequence. A fixed multiplier suggests a geometric sequence. Use a term for a value at one step, or a sum for an accumulated total." },
-          { type: "example", label: "Savings", expression: "$\\(10\\), $\\(15\\), $\\(20\\), …", detail: "If the amount saved each month rises by $\\(5\\), the third month’s deposit is $\\(20\\) and the first three deposits total $\\(45\\)." },
-          { type: "quiz", question: "A plant is \\(10\\) cm tall and grows \\(2\\) cm each week. How tall is it after \\(3\\) weeks?", options: ["\\(12\\) cm", "\\(14\\) cm", "\\(16\\) cm", "\\(20\\) cm"], answer: "\\(16\\) cm", explanation: "Starting at \\(10\\) cm, add \\(2\\) cm three times: \\(10 + 3 \\times  2 = 16\\)." },
-        ],
+        blocks: [],
+        guidedSteps: sequenceApplicationsSteps,
       },
       {
         id: "financial-mathematics",
         title: "1.11 Financial Mathematics",
         blocks: [
           { type: "text", text: "Simple interest is calculated on the original principal P: \\(A = P(1\\) + rt), where r is the annual rate as a decimal and t is years. Compound interest also earns interest on earlier interest." },
-          { type: "example", label: "Compound interest", expression: "$\\(100 \\times  1.05\\)² = $\\(110.25\\)", detail: "$\\(100\\) invested at \\(5\\%\\) per year, compounded annually, grows to $\\(110.25\\) in \\(2\\) years." },
+          { type: "example", label: "Compound interest", expression: "$\\(100 \\times  1.05^{2}\\) = $\\(110.25\\)", detail: "$\\(100\\) invested at \\(5\\%\\) per year, compounded annually, grows to $\\(110.25\\) in \\(2\\) years." },
           { type: "example", label: "Simple interest", expression: "$\\(100\\) × (\\(1 + 0.05 \\times  2)\\) = $\\(110\\)", detail: "At \\(5\\%\\) simple interest for \\(2\\) years, the interest is $\\(5\\) each year." },
           { type: "text", text: "For m compounding periods per year, \\(A = P(1 + \\dfrac{r}{m})\\)ᵐᵗ. For depreciation, replace the plus with a minus. An annuity involves regular payments; loans combine borrowing, interest and repayments." },
           { type: "example", label: "Depreciation", expression: "$\\(1{,}000 \\times  0.9\\) = $\\(900\\)", detail: "A \\(10\\%\\) decrease leaves \\(90\\%\\) of the value after one year." },

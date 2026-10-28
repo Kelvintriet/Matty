@@ -1867,3 +1867,25 @@ button:focus-visible {
   line-height: 1.7;
   text-align: center;
 }
+
+.proof-template {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 24px;
+  padding: 20px;
+  overflow-x: auto;
+  border: 2px solid #d9ebd1;
+  border-radius: 12px;
+  background: #f7fcf4;
+  color: #36553b;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.proof-template strong {
+  font-size: 14px;
+}
+
+.proof-template p {
+  margin: 0;
+}
