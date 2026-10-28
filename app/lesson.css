@@ -2655,3 +2655,12 @@ button:focus-visible {
   color: #be564d;
   font-size: 12px;
 }
+
+.board-actions button.active {
+  background: #eafaE5;
+  color: #4eac29;
+}
+
+.working-board.is-erasing {
+  cursor: cell;
+}
