@@ -720,7 +720,7 @@ export default function Home() {
           <div className="lesson-content" key={`${selectedLesson.id}:${currentStepIndex}:${selectedLesson.id === "unit-zero-revision" ? testAttempt : 0}`}>
             <div className="content-heading">
               <span className="heading-dot" />
-              <h2>{currentGuidedStep?.title ?? "Let’s learn"}</h2>
+              <h2><MathText text={currentGuidedStep?.title ?? "Let’s learn"} /></h2>
             </div>
             {guidedSteps && <div className="guided-progress">
               <span>PART {parts.indexOf(currentPart) + 1} OF {parts.length}</span>
