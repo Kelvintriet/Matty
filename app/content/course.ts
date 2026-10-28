@@ -34,6 +34,7 @@ export type LessonBlock =
   | { type: "sequence-diagram"; terms: string[]; operation: string; width?: "full" | "half" }
   | { type: "sigma-diagram"; width?: "full" | "half" }
   | { type: "number-set-diagram"; width?: "full" | "half" }
+  | { type: "calculator-guide"; width?: "full" | "half" }
   | { type: "quiz"; question: string; options: string[]; answer: string; explanation: string; proof?: { heading: string; lines: string[] }; width?: "full" | "half" };
 
 export type Lesson = {

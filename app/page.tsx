@@ -158,6 +158,154 @@ function MathText({ text }: { text: string }) {
   });
 }
 
+type CalculatorTarget = "FV" | "I%" | "PV";
+type CalculatorModel = "TI-84 Plus/CE" | "Casio fx-CG50";
+type CalculatorExample = CalculatorTarget | "quarterly";
+
+function CalculatorGuide() {
+  const [model, setModel] = useState<CalculatorModel>("TI-84 Plus/CE");
+  const [example, setExample] = useState<CalculatorExample>("FV");
+  const [step, setStep] = useState(0);
+
+  const scenarios: Record<CalculatorExample, {
+    title: string;
+    prompt: string;
+    values: Record<"N" | "I%" | "PV" | "FV", string>;
+    solveFor: CalculatorTarget;
+    compoundsPerYear: string;
+    result: string;
+  }> = {
+    FV: {
+      title: "Find FV",
+      prompt: "Invest \\(5000\\) at \\(2.5\\%\\) annually for \\(5\\) years. Find the future value.",
+      values: { N: "5", "I%": "2.5", PV: "-5000", FV: "?" },
+      solveFor: "FV",
+      compoundsPerYear: "1",
+      result: "5657.04",
+    },
+    "I%": {
+      title: "Find I%",
+      prompt: "\\(1000\\) grows to \\(1210\\) in \\(2\\) years, compounded annually. Find the annual rate.",
+      values: { N: "2", "I%": "?", PV: "-1000", FV: "1210" },
+      solveFor: "I%",
+      compoundsPerYear: "1",
+      result: "10",
+    },
+    PV: {
+      title: "Find PV",
+      prompt: "An investment reaches \\(1210\\) after \\(2\\) years at \\(10\\%\\) annually. Find the starting value.",
+      values: { N: "2", "I%": "10", PV: "?", FV: "1210" },
+      solveFor: "PV",
+      compoundsPerYear: "1",
+      result: "-1000",
+    },
+    quarterly: {
+      title: "Quarterly FV",
+      prompt: "Invest \\(10000\\) at \\(2\\%\\) for \\(5\\) years, compounded quarterly. Find the future value.",
+      values: { N: "5", "I%": "2", PV: "-10000", FV: "?" },
+      solveFor: "FV",
+      compoundsPerYear: "4",
+      result: "11048.96",
+    },
+  };
+
+  const scenario = scenarios[example];
+  const target = scenario.solveFor;
+  const ti = model === "TI-84 Plus/CE";
+  const fieldOrder = ["N", "I%", "PV", "FV"] as const;
+  const selectedField = step >= 2 && step <= 5 ? fieldOrder[step - 2] : step >= 7 ? target : null;
+  const solveKey = target === "FV" ? "F5 (FV)" : target === "PV" ? "F3 (PV)" : "F2 (I%)";
+  const directions = [
+    ti ? "Press APPS, select Finance, then open TVM Solver." : "Open MENU, choose Financial, then press F2 (COMPND).",
+    "Start a fresh setup. The dashes below are placeholders in this guide; clear or replace old calculator values.",
+    `Enter N = ${scenario.values.N}, then press ${ti ? "ENTER" : "EXE"}. With P/Y = 1 here, N equals the number of years.`,
+    target === "I%" ? "I% is the unknown. Leave it for the solver; the result will be an annual percentage." : `Enter I% = ${scenario.values["I%"]} as a percentage, then press ${ti ? "ENTER" : "EXE"}.`,
+    target === "PV" ? "PV is the unknown. It will be negative because it represents money paid out." : `Enter PV = ${scenario.values.PV}, then press ${ti ? "ENTER" : "EXE"}. The initial deposit is money paid out.`,
+    target === "FV" ? "FV is the unknown. The result will be money received at the end." : `Enter FV = ${scenario.values.FV}, then press ${ti ? "ENTER" : "EXE"}. The future value is money received.`,
+    `Enter PMT = 0, P/Y = 1, then C/Y = ${scenario.compoundsPerYear}; press ${ti ? "ENTER" : "EXE"} after each value. ${scenario.compoundsPerYear === "4" ? "There are four compounding periods per year." : "This example uses annual compounding."}`,
+    ti ? `Move the cursor to ${target}, then press ALPHA and ENTER (SOLVE).` : `Press ${solveKey} to solve for ${target}.`,
+    target === "I%" ? "The annual nominal rate is 10%. The calculator reports a percentage, not a decimal." : target === "PV" ? "PV is −1000: the starting deposit has magnitude 1000, and the negative sign shows money paid out." : `FV is about ${scenario.result}. Round the calculator’s result to cents.`,
+  ];
+
+  function changeModel(next: CalculatorModel) {
+    setModel(next);
+    setStep(0);
+  }
+
+  function changeExample(next: CalculatorExample) {
+    setExample(next);
+    setStep(0);
+  }
+
+  const rows = [
+    { label: ti ? "N" : "n", field: "N", revealAt: 2 },
+    { label: "I%", field: "I%", revealAt: 3 },
+    { label: "PV", field: "PV", revealAt: 4 },
+    { label: "PMT", field: "PMT", revealAt: 6 },
+    { label: "FV", field: "FV", revealAt: 5 },
+    { label: "P/Y", field: "P/Y", revealAt: 6 },
+    { label: "C/Y", field: "C/Y", revealAt: 6 },
+  ];
+
+  function rowValue(field: string, revealAt: number) {
+    if (field === target) return step >= 8 ? scenario.result : "?";
+    if (step < revealAt) return "—";
+    if (field === "PMT") return "0";
+    if (field === "P/Y") return "1";
+    if (field === "C/Y") return scenario.compoundsPerYear;
+    return scenario.values[field as keyof typeof scenario.values];
+  }
+
+  return (
+    <section className="calculator-guide" aria-label="Guided financial calculator simulation">
+      <div className="calculator-guide-heading">
+        <span className="block-label">CALCULATOR WALKTHROUGH</span>
+        <h3>Choose your calculator</h3>
+      </div>
+      <div className="calculator-tabs" aria-label="Calculator model">
+        {(["TI-84 Plus/CE", "Casio fx-CG50"] as const).map((item) => (
+          <button key={item} type="button" className={model === item ? "calculator-tab active" : "calculator-tab"} aria-pressed={model === item} onClick={() => changeModel(item)}>{item}</button>
+        ))}
+      </div>
+      <div className="calculator-scenarios" aria-label="Choose an example">
+        {(["FV", "I%", "PV", "quarterly"] as const).map((item) => (
+          <button key={item} type="button" className={example === item ? "calculator-scenario active" : "calculator-scenario"} aria-pressed={example === item} onClick={() => changeExample(item)}>{scenarios[item].title}</button>
+        ))}
+      </div>
+      <p className="calculator-problem"><MathText text={scenario.prompt} /></p>
+      <div className="calculator-layout">
+        <div className="calculator-body">
+          <div className="calculator-model">{model}</div>
+          <div className="calculator-screen" aria-label={`Simulated ${model} screen`}>
+            <div className="calculator-screen-title">{step === 0 ? (ti ? "APPLICATIONS" : "MAIN MENU") : (ti ? "TVM SOLVER" : "COMPOUND INTEREST")}</div>
+            {step === 0 ? (
+              <div className="calculator-menu">{ti ? "1: Finance → TVM Solver" : "Financial → F2: COMPND"}</div>
+            ) : (
+              <div className="calculator-screen-rows">
+                {rows.map((row) => (
+                  <div key={row.field} className={`calculator-row ${selectedField === row.field ? "selected" : ""}`}>
+                    <span>{row.label}=</span><span>{rowValue(row.field, row.revealAt)}</span>
+                  </div>
+                ))}
+                <div className="calculator-screen-footer">{ti ? "PMT: END" : "F1 n  F2 I%  F3 PV  F5 FV"}</div>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="calculator-instructions" aria-live="polite">
+          <span>STEP {step + 1} OF {directions.length}</span>
+          <p>{directions[step]}</p>
+          <div className="calculator-controls">
+            <button type="button" disabled={step === 0} onClick={() => setStep((current) => current - 1)}>Back</button>
+            <button type="button" disabled={step === directions.length - 1} onClick={() => setStep((current) => current + 1)}>Next step</button>
+          </div>
+        </div>
+      </div>
+      <p className="calculator-caption">This is a guided simulation, not a working calculator. Menu labels can vary by model.</p>
+    </section>
+  );
+}
+
 function PracticeBlock({
   block,
   onCorrect,
@@ -251,6 +399,7 @@ function LessonRenderer({
       {blocks.map((block, index) => (
         <div className={`lesson-block ${block.width === "half" ? "block-half" : "block-full"}`} key={index}>
           {block.type === "text" && <p className="lesson-text"><MathText text={block.text} /></p>}
+          {block.type === "calculator-guide" && <CalculatorGuide />}
           {block.type === "number-set-diagram" && (
             <figure className="number-set-diagram" aria-label="Natural numbers are inside integers, integers are inside rational numbers, and rational numbers are inside real numbers. Irrational numbers are real but outside the rational numbers.">
               <figcaption>HOW THE SETS FIT TOGETHER</figcaption>
@@ -340,6 +489,42 @@ export default function Home() {
       const saved = localStorage.getItem("matty-progress-v1");
       if (saved) {
         const progress = JSON.parse(saved);
+        if (progress.financeGuideVersion !== 1 && Array.isArray(progress.completedStepIds)) {
+          const lesson = topics.flatMap((topic) => topic.lessons).find((item) => item.id === "financial-mathematics");
+          const finalStart = lesson?.guidedSteps?.findIndex((step) => step.part === "Final check") ?? -1;
+          const added = 6;
+
+          if (lesson?.guidedSteps && finalStart >= added) {
+            const oldFinalStart = finalStart - added;
+            const oldQuizKeys = lesson.guidedSteps.flatMap((step, index) => {
+              if (index >= oldFinalStart && index < finalStart) return [];
+              const oldIndex = index >= finalStart ? index - added : index;
+              return step.blocks.flatMap((block, blockIndex) =>
+                block.type === "quiz" ? [`${lesson.id}:${oldIndex}:${blockIndex}`] : []);
+            });
+
+            if (oldQuizKeys.length > 0 && oldQuizKeys.every((key) => progress.completedStepIds.includes(key))) {
+              progress.completedLessonIds = [
+                ...(Array.isArray(progress.completedLessonIds) ? progress.completedLessonIds : []),
+                lesson.id,
+              ];
+            }
+
+            progress.completedStepIds = progress.completedStepIds.map((key: unknown) => {
+              if (typeof key !== "string") return key;
+              const [id, index, block] = key.split(":");
+              const stepIndex = Number(index);
+              return id === lesson.id && stepIndex >= oldFinalStart
+                ? `${id}:${stepIndex + added}:${block}`
+                : key;
+            });
+
+            const position = progress.lessonPositions?.[lesson.id];
+            if (Number.isInteger(position) && position >= oldFinalStart) {
+              progress.lessonPositions[lesson.id] = position + added;
+            }
+          }
+        }
         if (progress.inductionLessonVersion !== 2 && Array.isArray(progress.completedStepIds)) {
           const oldQuestionIndexes = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19];
           const oldQuestionKeys = oldQuestionIndexes.map((index) => `induction:${index}:0`);
@@ -536,7 +721,7 @@ export default function Home() {
   useEffect(() => {
     if (!progressLoaded) return;
     try {
-      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, slideReviewVersion: 1, sequenceExtensionsVersion: 1, unitZeroTestVersion: 2, inductionLessonVersion: 2, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
+      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, slideReviewVersion: 1, sequenceExtensionsVersion: 1, unitZeroTestVersion: 2, inductionLessonVersion: 2, financeGuideVersion: 1, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
     } catch {
       // The lesson remains usable even if browser storage is unavailable.
     }

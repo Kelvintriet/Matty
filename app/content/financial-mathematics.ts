@@ -5,11 +5,11 @@ import { question as q } from "./curriculum-questions";
 export const financialMathematicsSteps: GuidedLessonStep[] = [
   ...section(
     "Money, rates and simple interest",
-    "Principal or present value is the starting amount. Interest is money earned or paid. With simple interest, each period’s interest is calculated from the original principal.",
+    "Use \\(PV\\) for the starting amount, \\(FV\\) for the ending amount, \\(r\\) for the annual percentage rate, \\(N\\) for years, and \\(k\\) for compounding periods per year. Simple interest uses the starting value each year.",
     [
       {
-        expression: "\\(P=1000,\\quad r=5\\%,\\quad t=2\\)",
-        detail: "Find simple interest over two years.",
+        expression: "\\(PV=1000,\\quad r=5,\\quad N=2\\)",
+        detail: "Find simple interest at \\(5\\%\\) over two years.",
         steps: [
           "Convert \\(5\\%\\) to \\(0.05\\).",
           "Each year’s interest is \\(1000(0.05)=50\\).",
@@ -17,25 +17,25 @@ export const financialMathematicsSteps: GuidedLessonStep[] = [
         ],
       },
       {
-        expression: "\\(I=Prt,\\quad FV=P+I\\)",
-        detail: "Use a decimal annual rate and time in years.",
+        expression: "\\(I=PV\\frac{r}{100}N,\\quad FV=PV+I\\)",
+        detail: "Use the annual percentage rate \\(r\\) and time in years \\(N\\).",
         steps: [
-          "For \\(P=500\\), \\(r=0.04\\), and \\(t=3\\), calculate \\(I=500(0.04)(3)=60\\).",
+          "For \\(PV=500\\), \\(r=4\\) and \\(N=3\\), calculate \\(I=500\\left(\\frac{4}{100}\\right)(3)=60\\).",
           "Add the interest to the principal: \\(FV=500+60=560\\).",
         ],
       },
     ],
     [
       q("What is \\(5\\%\\) as a decimal?", ["\\(0.05\\)", "\\(0.5\\)", "\\(5\\)", "\\(0.005\\)"], "\\(0.05\\)", "Divide the percentage by \\(100\\)."),
-      q("What does \\(P\\) represent?", ["The starting principal", "The final interest only", "The annual rate", "The number of years"], "The starting principal", "Principal is the starting amount invested or borrowed."),
+      q("What does \\(PV\\) represent?", ["The starting principal", "The final interest only", "The annual rate", "The number of years"], "The starting principal", "Principal is the starting amount invested or borrowed."),
       q("What is one year’s simple interest on \\(1000\\) at \\(5\\%\\)?", ["\\(50\\)", "\\(5\\)", "\\(100\\)", "\\(1050\\)"], "\\(50\\)", "\\(1000(0.05)=50\\)."),
       q("At simple interest, what does each year’s interest use?", ["The original principal", "Only the previous year’s interest", "A new rate each year", "The final balance"], "The original principal", "Simple interest is calculated on the original principal."),
-      q("If \\(P=500\\) and simple interest is \\(60\\), what is \\(FV\\)?", ["\\(560\\)", "\\(440\\)", "\\(60\\)", "\\(500\\)"], "\\(560\\)", "Add principal and interest: \\(500+60=560\\)."),
+      q("If \\(PV=500\\) and simple interest is \\(60\\), what is \\(FV\\)?", ["\\(560\\)", "\\(440\\)", "\\(60\\)", "\\(500\\)"], "\\(560\\)", "Add principal and interest: \\(500+60=560\\)."),
     ],
   ),
   ...section(
     "Annual compound interest",
-    "Compound interest earns interest on the current balance, including earlier interest. For annual compounding, \\(FV=PV(1+r)^n\\), where \\(r\\) is a decimal annual rate and \\(n\\) is the number of years.",
+    "Compound interest earns interest on the current balance, including earlier interest. For annual compounding, \\(FV=PV(1+\\frac{r}{100})^N\\), where \\(r\\) is the annual rate as a percentage and \\(N\\) is years.",
     [
       {
         expression: "\\(FV=1000(1.05)^2=1102.50\\)",
@@ -51,8 +51,8 @@ export const financialMathematicsSteps: GuidedLessonStep[] = [
         expression: "\\(FV=50000(1.05)^8\\approx73872.77\\)",
         detail: "Find the value and interest for \\(50000\\) at \\(5\\%\\) for eight years.",
         steps: [
-          "Use \\(PV=50000\\), \\(r=0.05\\), and \\(n=8\\).",
-          "Substitute into \\(FV=PV(1+r)^n\\).",
+          "Use \\(PV=50000\\), \\(r=5\\), and \\(N=8\\).",
+          "Substitute into \\(FV=PV(1+\\frac{r}{100})^N\\).",
           "The final value is approximately \\(73872.77\\); interest is approximately \\(73872.77-50000=23872.77\\).",
         ],
       },
@@ -67,23 +67,23 @@ export const financialMathematicsSteps: GuidedLessonStep[] = [
   ),
   ...section(
     "Compounding more than once per year",
-    "For a nominal annual rate \\(r\\), compounded \\(m\\) times per year for \\(t\\) years, use \\(FV=PV\\left(1+\\frac{r}{m}\\right)^{mt}\\), with \\(r\\) as a decimal.",
+    "For an annual percentage rate \\(r\\), compounded \\(k\\) times per year for \\(N\\) years, use \\(FV=PV\\left(1+\\frac{r}{100k}\\right)^{kN}\\).",
     [
       {
-        expression: "\\(PV=10000,\\quad r=0.02,\\quad m=4,\\quad t=5\\)",
+        expression: "\\(PV=10000,\\quad r=2,\\quad k=4,\\quad N=5\\)",
         detail: "A \\(2\\%\\) annual rate is compounded quarterly for five years.",
         steps: [
-          "Quarterly means \\(m=4\\), so the period rate is \\(0.\\frac{02}{4}=0.005\\).",
-          "There are \\(mt=4(5)=20\\) compounding periods.",
+          "Quarterly means \\(k=4\\), so the rate per period is \\(\\frac{2}{100(4)}=0.005\\).",
+          "There are \\(kN=4(5)=20\\) compounding periods.",
           "\\(FV=10000(1.005)^{20}\\approx11048.96\\).",
           "Interest is approximately \\(11048.96-10000=1048.96\\).",
         ],
       },
       {
-        expression: "\\(PV=5000,\\quad r=0.025,\\quad m=1,\\quad t=5\\)",
+        expression: "\\(PV=5000,\\quad r=2.5,\\quad k=1,\\quad N=5\\)",
         detail: "An investment earns \\(2.5\\%\\) compounded annually for five years.",
         steps: [
-          "Annual compounding has \\(m=1\\).",
+          "Annual compounding has \\(k=1\\).",
           "\\(FV=5000(1.025)^5\\approx5657.04\\).",
           "Keep extra calculator digits during intermediate calculations and round the final monetary value to cents.",
         ],
@@ -112,12 +112,12 @@ export const financialMathematicsSteps: GuidedLessonStep[] = [
         ],
       },
       {
-        expression: "\\(C/Y=4,\\quad P/Y=1,\\quad t=5\\)",
+        expression: "\\(C/Y=4,\\quad P/Y=1,\\quad N=5\\)",
         detail: "For quarterly compounding, the course calculator uses \\(C/Y=4\\) and time in years.",
         steps: [
           "Enter the annual rate as a percentage, such as \\(2\\), not \\(0.02\\), in an \\(I\\%\\) field.",
           "For a single deposit set \\(PMT=0\\); use \\(C/Y=4\\) for quarterly compounding.",
-          "Calculator conventions vary: confirm whether its time field counts years or payment periods before entering \\(N\\).",
+          "For these single-deposit examples, \\(P/Y=1\\), so \\(N\\) equals years. With other payment frequencies, enter the number of payment periods.",
         ],
       },
     ],
@@ -169,9 +169,46 @@ export const financialMathematicsSteps: GuidedLessonStep[] = [
       q("A loan is \\(1000\\), grows by \\(5\\%\\), and then receives a \\(200\\) payment. What remains?", ["\\(850\\)", "\\(800\\)", "\\(1050\\)", "\\(1055\\)"], "\\(850\\)", "\\(1000(1.05)-200=850\\)."),
     ],
   ),
+  ...section(
+    "Finding the rate or starting value",
+    "The same relationship can be used to find an unknown. Use positive amounts in the formula; in the solver, money paid out and received have opposite signs.",
+    [
+      {
+        expression: "\\(1210=1000\\left(1+\\frac{r}{100}\\right)^2\\)",
+        detail: "Find the annual rate when \\(1000\\) grows to \\(1210\\) in two years, compounded annually.",
+        steps: [
+          "Divide by \\(1000\\): \\(1.21=\\left(1+\\frac{r}{100}\\right)^2\\).",
+          "Take the positive square root: \\(1.1=1+\\frac{r}{100}\\).",
+          "Subtract \\(1\\) and multiply by \\(100\\): \\(r=10\\), meaning an annual rate of \\(10\\%\\).",
+          "In the TVM solver enter \\(N=2\\), \\(PV=-1000\\), \\(FV=1210\\), \\(PMT=0\\), \\(P/Y=C/Y=1\\), then solve for \\(I\\%\\).",
+        ],
+      },
+      {
+        expression: "\\(PV=\\frac{1210}{(1.10)^2}=1000\\)",
+        detail: "Find the initial deposit if the final amount is \\(1210\\) after two years at \\(10\\%\\) annually.",
+        steps: [
+          "Start with \\(FV=PV(1.10)^2\\).",
+          "Divide by \\(1.10^2=1.21\\), so \\(PV=\\frac{1210}{1.21}=1000\\).",
+          "In the TVM solver enter \\(FV=1210\\), \\(I\\%=10\\), \\(N=2\\), \\(PMT=0\\), \\(P/Y=C/Y=1\\), and solve for \\(PV\\).",
+          "The solver displays \\(PV=-1000\\): the deposit is a cash outflow of \\(1000\\).",
+        ],
+      },
+    ],
+    [
+      q("An investment grows from \\(1000\\) to \\(1210\\) in two years, compounded annually. What is the annual rate?", ["\\(10\\%\\)", "\\(21\\%\\)", "\\(5\\%\\)", "\\(12.1\\%\\)"], "\\(10\\%\\)", "\\(\\frac{1210}{1000}=1.21=1.1^2\\), so the rate is \\(10\\%\\)."),
+      q("What \\(PV\\) grows to \\(1210\\) in two years at \\(10\\%\\) compounded annually?", ["\\(1000\\)", "\\(1100\\)", "\\(121\\)", "\\(1464.10\\)"], "\\(1000\\)", "\\(PV=\\frac{1210}{(1.10)^2}=1000\\)."),
+      q("What value should a TVM solver display for the initial deposit when \\(FV=1210\\) is positive?", ["\\(-1000\\)", "\\(1000\\)", "\\(-1210\\)", "\\(1210\\)"], "\\(-1000\\)", "The initial deposit is a cash outflow, so the solver uses the opposite sign from the future value."),
+      q("For a single deposit over \\(5\\) years with \\(P/Y=1\\), what solver value is \\(N\\)?", ["\\(5\\)", "\\(20\\)", "\\(4\\)", "\\(1\\)"], "\\(5\\)", "The solver’s \\(N\\) counts payment periods: \\(5\\) years times \\(1\\) per year."),
+      q("A single deposit compounds quarterly for \\(5\\) years. What are \\(P/Y\\) and \\(C/Y\\) in this setup?", ["\\(P/Y=1,\\ C/Y=4\\)", "\\(P/Y=4,\\ C/Y=1\\)", "\\(P/Y=1,\\ C/Y=1\\)", "\\(P/Y=4,\\ C/Y=4\\)"], "\\(P/Y=1,\\ C/Y=4\\)", "Use one payment period per year for this no-payment setup and four compounding periods per year."),
+    ],
+  ),
   ...finalCheck([
     q("What is \\(7500\\) after two years at \\(3\\%\\) compounded annually?", ["\\(7956.75\\)", "\\(7950\\)", "\\(7725\\)", "\\(8437.50\\)"], "\\(7956.75\\)", "\\(7500(1.03)^2=7956.75\\)."),
     q("Which setup models \\(10000\\) at \\(2\\%\\) compounded quarterly for \\(5\\) years?", ["\\(10000(1.005)^{20}\\)", "\\(10000(1.02)^5\\)", "\\(10000(1.02)^{20}\\)", "\\(10000(1.005)^5\\)"], "\\(10000(1.005)^{20}\\)", "There are \\(20\\) quarters and the rate per quarter is \\(0.005\\)."),
     q("A value of \\(2000\\) depreciates by \\(20\\%\\) per year. What is it after two years?", ["\\(1280\\)", "\\(1200\\)", "\\(1600\\)", "\\(2880\\)"], "\\(1280\\)", "\\(2000(0.8)^2=1280\\)."),
   ]),
 ];
+
+financialMathematicsSteps.find((step) => step.title === "Using the financial calculator")?.blocks.splice(1, 0, {
+  type: "calculator-guide",
+});
