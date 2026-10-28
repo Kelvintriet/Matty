@@ -3195,3 +3195,8 @@ button:focus-visible {
     min-height: 310px;
   }
 }
+
+.auth-art-canvas canvas {
+  cursor: pointer;
+  touch-action: manipulation;
+}

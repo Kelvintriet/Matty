@@ -75,7 +75,8 @@ export default function AuthVisual() {
           const group = new THREE.Group();
           let cursor = 0;
           for (const character of equation) {
-            const advance = font.getAdvanceWidth(character, 1);
+            const size = character === " " ? 1 : 0.86 + Math.random() * 0.32;
+            const advance = font.getAdvanceWidth(character, 1) * size;
             if (character !== " ") {
               const outline = font.getPath(character, 0, 0, 1);
               const path = new THREE.ShapePath();
@@ -87,21 +88,23 @@ export default function AuthVisual() {
                 if (command.type === "Z") path.currentPath?.closePath();
               }
               const geometry = new THREE.ExtrudeGeometry(path.toShapes(), {
-                depth: 0.12,
+                depth: 0.32,
                 bevelEnabled: true,
-                bevelThickness: 0.025,
-                bevelSize: 0.018,
-                bevelSegments: 2,
+                bevelThickness: 0.055,
+                bevelSize: 0.035,
+                bevelSegments: 3,
                 curveSegments: 10,
               });
               const material = new THREE.MeshStandardMaterial({
                 color: colors[colorOffset % colors.length],
                 roughness: 0.48,
                 metalness: 0.03,
+                transparent: true,
               });
               colorOffset += 1;
               const mesh = new THREE.Mesh(geometry, material);
               mesh.position.x = cursor;
+              mesh.scale.setScalar(size);
               mesh.userData.motion = {
                 phase: Math.random() * Math.PI * 2,
                 speed: 0.65 + Math.random() * 0.35,
@@ -109,10 +112,15 @@ export default function AuthVisual() {
                 exitAngle: Math.random() * Math.PI * 2,
                 entryAngle: Math.random() * Math.PI * 2,
                 stagger: Math.random() * 0.14,
+                homeY: (Math.random() - 0.5) * 0.24,
+                homeZ: (Math.random() - 0.5) * 0.45,
+                impulseAge: -1,
+                impulseX: 0,
+                impulseY: 0,
               };
               group.add(mesh);
             }
-            cursor += advance + 0.035;
+            cursor += advance + 0.06 + Math.random() * 0.045;
           }
           for (const child of group.children) {
             child.position.x -= cursor / 2;
@@ -149,7 +157,7 @@ export default function AuthVisual() {
           return progress * progress * (3 - 2 * progress);
         }
 
-        function moveCharacters(group: import("three").Group, time: number, transition: number, arriving: boolean) {
+        function moveCharacters(group: import("three").Group, time: number, delta: number, transition: number, arriving: boolean) {
           for (const child of group.children) {
             const motion = child.userData.motion;
             const phase = time * motion.speed + motion.phase;
@@ -157,19 +165,30 @@ export default function AuthVisual() {
               ? 1 - smooth((transition - 0.35 - motion.stagger) / 0.48)
               : smooth((transition - motion.stagger) / 0.48);
             const angle = arriving ? motion.entryAngle : motion.exitAngle;
-            child.position.x = motion.homeX + Math.cos(phase * 0.8) * 0.035 + Math.cos(angle) * 8 * amount;
-            child.position.y = Math.sin(phase) * 0.11 + Math.sin(angle) * 7 * amount;
-            child.position.z = Math.cos(phase * 0.7) * 0.08;
-            child.rotation.x = Math.sin(phase * 0.75) * motion.tilt;
-            child.rotation.y = Math.sin(phase * 0.6) * motion.tilt * 1.4 + amount * Math.cos(angle) * 0.7;
+            if (motion.impulseAge >= 0) motion.impulseAge += delta;
+            const impulse = motion.impulseAge >= 0 && motion.impulseAge < 2.8
+              ? Math.sin(Math.PI * motion.impulseAge / 2.8)
+              : 0;
+            if (motion.impulseAge >= 2.8) motion.impulseAge = -1;
+            const viewHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
+            const travel = (Math.hypot(viewHeight * camera.aspect, viewHeight) / 2 + 3) / group.scale.x;
+            child.position.x = motion.homeX + Math.cos(phase * 0.8) * 0.035 + Math.cos(angle) * travel * amount + motion.impulseX * impulse;
+            child.position.y = motion.homeY + Math.sin(phase) * 0.11 + Math.sin(angle) * travel * amount + motion.impulseY * impulse;
+            child.position.z = motion.homeZ + Math.cos(phase * 0.7) * 0.08 + impulse * 0.3;
+            child.rotation.x = Math.sin(phase * 0.75) * motion.tilt + impulse * 0.28;
+            child.rotation.y = Math.sin(phase * 0.6) * motion.tilt * 1.4 + amount * Math.cos(angle) * 0.7 + impulse * 0.55;
             child.rotation.z = Math.sin(phase * 0.5) * 0.08 + amount * Math.sin(angle) * 0.4;
+            const material = (child as import("three").Mesh).material as import("three").MeshStandardMaterial;
+            material.opacity = 1 - smooth((amount - 0.35) / 0.65);
           }
         }
 
         function settleCharacters(group: import("three").Group) {
           for (const child of group.children) {
-            child.position.set(child.userData.motion.homeX, 0, 0);
+            const motion = child.userData.motion;
+            child.position.set(motion.homeX, motion.homeY, motion.homeZ);
             child.rotation.set(0, 0, 0);
+            (child as import("three").Mesh<import("three").BufferGeometry, import("three").MeshStandardMaterial>).material.opacity = 1;
           }
         }
 
@@ -193,8 +212,8 @@ export default function AuthVisual() {
 
           if (incoming) {
             const progress = Math.min((elapsed - holdDuration) / transitionDuration, 1);
-            moveCharacters(current, elapsed, progress, false);
-            moveCharacters(incoming, elapsed, progress, true);
+            moveCharacters(current, elapsed, delta, progress, false);
+            moveCharacters(incoming, elapsed, delta, progress, true);
             if (progress >= 1) {
               removeGroup(current);
               current = incoming;
@@ -202,7 +221,7 @@ export default function AuthVisual() {
               elapsed = 0;
             }
           } else {
-            moveCharacters(current, elapsed, 0, false);
+            moveCharacters(current, elapsed, delta, 0, false);
           }
           renderer.render(scene, camera);
           frame = requestAnimationFrame(animate);
@@ -223,6 +242,26 @@ export default function AuthVisual() {
             renderer.render(scene, camera);
           }
         };
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+        const onPointerDown = (event: PointerEvent) => {
+          if (motion.matches || incoming || event.button !== 0) return;
+          const bounds = renderer.domElement.getBoundingClientRect();
+          pointer.set(
+            ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+            -((event.clientY - bounds.top) / bounds.height) * 2 + 1,
+          );
+          raycaster.setFromCamera(pointer, camera);
+          const hit = raycaster.intersectObjects(current.children, false)[0];
+          if (!hit) return;
+          const characterMotion = hit.object.userData.motion;
+          const angle = Math.random() * Math.PI * 2;
+          characterMotion.impulseX = Math.cos(angle) * 1.5;
+          characterMotion.impulseY = Math.sin(angle) * 1.5;
+          characterMotion.impulseAge = 0;
+          elapsed = Math.min(elapsed, holdDuration - 3);
+        };
+        renderer.domElement.addEventListener("pointerdown", onPointerDown);
         const observer = new ResizeObserver(resize);
         observer.observe(element);
         motion.addEventListener("change", updateMotion);
@@ -233,6 +272,7 @@ export default function AuthVisual() {
           cancelAnimationFrame(frame);
           observer.disconnect();
           motion.removeEventListener("change", updateMotion);
+          renderer.domElement.removeEventListener("pointerdown", onPointerDown);
           removeGroup(current);
           if (incoming) removeGroup(incoming);
           renderer.dispose();
