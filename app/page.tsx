@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState, type ButtonHTMLAttributes } from "react";
 import katex from "katex";
+import { useRouter } from "next/navigation";
 import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, CircleX, Dumbbell, Trophy, LogIn, Menu, RotateCcw, UserRound } from "lucide-react";
 import { topics, type LessonBlock } from "./content/course";
 import Practice from "./practice";
-import AccountDialog from "./account-dialog";
 import { authClient } from "@/lib/auth-client";
 
 const topicIntroductions: Record<string, string> = {
@@ -469,9 +469,9 @@ function LessonRenderer({
 }
 
 export default function Home() {
+  const router = useRouter();
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mode, setMode] = useState<"Learning" | "Practice" | "Leaderboard">("Learning");
-  const [showLogin, setShowLogin] = useState(false);
   const { data: accountSession } = authClient.useSession();
   const [selectedTopicId, setSelectedTopicId] = useState(topics[0].id);
   const [selectedLessonId, setSelectedLessonId] = useState(topics[0].lessons[0].id);
@@ -931,7 +931,7 @@ export default function Home() {
               <span><strong>{accountSession?.user.name ?? "Guest learner"}</strong><small>Grade 10 · MYP 5</small></span>
             </div>
           )}
-          <button className="login-button" onClick={() => setShowLogin(true)} aria-label={accountSession ? "Account" : "Log in"} title={!sidebarExpanded ? "Account" : undefined}>
+          <button className="login-button" onClick={() => router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`)} aria-label={accountSession ? "Account" : "Log in"} title={!sidebarExpanded ? "Account" : undefined}>
             <LogIn size={20} />
             {sidebarExpanded && <span>{accountSession ? "Account" : "Log in"}</span>}
           </button>
@@ -943,7 +943,7 @@ export default function Home() {
         <div className="header-location"><span>Mathematics</span><ChevronRight size={14} /><strong>{mode}</strong></div>
         <div className="header-actions">
           <span className="header-grade">Grade 10 · MYP 5</span>
-          <button className="header-account" onClick={() => setShowLogin(true)} aria-label="Open account"><UserRound size={19} /></button>
+          <button className="header-account" onClick={() => router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`)} aria-label="Open account"><UserRound size={19} /></button>
         </div>
       </header>
 
@@ -1122,7 +1122,6 @@ export default function Home() {
       )}
       </div>
 
-      {showLogin && <AccountDialog onClose={() => setShowLogin(false)} />}
     </main>
   );
 }
