@@ -6,7 +6,8 @@ import { nthTermSteps, quadraticSequenceSteps } from "./sequences";
 import { arithmeticSequenceSteps, geometricSequenceSteps } from "./arithmetic-geometric";
 import { recursiveSequenceSteps, sigmaNotationSteps } from "./recursive-sigma";
 import { arithmeticSeriesSteps, geometricSeriesSteps } from "./series";
-import { inductionSteps, sequenceApplicationsSteps } from "./induction-applications";
+import { inductionSteps } from "./induction";
+import { sequenceApplicationsSteps } from "./induction-applications";
 import { quadraticSubstitutionSteps, sumRelationshipSteps } from "./sequence-extensions";
 import {
   errorSlideSteps,

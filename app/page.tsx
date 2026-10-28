@@ -340,6 +340,36 @@ export default function Home() {
       const saved = localStorage.getItem("matty-progress-v1");
       if (saved) {
         const progress = JSON.parse(saved);
+        if (progress.inductionLessonVersion !== 2 && Array.isArray(progress.completedStepIds)) {
+          const oldQuestionIndexes = [1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19];
+          const oldQuestionKeys = oldQuestionIndexes.map((index) => `induction:${index}:0`);
+          const completedBefore = oldQuestionKeys.every((key) => progress.completedStepIds.includes(key));
+          const wasPreviouslyCompleted = completedBefore || (
+            Array.isArray(progress.completedLessonIds) && progress.completedLessonIds.includes("induction")
+          );
+          const hasPreviousAttempt = oldQuestionKeys.some((key) => progress.completedStepIds.includes(key)) ||
+            Number.isInteger(progress.lessonPositions?.induction);
+
+          if (completedBefore) {
+            progress.completedLessonIds = [
+              ...(Array.isArray(progress.completedLessonIds) ? progress.completedLessonIds : []),
+              "induction",
+            ];
+          }
+
+          if (hasPreviousAttempt) {
+            progress.completedStepIds = progress.completedStepIds.filter((key: unknown) =>
+              typeof key !== "string" || !oldQuestionKeys.includes(key));
+            progress.lessonPositions = { ...progress.lessonPositions, induction: 0 };
+
+            if (wasPreviouslyCompleted) {
+              progress.redoingLessonIds = [
+                ...(Array.isArray(progress.redoingLessonIds) ? progress.redoingLessonIds : []),
+                "induction",
+              ];
+            }
+          }
+        }
         if (progress.unitZeroTestVersion !== 2 && Array.isArray(progress.completedStepIds)) {
           const testStart = 4;
           const testKeys = Array.from({ length: 10 }, (_, index) => `unit-zero-revision:${testStart + index}:0`);
@@ -503,7 +533,7 @@ export default function Home() {
   useEffect(() => {
     if (!progressLoaded) return;
     try {
-      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, slideReviewVersion: 1, sequenceExtensionsVersion: 1, unitZeroTestVersion: 2, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
+      localStorage.setItem("matty-progress-v1", JSON.stringify({ knowledgeCheckVersion: 1, slideReviewVersion: 1, sequenceExtensionsVersion: 1, unitZeroTestVersion: 2, inductionLessonVersion: 2, completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId }));
     } catch {
       // The lesson remains usable even if browser storage is unavailable.
     }
