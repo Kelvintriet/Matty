@@ -192,7 +192,7 @@ export const quadraticSequenceSteps: GuidedLessonStep[] = [
   ),
   ...section(
     "Finding the coefficient of \\(n^{2}\\)",
-    "For a quadratic rule \\(u_{n}\\) = an² + bn + c, the constant second difference is \\(2a\\). Divide that difference by \\(2\\) to find a.",
+    "For a quadratic rule \\(u_{n} = an^{2} + bn + c\\), the constant second difference is \\(2a\\). Divide that difference by \\(2\\) to find \\(a\\).",
     [
       {
         expression: "\\(5\\), \\(11\\), \\(21\\), \\(35\\), \\(53\\), … → \\(a = 2\\)",
@@ -206,16 +206,16 @@ export const quadraticSequenceSteps: GuidedLessonStep[] = [
       },
     ],
     [
-      { question: "If the second difference is \\(6\\), what is a in an² + bn + c?", options: ["\\(3\\)", "\\(6\\)", "\\(12\\)", "\\(2\\)"], answer: "\\(3\\)", explanation: "The second difference is \\(2a\\), so \\(a = 6 \\div  2 = 3\\)." },
+      { question: "If the second difference is \\(6\\), what is \\(a\\) in \\(an^{2} + bn + c\\)?", options: ["\\(3\\)", "\\(6\\)", "\\(12\\)", "\\(2\\)"], answer: "\\(3\\)", explanation: "The second difference is \\(2a\\), so \\(a = 6 \\div  2 = 3\\)." },
       { question: "If the second difference is \\(4\\), which quadratic term starts the rule?", options: ["\\(2n^{2}\\)", "\\(4n^{2}\\)", "\\(n^{2}\\)", "\\(2n\\)"], answer: "\\(2n^{2}\\)", explanation: "Divide \\(4\\) by \\(2\\) to get \\(a = 2\\), giving the term \\(2n^{2}\\)." },
-      { question: "What is the second difference of \\(2n^{2}\\)?", options: ["\\(4\\)", "\\(2\\)", "\\(8\\)", "\\(1\\)"], answer: "\\(4\\)", explanation: "For an² the second difference is \\(2a\\); here \\(a = 2\\)." },
+      { question: "What is the second difference of \\(2n^{2}\\)?", options: ["\\(4\\)", "\\(2\\)", "\\(8\\)", "\\(1\\)"], answer: "\\(4\\)", explanation: "For \\(an^{2}\\) the second difference is \\(2a\\); here \\(a = 2\\)." },
       { question: "What is \\(2n^{2}\\) when \\(n = 3\\)?", options: ["\\(18\\)", "\\(36\\)", "\\(12\\)", "\\(6\\)"], answer: "\\(18\\)", explanation: "Square \\(3\\) first, then multiply: \\(2 \\times  9 = 18\\)." },
       { question: "A quadratic sequence has second difference \\(-4\\). What is a?", options: ["\\(-2\\)", "\\(2\\)", "\\(-4\\)", "\\(-8\\)"], answer: "\\(-2\\)", explanation: "a is half the second difference: \\(-4 \\div  2 = -2\\)." },
     ],
   ),
   ...section(
     "Finding the complete rule",
-    "After finding a, subtract the values of an² from the original sequence. Find the linear rule for what remains, then combine the two parts.",
+    "After finding \\(a\\), subtract the values of \\(an^{2}\\) from the original sequence. Find the linear rule for what remains, then combine the two parts.",
     [
       {
         expression: "\\(4\\), \\(13\\), \\(26\\), \\(43\\), \\(64\\), … → \\(u_{n} = 2n^{2} + 3n - 1\\)",
