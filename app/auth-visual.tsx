@@ -102,11 +102,22 @@ export default function AuthVisual() {
               colorOffset += 1;
               const mesh = new THREE.Mesh(geometry, material);
               mesh.position.x = cursor;
+              mesh.userData.motion = {
+                phase: Math.random() * Math.PI * 2,
+                speed: 0.65 + Math.random() * 0.35,
+                tilt: Math.random() * 0.25 + 0.12,
+                exitAngle: Math.random() * Math.PI * 2,
+                entryAngle: Math.random() * Math.PI * 2,
+                stagger: Math.random() * 0.14,
+              };
               group.add(mesh);
             }
             cursor += advance + 0.035;
           }
-          for (const child of group.children) child.position.x -= cursor / 2;
+          for (const child of group.children) {
+            child.position.x -= cursor / 2;
+            child.userData.motion.homeX = child.position.x;
+          }
           const scale = Math.min(1.18, 4.4 / cursor);
           group.scale.setScalar(scale);
           group.position.y = -0.34;
@@ -130,8 +141,37 @@ export default function AuthVisual() {
         let frame = 0;
         let previous = 0;
         let elapsed = 0;
-        const holdDuration = 4.6;
-        const transitionDuration = 0.85;
+        const holdDuration = 5.5;
+        const transitionDuration = 3.6;
+
+        function smooth(value: number) {
+          const progress = Math.max(0, Math.min(1, value));
+          return progress * progress * (3 - 2 * progress);
+        }
+
+        function moveCharacters(group: import("three").Group, time: number, transition: number, arriving: boolean) {
+          for (const child of group.children) {
+            const motion = child.userData.motion;
+            const phase = time * motion.speed + motion.phase;
+            const amount = arriving
+              ? 1 - smooth((transition - 0.35 - motion.stagger) / 0.48)
+              : smooth((transition - motion.stagger) / 0.48);
+            const angle = arriving ? motion.entryAngle : motion.exitAngle;
+            child.position.x = motion.homeX + Math.cos(phase * 0.8) * 0.035 + Math.cos(angle) * 8 * amount;
+            child.position.y = Math.sin(phase) * 0.11 + Math.sin(angle) * 7 * amount;
+            child.position.z = Math.cos(phase * 0.7) * 0.08;
+            child.rotation.x = Math.sin(phase * 0.75) * motion.tilt;
+            child.rotation.y = Math.sin(phase * 0.6) * motion.tilt * 1.4 + amount * Math.cos(angle) * 0.7;
+            child.rotation.z = Math.sin(phase * 0.5) * 0.08 + amount * Math.sin(angle) * 0.4;
+          }
+        }
+
+        function settleCharacters(group: import("three").Group) {
+          for (const child of group.children) {
+            child.position.set(child.userData.motion.homeX, 0, 0);
+            child.rotation.set(0, 0, 0);
+          }
+        }
 
         const resize = () => {
           const width = element.clientWidth;
@@ -153,11 +193,8 @@ export default function AuthVisual() {
 
           if (incoming) {
             const progress = Math.min((elapsed - holdDuration) / transitionDuration, 1);
-            const eased = progress * progress * (3 - 2 * progress);
-            current.position.x = -7 * eased;
-            current.rotation.y = -0.35 * eased;
-            incoming.position.x = 7 * (1 - eased);
-            incoming.rotation.y = 0.35 * (1 - eased);
+            moveCharacters(current, elapsed, progress, false);
+            moveCharacters(incoming, elapsed, progress, true);
             if (progress >= 1) {
               removeGroup(current);
               current = incoming;
@@ -165,8 +202,7 @@ export default function AuthVisual() {
               elapsed = 0;
             }
           } else {
-            current.rotation.y = Math.sin(elapsed * 0.7) * 0.10;
-            current.rotation.x = Math.sin(elapsed * 0.5) * 0.035;
+            moveCharacters(current, elapsed, 0, false);
           }
           renderer.render(scene, camera);
           frame = requestAnimationFrame(animate);
@@ -182,8 +218,7 @@ export default function AuthVisual() {
               removeGroup(incoming);
               incoming = null;
             }
-            current.position.x = 0;
-            current.rotation.set(0, 0, 0);
+            settleCharacters(current);
             elapsed = 0;
             renderer.render(scene, camera);
           }
