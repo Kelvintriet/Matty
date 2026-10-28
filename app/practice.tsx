@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { ArrowLeft, CheckCircle2, Search, Trophy } from "lucide-react";
 
 type Problem = {
@@ -110,7 +110,10 @@ function rankFor(rating: number) {
   return { title: "Master / Grandmaster", level: "7–8", color: "orange" };
 }
 
-export default function Practice({ MathText }: { MathText: ComponentType<{ text: string }> }) {
+export default function Practice({ MathText, navigate }: {
+  MathText: ComponentType<{ text: string }>;
+  navigate: (path: string) => void;
+}) {
   const [progress, setProgress] = useState<PracticeState>(initialState);
   const [loaded, setLoaded] = useState(false);
   const [search, setSearch] = useState("");
@@ -121,7 +124,8 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
   const [selected, setSelected] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
   const [work, setWork] = useState("");
-  const [feedback, setFeedback] = useState<{ correct: boolean; change: number } | null>(null);
+  const [feedback, setFeedback] = useState<{ correct: boolean } | null>(null);
+  const notesRef = useRef<HTMLTextAreaElement>(null);
   const problem = problems.find((item) => item.id === selected);
   const rank = rankFor(progress.rating);
   const query = search.trim().toLowerCase();
@@ -144,7 +148,11 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
       if (saved && Number.isFinite(saved.rating) && Array.isArray(saved.started) && Array.isArray(saved.solved)) {
-        setProgress({ rating: saved.rating, started: saved.started, solved: saved.solved });
+        setProgress({
+          rating: saved.ratingSourceVersion === 1 ? saved.rating : 1200,
+          started: saved.started,
+          solved: saved.solved,
+        });
       }
     } catch {
       // Start fresh if saved prototype data is unavailable or invalid.
@@ -156,13 +164,33 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
   useEffect(() => {
     if (!loaded) return;
     try {
-      localStorage.setItem(storageKey, JSON.stringify(progress));
+      localStorage.setItem(storageKey, JSON.stringify({ ...progress, ratingSourceVersion: 1 }));
     } catch {
       // Practice remains usable for the current session if storage is unavailable.
     }
   }, [loaded, progress]);
 
+  useEffect(() => {
+    function syncRoute() {
+      const segments = window.location.pathname.split("/").filter(Boolean);
+      const section = segments[1];
+      setTab(section === "contests" ? "Contests" : section === "test" ? "Test" : "Problems");
+      setSelected(section === "problems" && segments[2] ? segments[2] : null);
+      setAnswer("");
+      setFeedback(null);
+    }
+
+    syncRoute();
+    window.addEventListener("popstate", syncRoute);
+    window.addEventListener("matty-route", syncRoute);
+    return () => {
+      window.removeEventListener("popstate", syncRoute);
+      window.removeEventListener("matty-route", syncRoute);
+    };
+  }, []);
+
   function openProblem(id: string) {
+    navigate(`/practice/problems/${id}`);
     setSelected(id);
     setAnswer("");
     setWork("");
@@ -176,15 +204,13 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
     const numericAnswer = Number(answer.trim());
     if (!Number.isFinite(numericAnswer)) return;
     const correct = Math.abs(numericAnswer - problem.answer) < 0.000001;
-    const alreadySolved = progress.solved.includes(problem.id);
-    const expected = 1 / (1 + 10 ** ((problem.rating - progress.rating) / 400));
-    const change = alreadySolved ? 0 : correct ? Math.min(50, Math.max(1, Math.round(50 * (1 - expected)))) : -Math.max(1, Math.round(20 * expected));
     setProgress((current) => ({
       ...current,
-      rating: Math.max(100, current.rating + change),
-      solved: correct && !alreadySolved ? [...current.solved, problem.id] : current.solved,
+      solved: correct && !current.solved.includes(problem.id)
+        ? [...current.solved, problem.id]
+        : current.solved,
     }));
-    setFeedback({ correct, change: Math.max(100, progress.rating + change) - progress.rating });
+    setFeedback({ correct });
   }
 
   return (
@@ -204,6 +230,7 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
             className={tab === item ? "active" : ""}
             aria-current={tab === item ? "page" : undefined}
             onClick={() => {
+              navigate(`/practice/${item.toLowerCase()}`);
               setTab(item);
               setSelected(null);
               setWork("");
@@ -224,7 +251,10 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
             value={search}
             onChange={(event) => {
               setSearch(event.target.value);
-              if (event.target.value.trim()) setSelected(null);
+              if (event.target.value.trim() && selected) {
+                navigate("/practice/problems");
+                setSelected(null);
+              }
             }}
             placeholder="Search practice"
           />
@@ -248,7 +278,7 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
             </button>
           ))}
           {testMatches && (
-            <button className="search-result" onClick={() => { setSearch(""); setTab("Test"); }}>
+            <button className="search-result" onClick={() => { setSearch(""); navigate("/practice/test"); setTab("Test"); }}>
               <span><strong>Practice test</strong><small>MYP 5 · Criterion A</small></span>
               <span>Test</span>
             </button>
@@ -286,7 +316,7 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
         </section>
       ) : problem ? (
         <div className="problem-detail">
-          <button className="problem-back" onClick={() => { setSelected(null); setWork(""); setFeedback(null); }}><ArrowLeft size={17} /> All problems</button>
+          <button className="problem-back" onClick={() => { navigate("/practice/problems"); setSelected(null); setWork(""); setFeedback(null); }}><ArrowLeft size={17} /> All problems</button>
           <div className="problem-detail-grid">
             <section className="problem-card">
               <div className="problem-meta"><span>{problem.id}</span><span>{problem.unit}</span><span>Level {problem.level}</span><span>{problem.rating} rating</span></div>
@@ -296,12 +326,29 @@ export default function Practice({ MathText }: { MathText: ComponentType<{ text:
                 <label htmlFor="practice-answer">Your answer</label>
                 <div className="answer-row"><input id="practice-answer" inputMode="decimal" value={answer} onChange={(event) => { setAnswer(event.target.value); setFeedback(null); }} placeholder="Enter a number" autoComplete="off" /><button type="submit" disabled={!answer.trim() || !Number.isFinite(Number(answer.trim()))}>Submit answer</button></div>
               </form>
-              {feedback && <div className={`practice-feedback ${feedback.correct ? "is-correct" : "is-wrong"}`} role="status"><strong>{feedback.correct ? "Correct answer!" : "Wrong answer"}</strong><span>{feedback.change > 0 ? "+" : ""}{feedback.change} rating</span></div>}
+              {feedback && <div className={`practice-feedback ${feedback.correct ? "is-correct" : "is-wrong"}`} role="status"><strong>{feedback.correct ? "Correct answer!" : "Wrong answer"}</strong></div>}
               {progress.solved.includes(problem.id) && <div className="problem-explanation"><h3><CheckCircle2 size={18} /> Explanation</h3>{problem.explanation.map((line) => <p key={line}><MathText text={line} /></p>)}</div>}
             </section>
-            <section className="workspace-card"><div className="workspace-card-heading"><div><h2>Workspace</h2><p>Write your working here.</p></div><span>NOT SAVED</span></div><label className="sr-only" htmlFor="practice-work">Your working</label><textarea id="practice-work" value={work} onChange={(event) => setWork(event.target.value)} placeholder="Start writing your working..." /><p className="workspace-note">Your working is not submitted or saved in this prototype.</p></section>
+            <section className="workspace-card" aria-label="Working notes">
+              <label className="sr-only" htmlFor="practice-work">Your working</label>
+              <textarea
+                ref={notesRef}
+                id="practice-work"
+                value={work}
+                onChange={(event) => {
+                  setWork(event.target.value);
+                  const field = event.currentTarget;
+                  if (field.scrollHeight > field.clientHeight) {
+                    field.style.height = `${field.scrollHeight}px`;
+                  }
+                }}
+                placeholder="Start writing..."
+              />
+            </section>
           </div>
         </div>
+      ) : selected ? (
+        <section className="practice-empty"><p>Problem not found.</p><button className="problem-back" onClick={() => navigate("/practice/problems")}>All problems</button></section>
       ) : (
         <section className="problem-list-card" aria-label="Problems">
           <div className="problem-table-scroll">

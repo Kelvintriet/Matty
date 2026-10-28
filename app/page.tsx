@@ -728,6 +728,51 @@ export default function Home() {
     }
   }, [completedStepIds, completedLessonIds, redoingLessonIds, lessonPositions, startedLessonIds, selectedTopicId, selectedLessonId, progressLoaded]);
 
+  useEffect(() => {
+    if (!progressLoaded) return;
+
+    function syncRoute() {
+      const segments = window.location.pathname.split("/").filter(Boolean);
+      const destination = segments[0];
+
+      if (destination === "practice") {
+        setMode("Practice");
+      } else if (destination === "leaderboard") {
+        setMode("Leaderboard");
+      } else {
+        setMode("Learning");
+        if (destination === "learning" && segments[1] && segments[2]) {
+          const topic = topics.find((item) => item.id === segments[1]);
+          const lesson = topic?.lessons.find((item) => item.id === segments[2]);
+          if (topic && lesson) {
+            setSelectedTopicId(topic.id);
+            setSelectedLessonId(lesson.id);
+            setExpandedTopicId(topic.id);
+            const position = lessonPositions[lesson.id];
+            setCurrentStepIndex(lesson.guidedSteps && Number.isInteger(position)
+              ? Math.max(0, Math.min(position, lesson.guidedSteps.length - 1))
+              : 0);
+          }
+        }
+      }
+    }
+
+    syncRoute();
+    window.addEventListener("popstate", syncRoute);
+    window.addEventListener("matty-route", syncRoute);
+    return () => {
+      window.removeEventListener("popstate", syncRoute);
+      window.removeEventListener("matty-route", syncRoute);
+    };
+  }, [progressLoaded, lessonPositions]);
+
+  function navigate(path: string) {
+    if (window.location.pathname !== path) {
+      window.history.pushState(null, "", path);
+      window.dispatchEvent(new Event("matty-route"));
+    }
+  }
+
   const selectedTopic = topics.find((topic) => topic.id === selectedTopicId) ?? topics[0];
   const selectedLesson = selectedTopic.lessons.find((lesson) => lesson.id === selectedLessonId) ?? selectedTopic.lessons[0];
   const lessonIndex = selectedTopic.lessons.findIndex((lesson) => lesson.id === selectedLesson.id);
@@ -762,6 +807,7 @@ export default function Home() {
       ? Math.max(0, Math.min(savedPosition, lesson.guidedSteps.length - 1))
       : 0);
     setExpandedTopicId(topicId);
+    navigate(`/learning/${topicId}/${lessonId}`);
   }
 
   function startLesson() {
@@ -863,7 +909,7 @@ export default function Home() {
             <button
               key={name}
               className={`mode-button ${mode === name ? "mode-selected" : ""}`}
-              onClick={() => setMode(name)}
+              onClick={() => navigate(name === "Learning" ? `/learning/${selectedTopicId}/${selectedLessonId}` : name === "Practice" ? "/practice/problems" : "/leaderboard")}
               aria-current={mode === name ? "page" : undefined}
               aria-label={name}
               title={!sidebarExpanded ? name : undefined}
@@ -1045,7 +1091,7 @@ export default function Home() {
             })}
           </div>
         </aside>
-      </div> : mode === "Practice" ? <Practice MathText={MathText} /> : (
+      </div> : mode === "Practice" ? <Practice MathText={MathText} navigate={navigate} /> : (
         <section className="mode-preview">
           <span className="preview-label">PREVIEW</span>
           <div className="preview-heading">
@@ -1079,7 +1125,7 @@ export default function Home() {
                 </tbody>
               </table>
             </div>
-          <button className="return-learning" onClick={() => setMode("Learning")}><BookOpen size={17} /> Back to learning</button>
+          <button className="return-learning" onClick={() => navigate(`/learning/${selectedTopicId}/${selectedLessonId}`)}><BookOpen size={17} /> Back to learning</button>
         </section>
       )}
       </div>
@@ -1093,7 +1139,7 @@ export default function Home() {
             <p>Login is coming soon. You can explore lessons as a guest.</p>
             <button className="primary-button" onClick={() => {
               setShowLogin(false);
-              setMode("Learning");
+              navigate(`/learning/${selectedTopicId}/${selectedLessonId}`);
             }}>Continue learning</button>
           </section>
         </div>
