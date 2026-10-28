@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, BookOpen, Check, Eye, EyeOff, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import AuthVisual from "./auth-visual";
 
@@ -58,7 +58,6 @@ export default function AuthPage({ signup }: { signup: boolean }) {
       <div className="auth-layout">
         <section className="auth-form-side">
           <div className="auth-form-inner">
-            <span className="auth-page-kicker"><span /> YOUR MATH SPACE</span>
             {isPending ? <p className="auth-session-loading">Loading...</p> : session ? (
               <>
                 <h1>You&apos;re signed in.</h1>
@@ -69,7 +68,6 @@ export default function AuthPage({ signup }: { signup: boolean }) {
             ) : (
               <>
                 <h1>{signup ? "Let’s get started." : "Welcome back."}</h1>
-                <p className="auth-intro">{signup ? "Create an account and keep your progress in one place." : "Pick up right where you left off."}</p>
                 <form className="auth-page-form" onSubmit={submit}>
                   {signup && <label>Name<input value={name} onChange={(event) => setName(event.target.value)} required autoComplete="name" placeholder="Your name" /></label>}
                   <label>Email address<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoComplete="email" placeholder="you@example.com" /></label>
@@ -87,11 +85,8 @@ export default function AuthPage({ signup }: { signup: boolean }) {
             )}
           </div>
         </section>
-        <aside className="auth-art" aria-label="Grade 10 mathematics">
-          <div className="auth-art-top"><span><BookOpen size={16} /> MATHEMATICS</span><span>01 — 08</span></div>
-          <div className="auth-art-stage"><span className="auth-art-orb" /><AuthVisual /><span className="auth-floating auth-floating-one">x² + y²</span><span className="auth-floating auth-floating-two">∑</span><span className="auth-floating auth-floating-three"><Sparkles size={19} /></span></div>
-          <div className="auth-art-copy"><span className="auth-art-tag"><Check size={14} /> YOUR PROGRESS, YOUR PACE</span><h2>Every step<br />adds up.</h2><p>Learn, practise, and build confidence in maths.</p></div>
-          <div className="auth-art-bottom"><span>MADE FOR CURIOUS MINDS</span><span>✦</span></div>
+        <aside className="auth-art" aria-label="Animated mathematical symbols">
+          <div className="auth-art-stage"><AuthVisual /></div>
         </aside>
       </div>
     </main>

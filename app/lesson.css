@@ -3170,3 +3170,28 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .auth-submit:active { transform: none; }
 }
+
+.auth-art {
+  justify-content: center;
+  padding: 20px;
+  background: #f7fbf5;
+}
+
+.auth-art-stage {
+  flex: 1;
+  min-height: 500px;
+}
+
+.auth-form-inner h1 {
+  margin-top: 0;
+}
+
+@media (max-width: 800px) {
+  .auth-art {
+    min-height: 350px;
+  }
+
+  .auth-art-stage {
+    min-height: 310px;
+  }
+}
