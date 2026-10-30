@@ -1,5 +1,5 @@
 import { imageUploadPrefix } from "@/lib/image-upload";
-import { and, eq, inArray } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { authorizeContributor, contributorIdentity } from "@/lib/contributor-access";
 import { getDatabase } from "@/lib/db";
 import { contributorImages, problemCodes, problemImages, problemTopics, problems, user } from "@/lib/db/schema";
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     const db = getDatabase();
     if (imageIds.length) {
       const images = await db.select({ id: contributorImages.id, content: contributorImages.content }).from(contributorImages)
-        .where(and(eq(contributorImages.ownerId, user.id), inArray(contributorImages.id, imageIds)));
+        .where(inArray(contributorImages.id, imageIds));
       if (images.length !== imageIds.length || images.some((image) => image.content.startsWith(imageUploadPrefix))) return Response.json({ message: "One or more images are unavailable." }, { status: 400 });
     }
     const id = crypto.randomUUID();

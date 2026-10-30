@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ImagePlus, LockKeyhole, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Cloud, ImagePlus, LockKeyhole, Plus, Trash2, X } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { imagePartBytes, maxImageBytes } from "@/lib/image-upload";
 import ProblemContent from "../problem-content";
 import { topics } from "../content/course";
+
+type UploadedImage = { id: string; createdAt: string };
 
 type Draft = {
   id: string;
@@ -43,6 +45,11 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editorLoaded, setEditorLoaded] = useState(false);
   const [drafts, setDrafts] = useState<Draft[]>([]);
+  const [libraryOpen, setLibraryOpen] = useState(true);
+  const [libraryImages, setLibraryImages] = useState<UploadedImage[]>([]);
+  const [libraryLoading, setLibraryLoading] = useState(true);
+  const [libraryError, setLibraryError] = useState("");
+  const [imageTarget, setImageTarget] = useState<"question" | "explanation">("question");
   const showEditor = Boolean(problemId);
   const [problems, setProblems] = useState<{ id: string; code: string | null; title: string; author: string; level: number }[]>([]);
   const [listLoading, setListLoading] = useState(true);
@@ -156,6 +163,46 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
     setDrafts(saved);
   }, [allowed, session, showEditor]);
 
+  useEffect(() => {
+    if (!allowed || !showEditor || !editorLoaded) return;
+    let cancelled = false;
+
+    fetch("/api/contribute/images", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Unable to load uploads.");
+        const images = await response.json() as UploadedImage[];
+        if (!cancelled) setLibraryImages(images);
+      })
+      .catch(() => {
+        if (!cancelled) setLibraryError("Unable to load uploads.");
+      })
+      .finally(() => {
+        if (!cancelled) setLibraryLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [allowed, showEditor, editorLoaded]);
+
+  function insertLibraryImage(id: string) {
+    const editor = imageTarget === "question" ? questionEditor.current : explanationEditor.current;
+    const setter = imageTarget === "question" ? setStatement : setExplanation;
+    const start = editor?.selectionStart;
+    const end = editor?.selectionEnd;
+    const markdown = `\n\n![Image](/api/contribute/images/${id})\n\n`;
+
+    setter((current) => {
+      const from = start ?? current.length;
+      const to = end ?? current.length;
+      return `${current.slice(0, from)}${markdown}${current.slice(to)}`;
+    });
+    requestAnimationFrame(() => {
+      if (!editor) return;
+      const position = (start ?? editor.value.length) + markdown.length;
+      editor.focus();
+      editor.setSelectionRange(position, position);
+    });
+  }
+
   function deleteDraft(id: string) {
     if (!session || !window.confirm("Delete this draft?")) return;
     localStorage.removeItem(draftKey(session.user.id, id));
@@ -237,7 +284,11 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
       const response = await fetch(`/api/contribute/images/${uploadId}/complete`, { method: "POST" });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
+      const uploadedId = uploadId;
       uploadId = null;
+      if (uploadedId) {
+        setLibraryImages((current) => [{ id: uploadedId, createdAt: new Date().toISOString() }, ...current]);
+      }
 
       const alt = file.name.replace(/\.[^.]+$/, "").replace(/[\[\]\\]/g, " ");
       const insert = (current: string) => `${current.slice(0, start)}\n\n![${alt}](${result.path})\n\n${current.slice(end)}`;
@@ -323,6 +374,39 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
         <section>{message ? <p className="contribute-message" role="alert">{message}</p> : <p>Loading...</p>}<Link href="/contribute">Back to problems</Link></section>
       ) : (
         <form onSubmit={publish} className="contribute-form">
+          <div className="contribute-editor-layout">
+            <aside className="contribute-library" aria-label="Editor sidebar">
+              <div className="contribute-library-rail">
+                <button type="button" className={libraryOpen ? "contribute-library-toggle active" : "contribute-library-toggle"} onClick={() => setLibraryOpen((open) => !open)} aria-label="Uploads" aria-expanded={libraryOpen} title="Uploads">
+                  <Cloud size={20} />
+                </button>
+              </div>
+              {libraryOpen && (
+                <div className="contribute-library-panel">
+                  <div className="contribute-library-heading">
+                    <h2>Uploads</h2>
+                    <button type="button" onClick={() => setLibraryOpen(false)} aria-label="Close uploads"><X size={17} /></button>
+                  </div>
+                  <p className="contribute-library-label">Insert into</p>
+                  <div className="contribute-library-target" role="group" aria-label="Image destination">
+                    <button type="button" className={imageTarget === "question" ? "active" : ""} aria-pressed={imageTarget === "question"} onClick={() => setImageTarget("question")}>Question</button>
+                    <button type="button" className={imageTarget === "explanation" ? "active" : ""} aria-pressed={imageTarget === "explanation"} onClick={() => setImageTarget("explanation")}>Explanation</button>
+                  </div>
+                  {libraryLoading ? <p className="contribute-library-empty">Loading...</p> : libraryError ? <p className="contribute-library-empty" role="alert">{libraryError}</p> : libraryImages.length === 0 ? <p className="contribute-library-empty">No uploads yet.</p> : (
+                    <div className="contribute-library-images">
+                      {libraryImages.map((image) => (
+                        <button type="button" key={image.id} onClick={() => insertLibraryImage(image.id)} aria-label={`Insert image uploaded ${new Date(image.createdAt).toLocaleDateString()} into ${imageTarget}`} title="Insert image">
+                          {/* Images are served through the authenticated contributor image route. */}
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={`/api/contribute/images/${image.id}`} alt="" loading="lazy" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </aside>
+            <div className="contribute-editor-content">
           <div className="contribute-title"><div><Link className="contribute-back-list" href="/contribute"><ArrowLeft size={15} /> Problems</Link><h1>{editingId ? "Edit problem" : "Create a problem"}</h1><p>Markdown and LaTeX supported.</p></div><button className="contribute-primary" disabled={busy} type="submit">{busy ? "Working..." : editingId ? "Save changes" : "Publish problem"}</button></div>
           {message && <p className="contribute-message" role="alert">{message}</p>}
           <div className="contribute-grid">
@@ -367,7 +451,7 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
                   </span>
                 ) : (
                   <label className="upload-image"><ImagePlus size={16} /> Add image<input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => uploadImage(event, "question")} disabled={busy} /></label>
-                )}</div><textarea ref={questionEditor} value={statement} onChange={(event) => setStatement(event.target.value)} required placeholder="Write the question in Markdown..." /><p className="contribute-hint">Inline math: $...$ · Display math: $$...$$</p></section>
+                )}</div><textarea ref={questionEditor} onFocus={() => setImageTarget("question")} value={statement} onChange={(event) => setStatement(event.target.value)} required placeholder="Write the question in Markdown..." /><p className="contribute-hint">Inline math: $...$ · Display math: $$...$$</p></section>
               <section className="contribute-card"><h2>Accepted answers</h2>{answers.map((answer, index) => <div className="contribute-answer" key={index}><input value={answer} onChange={(event) => setAnswers((current) => current.map((value, i) => i === index ? event.target.value : value))} required maxLength={100} placeholder={`Answer ${index + 1}`} />{answers.length > 1 && <button type="button" aria-label={`Remove answer ${index + 1}`} onClick={() => setAnswers((current) => current.filter((_, i) => i !== index))}><Trash2 size={17} /></button>}</div>)}{answers.length < 10 && <button className="contribute-add" type="button" onClick={() => setAnswers((current) => [...current, ""])}><Plus size={16} /> Add answer</button>}</section>
               <section className="contribute-card">
                 <div className="contribute-card-heading"><h2>Explanation</h2>{uploadProgress?.field === "explanation" ? (
@@ -378,11 +462,13 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
                 ) : (
                   <label className="upload-image"><ImagePlus size={16} /> Add image<input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => uploadImage(event, "explanation")} disabled={busy} /></label>
                 )}</div>
-                <textarea ref={explanationEditor} value={explanation} onChange={(event) => setExplanation(event.target.value)} required placeholder="Write the explanation in Markdown..." />
+                <textarea ref={explanationEditor} onFocus={() => setImageTarget("explanation")} value={explanation} onChange={(event) => setExplanation(event.target.value)} required placeholder="Write the explanation in Markdown..." />
                 <p className="contribute-hint">Inline math: $...$ · Display math: $$...$$</p>
               </section>
             </div>
             <aside className="contribute-side"><section className="contribute-card contribute-preview"><h2>Preview</h2><h3>{title || "Untitled problem"}</h3><ProblemContent markdown={statement} />{explanation && <><h3>Explanation</h3><ProblemContent markdown={explanation} /></>}</section></aside>
+          </div>
+            </div>
           </div>
         </form>
       )}

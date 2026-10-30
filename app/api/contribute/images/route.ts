@@ -1,7 +1,26 @@
-import { authorizeContributor } from "@/lib/contributor-access";
+import { desc, notLike } from "drizzle-orm";
+import { authorizeContributor, contributorIdentity } from "@/lib/contributor-access";
 import { getDatabase } from "@/lib/db";
 import { contributorImages } from "@/lib/db/schema";
 import { imageUploadPrefix, maxImageBytes } from "@/lib/image-upload";
+
+export async function GET(request: Request) {
+  try {
+    if (!await contributorIdentity(request)) {
+      return Response.json({ message: "Access denied." }, { status: 403 });
+    }
+
+    const images = await getDatabase()
+      .select({ id: contributorImages.id, createdAt: contributorImages.createdAt })
+      .from(contributorImages)
+      .where(notLike(contributorImages.content, `${imageUploadPrefix}%`))
+      .orderBy(desc(contributorImages.createdAt));
+
+    return Response.json(images, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return Response.json({ message: "Unable to load uploads." }, { status: 503 });
+  }
+}
 
 export async function POST(request: Request) {
   try {

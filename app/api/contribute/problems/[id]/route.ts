@@ -52,7 +52,7 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     if (!existing) return Response.json({ message: "Problem not found." }, { status: 404 });
     if (input.imageIds.length) {
       const uploaded = await db.select({ id: contributorImages.id, content: contributorImages.content }).from(contributorImages)
-        .where(and(eq(contributorImages.ownerId, contributor.id), inArray(contributorImages.id, input.imageIds)));
+        .where(inArray(contributorImages.id, input.imageIds));
       const linked = await db.select({ id: problemImages.imageId }).from(problemImages)
         .where(and(eq(problemImages.problemId, id), inArray(problemImages.imageId, input.imageIds)));
       const available = new Set([...uploaded.filter((image) => !image.content.startsWith(imageUploadPrefix)), ...linked].map((item) => item.id));
