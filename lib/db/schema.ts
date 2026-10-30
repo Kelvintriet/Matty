@@ -69,3 +69,21 @@ export const problemProgress = mysqlTable("problem_progress", {
   whiteboard: json("whiteboard"),
   updatedAt: datetime("updated_at", { fsp: 3 }).notNull(),
 }, (table) => [uniqueIndex("problem_progress_user_problem").on(table.userId, table.problemId)]);
+
+export const contributorAttempts = mysqlTable("contributor_attempts", {
+  userId: varchar("user_id", { length: 36 }).primaryKey().references(() => user.id, { onDelete: "cascade" }),
+  failures: int("failures").notNull().default(0),
+  blockedUntil: datetime("blocked_until", { fsp: 3 }),
+});
+
+export const contributorImages = mysqlTable("contributor_images", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  ownerId: varchar("owner_id", { length: 36 }).notNull().references(() => user.id, { onDelete: "cascade" }),
+  content: longtext("content").notNull(),
+  createdAt: datetime("created_at", { fsp: 3 }).notNull(),
+});
+
+export const problemImages = mysqlTable("problem_images", {
+  problemId: varchar("problem_id", { length: 36 }).notNull().references(() => problems.id, { onDelete: "cascade" }),
+  imageId: varchar("image_id", { length: 36 }).notNull().references(() => contributorImages.id, { onDelete: "cascade" }),
+}, (table) => [uniqueIndex("problem_image_unique").on(table.problemId, table.imageId)]);

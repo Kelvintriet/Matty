@@ -9,10 +9,10 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     if (!session) return Response.json({ message: "Log in to save progress." }, { status: 401 });
     const { id } = await context.params;
     const db = getDatabase();
-    const [row] = await db.select({ solved: problemProgress.solved, explanation: problems.explanation, notes: problemProgress.notes, whiteboard: problemProgress.whiteboard })
+    const [row] = await db.select({ solved: problemProgress.solved, explanation: problems.explanation, answer: problems.answer, notes: problemProgress.notes, whiteboard: problemProgress.whiteboard })
       .from(problemProgress).innerJoin(problems, eq(problemProgress.problemId, problems.id))
       .where(and(eq(problemProgress.userId, session.user.id), eq(problemProgress.problemId, id), isNotNull(problems.publishedAt))).limit(1);
-    return Response.json({ started: Boolean(row), solved: row?.solved ?? false, explanation: row?.solved ? row.explanation : undefined, notes: row?.notes ?? "", whiteboard: row?.whiteboard ?? null });
+    return Response.json({ started: Boolean(row), solved: row?.solved ?? false, explanation: row?.solved ? row.explanation : undefined, answer: row?.solved ? row.answer : undefined, notes: row?.notes ?? "", whiteboard: row?.whiteboard ?? null });
   } catch {
     return Response.json({ message: "Unable to load progress." }, { status: 503 });
   }

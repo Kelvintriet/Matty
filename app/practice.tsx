@@ -31,6 +31,8 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<boolean | null>(null);
   const [explanation, setExplanation] = useState("");
+  const [acceptedAnswers, setAcceptedAnswers] = useState<string[]>([]);
+  const [copyMessage, setCopyMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const problem = problems.find((item) => item.id === selected);
 
@@ -60,6 +62,8 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
       setAnswer("");
       setFeedback(null);
       setExplanation("");
+      setAcceptedAnswers([]);
+      setCopyMessage("");
     }
     syncRoute();
     window.addEventListener("popstate", syncRoute);
@@ -80,7 +84,15 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
         if (!response.ok) throw new Error();
         const progress = await response.json();
         if (cancelled) return;
-        if (progress.solved) setExplanation(progress.explanation ?? "");
+        if (progress.solved) {
+          setExplanation(progress.explanation ?? "");
+          try {
+            const parsed = JSON.parse(progress.answer);
+            setAcceptedAnswers(Array.isArray(parsed) ? parsed : [progress.answer]);
+          } catch {
+            setAcceptedAnswers(progress.answer ? [progress.answer] : []);
+          }
+        }
         if (!progress.started) {
           const started = await fetch(path, { method: "POST" });
           if (!started.ok) throw new Error();
@@ -110,6 +122,7 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
       setFeedback(result.correct);
       if (result.correct) {
         setExplanation(result.explanation);
+        setAcceptedAnswers(result.answers);
         setProblems((current) => current.map((item) => item.id === problem.id ? { ...item, status: "solved" } : item));
       }
     } catch (caught) {
@@ -117,6 +130,15 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
     } finally {
       setBusy(false);
     }
+  }
+
+  function explanationPrompt() {
+    if (!problem) return "";
+    const absoluteImages = (text: string) => text.replace(
+      /\]\((\/api\/contribute\/images\/[a-f0-9-]{36})\)/gi,
+      (_match, path: string) => `](${window.location.origin}${path})`,
+    );
+    return `Help me understand this maths problem. Explain the reasoning step by step, using the answer and explanation below. Do not assume I know the method.\n\nQuestion:\n${absoluteImages(problem.question)}\n\nAccepted answers: ${acceptedAnswers.join(", ")}\n\nExplanation:\n${absoluteImages(explanation)}`;
   }
 
   const query = search.trim().toLowerCase();
@@ -146,7 +168,23 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
               </form>
               {!session && !isPending && <p className="practice-signin">Log in to submit and save progress.</p>}
               {feedback !== null && <div className={`practice-feedback ${feedback ? "is-correct" : "is-wrong"}`} role="status"><strong>{feedback ? "Correct answer!" : "Wrong answer"}</strong></div>}
-              {explanation && <div className="problem-explanation"><h3><CheckCircle2 size={18} /> Explanation</h3><ProblemContent markdown={explanation} /></div>}
+              {explanation && <div className="problem-explanation"><h3><CheckCircle2 size={18} /> Explanation</h3><ProblemContent markdown={explanation} />
+                <div className="ai-explain-actions">
+                  <button type="button" onClick={() => {
+                    const url = `https://chatgpt.com/?q=${encodeURIComponent(explanationPrompt())}`;
+                    window.open(url, "_blank", "noopener,noreferrer");
+                  }}>Explain with ChatGPT</button>
+                  <button type="button" onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(explanationPrompt());
+                      setCopyMessage("Copied");
+                    } catch {
+                      setCopyMessage("Could not copy prompt.");
+                    }
+                  }}>Copy prompt</button>
+                  <span role="status">{copyMessage}</span>
+                </div>
+              </div>}
             </section>
             <PracticeWorkspace key={`${problem.id}:${session?.user.id ?? "guest"}`} problemId={problem.id} userId={session?.user.id} />
           </div>

@@ -20,12 +20,21 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (!problem) return Response.json({ message: "Problem not found." }, { status: 404 });
 
     const submitted = body.answer.trim();
-    const expected = problem.answer.trim();
+    let answers: string[] = [problem.answer];
+    try {
+      const parsed = JSON.parse(problem.answer);
+      if (Array.isArray(parsed) && parsed.every((entry) => typeof entry === "string")) answers = parsed;
+    } catch {
+      // Existing problems store a single answer as plain text.
+    }
     const actualNumber = Number(submitted);
-    const expectedNumber = Number(expected);
-    const correct = expected !== "" && Number.isFinite(actualNumber) && Number.isFinite(expectedNumber)
-      ? Math.abs(actualNumber - expectedNumber) < 0.000001
-      : submitted === expected;
+    const correct = answers.some((answer) => {
+      const expected = answer.trim();
+      const expectedNumber = Number(expected);
+      return expected !== "" && Number.isFinite(actualNumber) && Number.isFinite(expectedNumber)
+        ? Math.abs(actualNumber - expectedNumber) < 0.000001
+        : submitted === expected;
+    });
 
     await db.insert(problemProgress).values({
       id: crypto.randomUUID(),
@@ -36,7 +45,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     }).onDuplicateKeyUpdate({
       set: correct ? { solved: true, updatedAt: new Date() } : { updatedAt: new Date() },
     });
-    return Response.json(correct ? { correct: true, explanation: problem.explanation } : { correct: false });
+    return Response.json(correct ? { correct: true, explanation: problem.explanation, answers } : { correct: false });
   } catch {
     return Response.json({ message: "Unable to submit your answer." }, { status: 503 });
   }

@@ -37,11 +37,27 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Database setup (development)
 
-Matty's database foundation uses TiDB Cloud Starter (MySQL-compatible), Drizzle ORM and Better Auth. The existing learning and practice screens still use their prototype data and browser storage; the database and login are not connected to those screens yet.
+Matty's database foundation uses TiDB Cloud Starter (MySQL-compatible), Drizzle ORM and Better Auth. Accounts and practice problems use the database. Lesson progress remains in browser storage.
 
 1. Create a MySQL-compatible TiDB Cloud database and copy its connection URL from the TiDB dashboard.
 2. Copy `.env.example` to `.env.local`, then set `DATABASE_URL` and a random `BETTER_AUTH_SECRET` (at least 32 characters). Keep `.env.local` private. Set `BETTER_AUTH_URL` to the app's origin.
 3. Run `npm run db:push` to apply the Drizzle schema to the intended development database. Review the proposed changes before confirming.
 4. Run `npm run dev`.
 
-The auth endpoint is `/api/auth`; the sign-in interface and database-backed problem flows are still to be implemented. Never put database credentials into browser-side code or Git.
+The auth endpoint is `/api/auth`. Never put database credentials into browser-side code or Git.
+
+
+## Contributor access
+
+Sign in and visit `/contribute` to find your account ID. Add these server-only settings to `.env.local` and to the production environment (without the brackets):
+
+```env
+CONTRIBUTOR_ADMIN_USER_IDS=<account-id>
+CONTRIBUTOR_SECRET=<a-separate-random-passphrase>
+```
+
+For multiple contributors, separate account IDs with commas. Generate a different passphrase from the Better Auth secret with `openssl rand -base64 32`. Restart the server after changing environment settings. Each contributor must sign in and enter the passphrase to upload or publish. Five failed passphrase attempts lock that account out of contributor actions for 15 minutes.
+
+Images are normalized and stored in TiDB for now. The Markdown uses image URLs, so storage can move to S3 later. The editor publishes directly to the practice list; it does not yet support drafts, editing, or review.
+
+The contributor tables are defined in Drizzle. To inspect their scoped setup on a new database, run `npx drizzle-kit push --config=drizzle.contribute.config.ts` and review the proposed changes before applying them.
