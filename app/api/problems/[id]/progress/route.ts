@@ -1,13 +1,16 @@
 import { and, eq, isNotNull } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
 import { getDatabase } from "@/lib/db";
+import { resolveProblemId } from "@/lib/db/resolve-problem";
 import { problemProgress, problems } from "@/lib/db/schema";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const session = await getAuth().api.getSession({ headers: request.headers });
     if (!session) return Response.json({ message: "Log in to save progress." }, { status: 401 });
-    const { id } = await context.params;
+    const { id: reference } = await context.params;
+    const id = await resolveProblemId(reference);
+    if (!id) return Response.json({ message: "Problem not found." }, { status: 404 });
     const db = getDatabase();
     const [row] = await db.select({ solved: problemProgress.solved, explanation: problems.explanation, answer: problems.answer, notes: problemProgress.notes, whiteboard: problemProgress.whiteboard })
       .from(problemProgress).innerJoin(problems, eq(problemProgress.problemId, problems.id))
@@ -22,7 +25,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   try {
     const session = await getAuth().api.getSession({ headers: request.headers });
     if (!session) return Response.json({ message: "Log in to save progress." }, { status: 401 });
-    const { id } = await context.params;
+    const { id: reference } = await context.params;
+    const id = await resolveProblemId(reference);
+    if (!id) return Response.json({ message: "Problem not found." }, { status: 404 });
     const db = getDatabase();
     const [problem] = await db.select({ id: problems.id }).from(problems)
       .where(and(eq(problems.id, id), isNotNull(problems.publishedAt))).limit(1);
@@ -49,7 +54,9 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     if (typeof body.notes !== "string" || body.notes.length > 200000 || !body.whiteboard || !encoded || encoded.length > 1000000) {
       return Response.json({ message: "Workspace is too large." }, { status: 400 });
     }
-    const { id } = await context.params;
+    const { id: reference } = await context.params;
+    const id = await resolveProblemId(reference);
+    if (!id) return Response.json({ message: "Problem not found." }, { status: 404 });
     const db = getDatabase();
     const [problem] = await db.select({ id: problems.id }).from(problems)
       .where(and(eq(problems.id, id), isNotNull(problems.publishedAt))).limit(1);

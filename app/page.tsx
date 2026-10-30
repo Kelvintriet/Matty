@@ -1110,7 +1110,7 @@ export default function Home() {
                   <tr>
                     <th scope="col">Rank</th>
                     <th scope="col">Username</th>
-                    <th scope="col">Elo</th>
+                    <th scope="col">Level</th>
                   </tr>
                 </thead>
                 <tbody>

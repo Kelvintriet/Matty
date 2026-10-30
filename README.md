@@ -78,3 +78,6 @@ The contributor guide is available at `/docs`.
 
 
 Problems can have multiple curriculum subtopics, including from different units. The links are stored in `problem_topics`; existing problems keep their original topic label. For a new database, inspect the scoped setup with `npx drizzle-kit push --config=drizzle.problem-topics.config.ts` before applying it.
+
+
+Problem URLs use unique three-letter codes. For a separate database, inspect and apply `npx drizzle-kit push --config=drizzle.problem-codes.config.ts`, then run `npm run db:backfill-problem-codes` to assign codes to existing problems. Old UUID URLs continue to work. Three uppercase letters provide 17,576 possible codes; the format will need to change if the problem bank grows beyond that.

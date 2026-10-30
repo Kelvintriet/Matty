@@ -87,3 +87,8 @@ export const problemTopics = mysqlTable("problem_topics", {
   unitId: varchar("unit_id", { length: 100 }).notNull(),
   subtopicId: varchar("subtopic_id", { length: 100 }).notNull(),
 }, (table) => [uniqueIndex("problem_topics_unique").on(table.problemId, table.unitId, table.subtopicId)]);
+
+export const problemCodes = mysqlTable("problem_codes", {
+  problemId: varchar("problem_id", { length: 36 }).primaryKey().references(() => problems.id, { onDelete: "cascade" }),
+  code: varchar("code", { length: 3 }).notNull().unique(),
+});

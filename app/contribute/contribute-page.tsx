@@ -14,7 +14,6 @@ export default function ContributePage() {
   const [title, setTitle] = useState("");
   const [selections, setSelections] = useState<{ unitId: string; subtopicId: string }[]>([]);
   const [level, setLevel] = useState(4);
-  const [rating, setRating] = useState(1200);
   const [statement, setStatement] = useState("");
   const [explanation, setExplanation] = useState("");
   const [answers, setAnswers] = useState([""]);
@@ -83,7 +82,7 @@ export default function ContributePage() {
       const response = await fetch("/api/contribute/problems", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, selections, level, rating, statement, explanation, answers }),
+        body: JSON.stringify({ title, selections, level, statement, explanation, answers }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
@@ -115,7 +114,6 @@ export default function ContributePage() {
                 <div className="contribute-fields">
                   <label>Title<input value={title} onChange={(event) => setTitle(event.target.value)} required maxLength={255} /></label>
                   <label>Level<select value={level} onChange={(event) => setLevel(Number(event.target.value))}>{[1, 2, 3, 4, 5, 6, 7, 8].map((number) => <option key={number}>{number}</option>)}</select></label>
-                  <label>Rating<input type="number" min="100" max="10000" value={rating} onChange={(event) => setRating(Number(event.target.value))} required /></label>
                 </div>
               </section>
               <section className="contribute-card">

@@ -1,7 +1,7 @@
 import { eq, inArray, isNotNull } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
 import { getDatabase } from "@/lib/db";
-import { problemProgress, problemTopics, problems, user } from "@/lib/db/schema";
+import { problemCodes, problemProgress, problemTopics, problems, user } from "@/lib/db/schema";
 import { topics } from "@/app/content/course";
 
 export async function GET(request: Request) {
@@ -13,11 +13,14 @@ export async function GET(request: Request) {
       title: problems.title,
       unit: problems.topic,
       level: problems.level,
-      rating: problems.rating,
       question: problems.statement,
       published: problems.publishedAt,
       author: user.name,
     }).from(problems).innerJoin(user, eq(problems.authorId, user.id)).where(isNotNull(problems.publishedAt));
+    const codes = rows.length
+      ? await db.select().from(problemCodes).where(inArray(problemCodes.problemId, rows.map((row) => row.id)))
+      : [];
+    const codesByProblem = new Map(codes.map((entry) => [entry.problemId, entry.code]));
     const progress = session
       ? await db.select({ problemId: problemProgress.problemId, solved: problemProgress.solved })
         .from(problemProgress).where(eq(problemProgress.userId, session.user.id))
@@ -32,7 +35,7 @@ export async function GET(request: Request) {
       if (unit && subtopic) labels.set(tag.problemId, [...(labels.get(tag.problemId) ?? []), `${unit.title} / ${subtopic.title}`]);
     }
     const statuses = new Map(progress.map((item) => [item.problemId, item.solved ? "solved" : "started"]));
-    return Response.json(rows.map((row) => ({ ...row, topicLabels: labels.get(row.id) ?? [row.unit], status: statuses.get(row.id) ?? "new" })));
+    return Response.json(rows.map((row) => ({ ...row, code: codesByProblem.get(row.id) ?? null, topicLabels: labels.get(row.id) ?? [row.unit], status: statuses.get(row.id) ?? "new" })));
   } catch {
     return Response.json({ message: "Unable to load problems." }, { status: 503 });
   }

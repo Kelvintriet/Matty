@@ -11,7 +11,7 @@ type Problem = {
   title: string;
   unit: string;
   topicLabels?: string[];
-  rating: number;
+  code: string | null;
   level: number;
   author: string;
   published: string | null;
@@ -35,7 +35,8 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
   const [acceptedAnswers, setAcceptedAnswers] = useState<string[]>([]);
   const [copyMessage, setCopyMessage] = useState("");
   const [busy, setBusy] = useState(false);
-  const problem = problems.find((item) => item.id === selected);
+  const problem = problems.find((item) => item.id === selected || item.code === selected);
+  const activeProblemId = problem?.id;
 
   const loadProblems = useCallback(async () => {
     try {
@@ -76,11 +77,12 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
   }, []);
 
   useEffect(() => {
-    if (!selected || !session) return;
+    if (!activeProblemId || !session) return;
+    const problemId = activeProblemId;
     let cancelled = false;
     async function loadProgress() {
       try {
-        const path = `/api/problems/${encodeURIComponent(selected!)}/progress`;
+        const path = `/api/problems/${encodeURIComponent(problemId)}/progress`;
         const response = await fetch(path);
         if (!response.ok) throw new Error();
         const progress = await response.json();
@@ -97,7 +99,7 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
         if (!progress.started) {
           const started = await fetch(path, { method: "POST" });
           if (!started.ok) throw new Error();
-          if (!cancelled) setProblems((current) => current.map((item) => item.id === selected && item.status === "new" ? { ...item, status: "started" } : item));
+          if (!cancelled) setProblems((current) => current.map((item) => item.id === problemId && item.status === "new" ? { ...item, status: "started" } : item));
         }
       } catch {
         if (!cancelled) setError("Unable to load or save progress.");
@@ -105,7 +107,7 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
     }
     void loadProgress();
     return () => { cancelled = true; };
-  }, [selected, session]);
+  }, [activeProblemId, session]);
 
   async function submitAnswer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -144,7 +146,7 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
 
   const query = search.trim().toLowerCase();
   const visibleProblems = problems.filter((item) => {
-    const matches = [item.id, item.title, ...(item.topicLabels ?? [item.unit]), item.author, String(item.level), String(item.rating)]
+    const matches = [item.code ?? "", item.title, ...(item.topicLabels ?? [item.unit]), item.author, String(item.level)]
       .some((value) => value.toLowerCase().includes(query));
     return matches && (statusFilter === "all" || item.status === statusFilter)
       && (levelFilter === "all" || String(item.level) === levelFilter)
@@ -160,7 +162,7 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
           <button className="problem-back" onClick={() => navigate("/practice/problems")}><ArrowLeft size={17} /> All problems</button>
           <div className="problem-detail-grid">
             <section className="problem-card">
-              <div className="problem-meta"><span>{problem.id}</span>{(problem.topicLabels ?? [problem.unit]).map((label) => <span key={label}>{label}</span>)}<span>Level {problem.level}</span><span>{problem.rating} rating</span></div>
+              <div className="problem-meta">{problem.code && <span>{problem.code}</span>}{(problem.topicLabels ?? [problem.unit]).map((label) => <span key={label}>{label}</span>)}<span>Level {problem.level}</span></div>
               <h2>{problem.title}</h2>
               <div className="problem-question"><ProblemContent markdown={problem.question} /></div>
               <form onSubmit={submitAnswer} className="answer-form">
@@ -203,11 +205,11 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
             </div>
           </div>
           <section className="problem-list-card" aria-label="Problems"><div className="problem-table-scroll"><table className="problem-table">
-            <thead><tr><th>Status</th><th>Problem</th><th>Topic</th><th>Level</th><th>Rating</th><th>Author</th><th>Published</th></tr></thead>
+            <thead><tr><th>Status</th><th>Problem</th><th>Topic</th><th>Level</th><th>Author</th><th>Published</th></tr></thead>
             <tbody>{visibleProblems.map((item) => <tr key={item.id}>
               <td><span className={`problem-status ${item.status}`}>{item.status === "solved" ? "Solved" : item.status === "started" ? "In progress" : "Not started"}</span></td>
-              <td><button className="problem-link" onClick={() => navigate(`/practice/problems/${item.id}`)}><span>{item.id}</span>{item.title}</button></td>
-              <td>{(item.topicLabels ?? [item.unit]).join(" · ")}</td><td><span className={`level-badge level-${item.level}`}>{item.level}</span></td><td className="problem-difficulty">{item.rating}</td><td>{item.author}</td><td>{item.published ? new Date(item.published).toLocaleDateString() : "—"}</td>
+              <td><button className="problem-link" onClick={() => navigate(`/practice/problems/${item.code ?? item.id}`)}><span>{item.code}</span>{item.title}</button></td>
+              <td>{(item.topicLabels ?? [item.unit]).join(" · ")}</td><td><span className={`level-badge level-${item.level}`}>{item.level}</span></td><td>{item.author}</td><td>{item.published ? new Date(item.published).toLocaleDateString() : "—"}</td>
             </tr>)}</tbody>
           </table></div>{loaded && !error && visibleProblems.length === 0 && <p className="practice-no-results">{problems.length ? "No problems found." : "No problems yet."}</p>}{!loaded && <p className="practice-no-results">Loading...</p>}</section>
         </>

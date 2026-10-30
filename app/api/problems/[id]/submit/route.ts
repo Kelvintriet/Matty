@@ -1,6 +1,7 @@
 import { and, eq, isNotNull } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
 import { getDatabase } from "@/lib/db";
+import { resolveProblemId } from "@/lib/db/resolve-problem";
 import { problemProgress, problems } from "@/lib/db/schema";
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -8,7 +9,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const session = await getAuth().api.getSession({ headers: request.headers });
     if (!session) return Response.json({ message: "Please log in to submit an answer." }, { status: 401 });
 
-    const { id } = await context.params;
+    const { id: reference } = await context.params;
+    const id = await resolveProblemId(reference);
+    if (!id) return Response.json({ message: "Problem not found." }, { status: 404 });
     const body = await request.json();
     if (typeof body.answer !== "string" || !body.answer.trim() || body.answer.length > 255) {
       return Response.json({ message: "Enter an answer." }, { status: 400 });

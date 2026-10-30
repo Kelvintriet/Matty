@@ -4,19 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, Clipboard } from "lucide-react";
 
-const ratingGuidance = String.raw`Difficulty guide for this platform:
-- A problem rating is an estimated Elo-style difficulty, not the student's score or an official IB grade. Use a whole number of at least 100; the scale extends beyond 3000. The editor currently accepts ratings from 100 to 10000.
-- Below 1000 (Novice): straightforward recognition or direct use of one familiar rule. Example: round 4.673 to 2 decimal places.
-- 1000–1199 (Apprentice): familiar concepts with a small calculation or one clear step. Example: find the next term of a simple arithmetic sequence.
-- 1200–1399 (Specialist): a familiar concept applied in a short problem, possibly with a simple interpretation. Example: find the 10th term of an arithmetic sequence given its first term and common difference.
-- 1400–1599 (Expert): more demanding application, with multiple linked steps or a less obvious setup. Example: find a sequence's first term from two given terms.
-- 1600–1899 (Candidate Master): challenging multi-step reasoning that connects ideas or works backwards. Example: use a series total and a term condition to determine unknown sequence values.
-- 1900–2999 (Master / Grandmaster): substantially harder, unfamiliar problems requiring several connected insights; assign within this range according to the actual difficulty.
-- 3000 and above: exceptional stretch problems, potentially comparable to challenging IB DP Mathematics AA HL questions. Do not assign this range merely because a problem is long.
+const levelGuidance = String.raw`Difficulty guide for this platform:
+- Assign one MYP-style difficulty level from 1 to 8. These are informal authoring estimates, not official IB marks or a fixed conversion from another rating system.
+- Levels 1–2: introductory recognition and direct use of a familiar fact or rule. For example, round a number to a given number of decimal places.
+- Levels 3–4: apply familiar methods in a straightforward problem. For example, find a term of an arithmetic sequence given its first term and common difference.
+- Levels 5–6: use confident reasoning, potentially with connected steps or working backwards. For example, find an arithmetic sequence's first term and common difference from two given terms.
+- Levels 7–8: challenging or unfamiliar applications requiring sustained reasoning, potentially combining several subtopics.
 
-MYP level 1–8 and problem rating are separate estimates. Levels 1–2 are introductory; 3–4 apply familiar methods; 5–6 require more confident reasoning; and 7–8 can involve challenging, unfamiliar applications. These descriptions are informal authoring guidance, not official IB marking criteria or a fixed conversion between levels and Elo.
-
-Judge difficulty by the concepts needed, number and complexity of steps, how much is given, and whether the method is obvious. Treat the rating as provisional: the system has not yet calibrated problem ratings using student results, and practice submissions do not change student Elo. Give a short reason for your suggested level and rating; if a requested rating does not match the problem, say so rather than forcing the estimate.`;
+Choose the level based on the concepts, reasoning, number and complexity of steps, and how much of the method is given. Give a short reason for the suggested level; if a requested level does not match the problem, say so.`;
 
 const authoringPrompt = String.raw`You are helping create a mathematics problem for a Grade 10 MYP 5 practice platform.
 
@@ -24,9 +19,8 @@ Create one original problem for:
 - Units: [choose one or more existing units]
 - Subtopics: [choose one or more existing subtopics across units]
 - MYP level: [1–8]
-- Estimated problem rating: [e.g. 1400]
 
-${ratingGuidance}
+${levelGuidance}
 
 Return these clearly separated fields:
 1. Title
@@ -34,7 +28,7 @@ Return these clearly separated fields:
 3. Accepted final answers, one per line
 4. A brief explanation in Markdown
 5. Any image needed, described clearly for the contributor to create or upload
-6. Suggested MYP level and problem rating, with a brief reason
+6. Suggested MYP level, with a brief reason
 
 Use $...$ for inline LaTeX and $$...$$ on separate lines for display equations. Use proper LaTeX fractions, powers, subscripts, and symbols. Keep the question self-contained. The final answer must be a number or an exact text answer; provide equivalent accepted spellings or forms explicitly because the platform does not automatically recognize algebraic equivalence. Verify every answer and calculation.
 
@@ -51,9 +45,8 @@ Create a new problem for:
 - Units: [choose one or more existing units]
 - Subtopics: [choose one or more existing subtopics across units]
 - MYP level: [1–8]
-- Estimated problem rating: [e.g. 1400]
 
-${ratingGuidance}
+${levelGuidance}
 
 Identify the concepts and reasoning used in the source, then write a genuinely new, self-contained problem. Change the setting, wording, and mathematical values or structure; do not copy the source wording or diagram. Keep the intended difficulty unless asked to change it.
 
@@ -63,7 +56,7 @@ Return these clearly separated fields:
 3. Accepted final answers, one per line
 4. A brief explanation in Markdown
 5. Any image needed, described clearly for the contributor to create or upload
-6. Suggested MYP level and problem rating, with a brief reason
+6. Suggested MYP level, with a brief reason
 
 Use $...$ for inline LaTeX and $$...$$ on separate lines for display equations. Use proper LaTeX fractions, powers, subscripts, and symbols. The final answer must be a number or exact text; list accepted equivalent forms explicitly because the platform does not automatically recognize algebraic equivalence. Solve the new problem independently and verify all calculations and accepted answers.
 
@@ -101,7 +94,7 @@ export default function DocsPage() {
           <a href="#markdown">Markdown and math</a>
           <a href="#images">Images</a>
           <a href="#answers">Answers</a>
-          <a href="#ratings">Ratings and levels</a>
+          <a href="#levels">MYP levels</a>
           <a href="#prompt">AI prompt</a>
         </nav>
         <article className="docs-content">
@@ -109,7 +102,7 @@ export default function DocsPage() {
           <h1>Creating problems</h1>
           <p className="docs-lead">Write, review, and publish problems for the practice list.</p>
 
-          <section id="create"><h2>Create a problem</h2><ol><li>Open <Link href="/contribute">Contribute</Link> with an authorized account.</li><li>Choose one or more subtopics across units, then set a level and problem rating.</li><li>Write the question, accepted answers, and explanation. Check the preview.</li><li>Publish when it is ready. Published problems appear in Practice.</li></ol></section>
+          <section id="create"><h2>Create a problem</h2><ol><li>Open <Link href="/contribute">Contribute</Link> with an authorized account.</li><li>Choose one or more subtopics across units, then set a level from 1 to 8.</li><li>Write the question, accepted answers, and explanation. Check the preview.</li><li>Publish when it is ready. Published problems appear in Practice.</li></ol></section>
 
           <section id="markdown"><h2>Markdown and LaTeX</h2><p>Use Markdown for text and <code>$...$</code> for inline math. Put display math between <code>$$</code> on separate lines.</p><pre><code>{markdownExample}</code></pre><p>Use LaTeX for mathematical expressions, including fractions, powers and subscripts.</p></section>
 
@@ -117,7 +110,7 @@ export default function DocsPage() {
 
           <section id="answers"><h2>Accepted answers</h2><p>Add each accepted final answer separately. Numeric answers are compared as numbers; text answers are compared exactly after trimming spaces. Equivalent fractions, expressions, units and capitalization are not automatically converted.</p><p>For example, add both <code>0.5</code> and <code>1/2</code> if both should be accepted. Explanations appear after a correct answer.</p></section>
 
-          <section id="ratings"><h2>Ratings and levels</h2><p><strong>Level</strong> is a contributor-assigned MYP-style difficulty from 1 to 8. <strong>Problem rating</strong> is an estimated difficulty on the Elo scale. Set both based on the reasoning and knowledge required; they are separate estimates.</p><div className="docs-table-wrap"><table><thead><tr><th>Rating</th><th>Planned title</th></tr></thead><tbody><tr><td>Below 1000</td><td>Novice</td></tr><tr><td>1000–1199</td><td>Apprentice</td></tr><tr><td>1200–1399</td><td>Specialist</td></tr><tr><td>1400–1599</td><td>Expert</td></tr><tr><td>1600–1899</td><td>Candidate Master</td></tr><tr><td>1900+</td><td>Master / Grandmaster</td></tr></tbody></table></div><p>These titles are the proposed student ranks, not an automatic conversion from a problem’s level. Practice answers currently do not change a student’s rating. Contest ratings and difficulty calibration are planned, not implemented.</p></section>
+          <section id="levels"><h2>MYP levels</h2><p>Choose a level from 1 to 8 based on the reasoning and knowledge required. These descriptions are informal authoring guidance, not official IB marking criteria.</p><div className="docs-table-wrap"><table><thead><tr><th>Levels</th><th>General difficulty</th></tr></thead><tbody><tr><td>1–2</td><td>Introductory facts and direct methods</td></tr><tr><td>3–4</td><td>Familiar methods in straightforward problems</td></tr><tr><td>5–6</td><td>Connected steps or working backwards</td></tr><tr><td>7–8</td><td>Challenging, unfamiliar applications</td></tr></tbody></table></div></section>
 
           <section id="prompt"><div className="docs-section-heading"><div><h2>AI authoring prompt</h2><p>Replace the bracketed fields before using it.</p></div><button onClick={() => copyPrompt("original")}>{copyStatus?.prompt === "original" && copyStatus.status === "copied" ? <Check size={16} /> : <Clipboard size={16} />}{copyStatus?.prompt === "original" ? (copyStatus.status === "copied" ? "Copied" : "Copy failed") : "Copy prompt"}</button></div><pre><code>{authoringPrompt}</code></pre><p>Review the maths, difficulty, answers, and image before publishing.</p>
             <div className="docs-section-heading docs-source-heading">
