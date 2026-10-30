@@ -25,6 +25,32 @@ For an image, write standard Markdown like ![description](IMAGE_URL). Do not out
 
 Use the requested difficulty, avoid ambiguous answers, and make the explanation sufficient to check the result. Do not include the answer or explanation in the question.`;
 
+const sourceProblemPrompt = String.raw`You are helping create an original mathematics problem for a Grade 10 MYP 5 practice platform.
+
+Use the following existing problem as a reference for its mathematical concepts and level:
+[Paste the source problem here, including any relevant diagram details.]
+
+Create a new problem for:
+- Unit: [choose an existing unit]
+- Subtopic: [choose an existing subtopic]
+- MYP level: [1–8]
+- Estimated problem rating: [e.g. 1400]
+
+Identify the concepts and reasoning used in the source, then write a genuinely new, self-contained problem. Change the setting, wording, and mathematical values or structure; do not copy the source wording or diagram. Keep the intended difficulty unless asked to change it.
+
+Return these clearly separated fields:
+1. Title
+2. Question in Markdown
+3. Accepted final answers, one per line
+4. A brief explanation in Markdown
+5. Any image needed, described clearly for the contributor to create or upload
+
+Use $...$ for inline LaTeX and $$...$$ on separate lines for display equations. Use proper LaTeX fractions, powers, subscripts, and symbols. The final answer must be a number or exact text; list accepted equivalent forms explicitly because the platform does not automatically recognize algebraic equivalence. Solve the new problem independently and verify all calculations and accepted answers.
+
+For an image, write standard Markdown like ![description](IMAGE_URL). Do not output base64, invent an upload URL, or claim to have uploaded an image. The contributor will upload the image and replace IMAGE_URL with the path inserted by the editor.
+
+Avoid ambiguous answers. Keep the answer and explanation out of the question, and make the explanation sufficient to check the result.`;
+
 const markdownExample = String.raw`A triangle has base $8$ cm and height $5$ cm.
 
 ![A triangle with its base and height labelled](/api/contribute/images/IMAGE_ID)
@@ -34,14 +60,14 @@ Find its **area**, in $\text{cm}^2$.
 $$A = \frac{1}{2}bh$$`;
 
 export default function DocsPage() {
-  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const [copyStatus, setCopyStatus] = useState<{ prompt: "original" | "source"; status: "copied" | "failed" } | null>(null);
 
-  async function copyPrompt() {
+  async function copyPrompt(prompt: "original" | "source") {
     try {
-      await navigator.clipboard.writeText(authoringPrompt);
-      setCopyStatus("copied");
+      await navigator.clipboard.writeText(prompt === "original" ? authoringPrompt : sourceProblemPrompt);
+      setCopyStatus({ prompt, status: "copied" });
     } catch {
-      setCopyStatus("failed");
+      setCopyStatus({ prompt, status: "failed" });
     }
   }
 
@@ -73,7 +99,13 @@ export default function DocsPage() {
 
           <section id="ratings"><h2>Ratings and levels</h2><p><strong>Level</strong> is a contributor-assigned MYP-style difficulty from 1 to 8. <strong>Problem rating</strong> is an estimated difficulty on the Elo scale. Set both based on the reasoning and knowledge required; they are separate estimates.</p><div className="docs-table-wrap"><table><thead><tr><th>Rating</th><th>Planned title</th></tr></thead><tbody><tr><td>Below 1000</td><td>Novice</td></tr><tr><td>1000–1199</td><td>Apprentice</td></tr><tr><td>1200–1399</td><td>Specialist</td></tr><tr><td>1400–1599</td><td>Expert</td></tr><tr><td>1600–1899</td><td>Candidate Master</td></tr><tr><td>1900+</td><td>Master / Grandmaster</td></tr></tbody></table></div><p>These titles are the proposed student ranks, not an automatic conversion from a problem’s level. Practice answers currently do not change a student’s rating. Contest ratings and difficulty calibration are planned, not implemented.</p></section>
 
-          <section id="prompt"><div className="docs-section-heading"><div><h2>AI authoring prompt</h2><p>Replace the bracketed fields before using it.</p></div><button onClick={copyPrompt}>{copyStatus === "copied" ? <Check size={16} /> : <Clipboard size={16} />}{copyStatus === "copied" ? "Copied" : copyStatus === "failed" ? "Copy failed" : "Copy prompt"}</button></div><pre><code>{authoringPrompt}</code></pre><p>Review the maths, difficulty, answers, and image before publishing.</p></section>
+          <section id="prompt"><div className="docs-section-heading"><div><h2>AI authoring prompt</h2><p>Replace the bracketed fields before using it.</p></div><button onClick={() => copyPrompt("original")}>{copyStatus?.prompt === "original" && copyStatus.status === "copied" ? <Check size={16} /> : <Clipboard size={16} />}{copyStatus?.prompt === "original" ? (copyStatus.status === "copied" ? "Copied" : "Copy failed") : "Copy prompt"}</button></div><pre><code>{authoringPrompt}</code></pre><p>Review the maths, difficulty, answers, and image before publishing.</p>
+            <div className="docs-section-heading docs-source-heading">
+              <div><h2>Based on an existing problem</h2><p>Paste the reference problem into the prompt.</p></div>
+              <button onClick={() => copyPrompt("source")}>{copyStatus?.prompt === "source" && copyStatus.status === "copied" ? <Check size={16} /> : <Clipboard size={16} />}{copyStatus?.prompt === "source" ? (copyStatus.status === "copied" ? "Copied" : "Copy failed") : "Copy prompt"}</button>
+            </div>
+            <pre><code>{sourceProblemPrompt}</code></pre>
+          </section>
         </article>
       </div>
     </main>
