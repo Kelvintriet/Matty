@@ -204,14 +204,43 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
               <label><span className="sr-only">Filter by topic</span><select value={topicFilter} onChange={(event) => setTopicFilter(event.target.value)}><option value="all">All topics</option>{[...new Set(problems.flatMap((item) => item.topicLabels ?? [item.unit]))].map((unit) => <option value={unit} key={unit}>{unit}</option>)}</select></label>
             </div>
           </div>
-          <section className="problem-list-card" aria-label="Problems"><div className="problem-table-scroll"><table className="problem-table">
-            <thead><tr><th>Status</th><th>Problem</th><th>Topic</th><th>Level</th><th>Author</th><th>Published</th></tr></thead>
-            <tbody>{visibleProblems.map((item) => <tr key={item.id}>
-              <td><span className={`problem-status ${item.status}`}>{item.status === "solved" ? "Solved" : item.status === "started" ? "In progress" : "Not started"}</span></td>
-              <td><button className="problem-link" onClick={() => navigate(`/practice/problems/${item.code ?? item.id}`)}><span>{item.code}</span>{item.title}</button></td>
-              <td>{(item.topicLabels ?? [item.unit]).join(" · ")}</td><td><span className={`level-badge level-${item.level}`}>{item.level}</span></td><td>{item.author}</td><td>{item.published ? new Date(item.published).toLocaleDateString() : "—"}</td>
-            </tr>)}</tbody>
-          </table></div>{loaded && !error && visibleProblems.length === 0 && <p className="practice-no-results">{problems.length ? "No problems found." : "No problems yet."}</p>}{!loaded && <p className="practice-no-results">Loading...</p>}</section>
+          <section className="problem-list-card" aria-label="Problems">
+            <div className="problem-table-scroll">
+              <table className="problem-table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Problem</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Published</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleProblems.map((item) => (
+                    <tr key={item.id}>
+                      <td className="problem-code-cell">
+                        <button className="problem-link" onClick={() => navigate(`/practice/problems/${item.code ?? item.id}`)}>{item.code ?? "—"}</button>
+                      </td>
+                      <td>
+                        <div className="problem-table-name">
+                          <button className="problem-link" onClick={() => navigate(`/practice/problems/${item.code ?? item.id}`)}>{item.title}</button>
+                          <span className="problem-table-topics">{(item.topicLabels ?? [item.unit]).join(", ")}</span>
+                        </div>
+                      </td>
+                      <td className="problem-table-level">{item.level}</td>
+                      <td><span className={`problem-status ${item.status}`}>{item.status === "solved" ? "Solved" : item.status === "started" ? "In progress" : "Not started"}</span></td>
+                      <td>{item.author}</td>
+                      <td>{item.published ? new Date(item.published).toLocaleDateString() : "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {loaded && !error && visibleProblems.length === 0 && <p className="practice-no-results">{problems.length ? "No problems found." : "No problems yet."}</p>}
+            {!loaded && <p className="practice-no-results">Loading...</p>}
+          </section>
         </>
       )}
     </div>

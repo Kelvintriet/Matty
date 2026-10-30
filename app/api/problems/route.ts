@@ -32,10 +32,10 @@ export async function GET(request: Request) {
     for (const tag of tags) {
       const unit = topics.find((item) => item.id === tag.unitId);
       const subtopic = unit?.lessons.find((item) => item.id === tag.subtopicId);
-      if (unit && subtopic) labels.set(tag.problemId, [...(labels.get(tag.problemId) ?? []), `${unit.title} / ${subtopic.title}`]);
+      if (unit && subtopic) labels.set(tag.problemId, [...(labels.get(tag.problemId) ?? []), subtopic.title]);
     }
     const statuses = new Map(progress.map((item) => [item.problemId, item.solved ? "solved" : "started"]));
-    return Response.json(rows.map((row) => ({ ...row, code: codesByProblem.get(row.id) ?? null, topicLabels: labels.get(row.id) ?? [row.unit], status: statuses.get(row.id) ?? "new" })));
+    return Response.json(rows.map((row) => ({ ...row, code: codesByProblem.get(row.id) ?? null, topicLabels: labels.get(row.id) ?? [row.unit.split(" / ").pop() ?? row.unit], status: statuses.get(row.id) ?? "new" })));
   } catch {
     return Response.json({ message: "Unable to load problems." }, { status: 503 });
   }

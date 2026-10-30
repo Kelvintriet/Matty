@@ -3359,3 +3359,98 @@ button:focus-visible {
   margin: 1px 0 0;
   accent-color: #58c900;
 }
+
+/* Compact, table-first problem list. */
+.practice-page .problem-list-card {
+  overflow: hidden;
+  border: 1px solid #dfe6df;
+  border-radius: 4px;
+}
+
+.practice-page .problem-table {
+  min-width: 760px;
+  table-layout: auto;
+}
+
+.practice-page .problem-table th {
+  padding: 12px 14px;
+  border-right: 1px solid #e5ebe5;
+  background: #f8faf8;
+  color: #76867a;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.practice-page .problem-table td {
+  padding: 12px 14px;
+  border-top: 1px solid #e8ede8;
+  border-right: 1px solid #edf1ed;
+  color: #718176;
+  font-size: 13px;
+}
+
+.practice-page .problem-table th:last-child,
+.practice-page .problem-table td:last-child {
+  border-right: 0;
+}
+
+.practice-page .problem-table tbody tr:nth-child(even) {
+  background: #fafbfa;
+}
+
+.practice-page .problem-table tbody tr:hover {
+  background: #f3f9f1;
+}
+
+.practice-page .problem-table-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 5px 24px;
+  min-width: 360px;
+}
+
+.practice-page .problem-link {
+  display: inline;
+  padding: 0;
+  color: #3d9f24;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.practice-page .problem-link:hover {
+  color: #328b1c;
+  text-decoration: underline;
+}
+
+.practice-page .problem-table-topics {
+  color: #9aa79d;
+  font-size: 12px;
+  white-space: normal;
+  text-align: right;
+}
+
+.practice-page .problem-table-level {
+  color: #536b59;
+  font-weight: 700;
+  text-align: center;
+}
+
+.practice-page .problem-status {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 12px;
+}
+
+.practice-page .problem-status.solved { color: #49a72b; }
+.practice-page .problem-status.started { color: #bc8a2c; }
+.practice-page .problem-status.new { color: #9ba99e; }
+
+.practice-page .practice-search,
+.practice-page .practice-filters select {
+  border-radius: 4px;
+}
