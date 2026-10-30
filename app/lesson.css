@@ -3235,3 +3235,9 @@ button:focus-visible {
 .ai-explain-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; }
 .ai-explain-actions a, .ai-explain-actions button { padding: 9px 11px; border: 1px solid #dcebd8; border-radius: 8px; background: #f6fbf3; color: #4e9f32; font: inherit; font-size: 12px; font-weight: 700; text-decoration: none; }
 .ai-explain-actions span { color: #7a8c7f; font-size: 12px; }
+
+/* Keep the custom password toggle as the only reveal control in Edge. */
+.auth-password-field input::-ms-reveal,
+.auth-password-field input::-ms-clear {
+  display: none;
+}
