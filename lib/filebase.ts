@@ -47,3 +47,30 @@ export async function removeContributorImage(content: string) {
   const { client, bucket } = configuration();
   await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
 }
+
+function stagingKey(id: string, part: number) {
+  if (!/^[a-f0-9-]{36}$/i.test(id) || !Number.isInteger(part) || part < 0 || part > 4) {
+    throw new Error("Invalid upload part.");
+  }
+  return `contributor-staging/${id}/${part}`;
+}
+
+export async function uploadImagePart(id: string, part: number, data: Buffer) {
+  const { client, bucket } = configuration();
+  await client.send(new PutObjectCommand({ Bucket: bucket, Key: stagingKey(id, part), Body: data, ContentType: "application/octet-stream" }));
+}
+
+export async function readImagePart(id: string, part: number, expectedBytes: number) {
+  const { client, bucket } = configuration();
+  const response = await client.send(new GetObjectCommand({ Bucket: bucket, Key: stagingKey(id, part) }));
+  if (!response.Body || response.ContentLength !== expectedBytes) throw new Error("Invalid upload part.");
+  const bytes = Buffer.from(await response.Body.transformToByteArray());
+  if (bytes.length !== expectedBytes) throw new Error("Invalid upload part.");
+  return bytes;
+}
+
+export async function removeImageParts(id: string, count: number) {
+  const { client, bucket } = configuration();
+  await Promise.all(Array.from({ length: count }, (_, part) =>
+    client.send(new DeleteObjectCommand({ Bucket: bucket, Key: stagingKey(id, part) }))));
+}

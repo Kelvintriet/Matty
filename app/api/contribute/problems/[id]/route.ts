@@ -1,3 +1,4 @@
+import { imageUploadPrefix } from "@/lib/image-upload";
 import { and, eq, inArray } from "drizzle-orm";
 import { topics } from "@/app/content/course";
 import { authorizeContributor, contributorIdentity } from "@/lib/contributor-access";
@@ -50,11 +51,11 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     const [existing] = await db.select({ id: problems.id }).from(problems).where(eq(problems.id, id)).limit(1);
     if (!existing) return Response.json({ message: "Problem not found." }, { status: 404 });
     if (input.imageIds.length) {
-      const uploaded = await db.select({ id: contributorImages.id }).from(contributorImages)
+      const uploaded = await db.select({ id: contributorImages.id, content: contributorImages.content }).from(contributorImages)
         .where(and(eq(contributorImages.ownerId, contributor.id), inArray(contributorImages.id, input.imageIds)));
       const linked = await db.select({ id: problemImages.imageId }).from(problemImages)
         .where(and(eq(problemImages.problemId, id), inArray(problemImages.imageId, input.imageIds)));
-      const available = new Set([...uploaded, ...linked].map((item) => item.id));
+      const available = new Set([...uploaded.filter((image) => !image.content.startsWith(imageUploadPrefix)), ...linked].map((item) => item.id));
       if (input.imageIds.some((imageId) => !available.has(imageId))) return Response.json({ message: "One or more images are unavailable." }, { status: 400 });
     }
     await db.transaction(async (tx) => {

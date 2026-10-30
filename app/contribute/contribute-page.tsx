@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "r
 import Link from "next/link";
 import { ArrowLeft, ImagePlus, LockKeyhole, Plus, Trash2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { imagePartBytes, maxImageBytes } from "@/lib/image-upload";
 import ProblemContent from "../problem-content";
 import { topics } from "../content/course";
 
@@ -120,19 +121,52 @@ export default function ContributePage() {
     const currentText = field === "question" ? statement : explanation;
     const start = editor?.selectionStart ?? currentText.length;
     const end = editor?.selectionEnd ?? currentText.length;
-    const form = new FormData();
-    form.append("image", file);
+    if (file.size > maxImageBytes) {
+      setMessage("Images must be 15 MB or smaller.");
+      return;
+    }
+
     setBusy(true);
     setMessage("");
+    let uploadId: string | null = null;
+
     try {
-      const response = await fetch("/api/contribute/images", { method: "POST", body: form });
+      const startResponse = await fetch("/api/contribute/images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ size: file.size, type: file.type }),
+      });
+      const started = await startResponse.json();
+      if (!startResponse.ok) throw new Error(started.message);
+      uploadId = started.id;
+
+      const count = Math.ceil(file.size / imagePartBytes);
+      for (let part = 0; part < count; part += 1) {
+        const chunk = file.slice(part * imagePartBytes, (part + 1) * imagePartBytes);
+        const response = await fetch(`/api/contribute/images/${uploadId}/parts/${part}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/octet-stream" },
+          body: chunk,
+        });
+        if (!response.ok) {
+          const result = await response.json();
+          throw new Error(result.message);
+        }
+      }
+
+      const response = await fetch(`/api/contribute/images/${uploadId}/complete`, { method: "POST" });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
+      uploadId = null;
+
       const alt = file.name.replace(/\.[^.]+$/, "").replace(/[\[\]\\]/g, " ");
       const insert = (current: string) => `${current.slice(0, start)}\n\n![${alt}](${result.path})\n\n${current.slice(end)}`;
       if (field === "question") setStatement(insert);
       else setExplanation(insert);
     } catch (error) {
+      if (uploadId) {
+        await fetch(`/api/contribute/images/${uploadId}`, { method: "DELETE" }).catch(() => {});
+      }
       setMessage(error instanceof Error ? error.message : "Unable to upload image.");
     } finally {
       setBusy(false);

@@ -4,13 +4,13 @@ import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import { normalizeProblemMath } from "@/lib/normalize-problem-math";
 
 export default function ProblemContent({ markdown, images = {} }: {
   markdown: string;
   images?: Record<string, string>;
 }) {
-  // Existing lessons use \( ... \); Markdown authors can also use $ ... $ and $$ ... $$.
-  const source = markdown.replace(/\\\(([\s\S]*?)\\\)/g, (_, math: string) => `$${math}$`);
+  const source = normalizeProblemMath(markdown);
 
   return (
     <div className="problem-markdown">
