@@ -37,7 +37,8 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     const data = Buffer.concat(chunks, received);
     await uploadImagePart(id, part, data);
     return Response.json({ ok: true });
-  } catch {
+  } catch (error) {
+    console.error("Image part upload failed:", error instanceof Error ? error.message : "Unknown error");
     return Response.json({ message: "Unable to upload the image." }, { status: 503 });
   }
 }

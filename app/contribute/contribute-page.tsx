@@ -38,6 +38,7 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
   const [answers, setAnswers] = useState([""]);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ field: "question" | "explanation"; percent: number } | null>(null);
   const [publishedId, setPublishedId] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editorLoaded, setEditorLoaded] = useState(false);
@@ -192,6 +193,7 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
 
     setBusy(true);
     setMessage("");
+    setUploadProgress({ field, percent: 0 });
     let uploadId: string | null = null;
 
     try {
@@ -207,15 +209,29 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
       const count = Math.ceil(file.size / imagePartBytes);
       for (let part = 0; part < count; part += 1) {
         const chunk = file.slice(part * imagePartBytes, (part + 1) * imagePartBytes);
-        const response = await fetch(`/api/contribute/images/${uploadId}/parts/${part}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/octet-stream" },
-          body: chunk,
+        await new Promise<void>((resolve, reject) => {
+          const request = new XMLHttpRequest();
+          request.open("PUT", `/api/contribute/images/${uploadId}/parts/${part}`);
+          request.setRequestHeader("Content-Type", "application/octet-stream");
+          request.upload.onprogress = (progress) => {
+            if (!progress.lengthComputable) return;
+            const uploaded = part * imagePartBytes + progress.loaded;
+            setUploadProgress({ field, percent: Math.min(95, Math.round(uploaded / file.size * 95)) });
+          };
+          request.onload = () => {
+            if (request.status >= 200 && request.status < 300) {
+              resolve();
+              return;
+            }
+            try {
+              reject(new Error(JSON.parse(request.responseText).message || "Unable to upload image."));
+            } catch {
+              reject(new Error("Unable to upload image."));
+            }
+          };
+          request.onerror = () => reject(new Error("Unable to upload image. Check your connection."));
+          request.send(chunk);
         });
-        if (!response.ok) {
-          const result = await response.json();
-          throw new Error(result.message);
-        }
       }
 
       const response = await fetch(`/api/contribute/images/${uploadId}/complete`, { method: "POST" });
@@ -233,6 +249,7 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
       }
       setMessage(error instanceof Error ? error.message : "Unable to upload image.");
     } finally {
+      setUploadProgress(null);
       setBusy(false);
     }
   }
@@ -343,10 +360,24 @@ export default function ContributePage({ problemId }: { problemId?: string }) {
                   ))}
                 </div>
               </section>
-              <section className="contribute-card"><div className="contribute-card-heading"><h2>Question</h2><label className="upload-image"><ImagePlus size={16} /> Add image<input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => uploadImage(event, "question")} disabled={busy} /></label></div><textarea ref={questionEditor} value={statement} onChange={(event) => setStatement(event.target.value)} required placeholder="Write the question in Markdown..." /><p className="contribute-hint">Inline math: $...$ · Display math: $$...$$</p></section>
+              <section className="contribute-card"><div className="contribute-card-heading"><h2>Question</h2>{uploadProgress?.field === "question" ? (
+                  <span className="upload-progress" role="status" aria-label={`Uploading image: ${uploadProgress.percent}%`}>
+                    <span className="upload-progress-fill" style={{ width: `${uploadProgress.percent}%` }} />
+                    <span>Uploading {uploadProgress.percent}%</span>
+                  </span>
+                ) : (
+                  <label className="upload-image"><ImagePlus size={16} /> Add image<input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => uploadImage(event, "question")} disabled={busy} /></label>
+                )}</div><textarea ref={questionEditor} value={statement} onChange={(event) => setStatement(event.target.value)} required placeholder="Write the question in Markdown..." /><p className="contribute-hint">Inline math: $...$ · Display math: $$...$$</p></section>
               <section className="contribute-card"><h2>Accepted answers</h2>{answers.map((answer, index) => <div className="contribute-answer" key={index}><input value={answer} onChange={(event) => setAnswers((current) => current.map((value, i) => i === index ? event.target.value : value))} required maxLength={100} placeholder={`Answer ${index + 1}`} />{answers.length > 1 && <button type="button" aria-label={`Remove answer ${index + 1}`} onClick={() => setAnswers((current) => current.filter((_, i) => i !== index))}><Trash2 size={17} /></button>}</div>)}{answers.length < 10 && <button className="contribute-add" type="button" onClick={() => setAnswers((current) => [...current, ""])}><Plus size={16} /> Add answer</button>}</section>
               <section className="contribute-card">
-                <div className="contribute-card-heading"><h2>Explanation</h2><label className="upload-image"><ImagePlus size={16} /> Add image<input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => uploadImage(event, "explanation")} disabled={busy} /></label></div>
+                <div className="contribute-card-heading"><h2>Explanation</h2>{uploadProgress?.field === "explanation" ? (
+                  <span className="upload-progress" role="status" aria-label={`Uploading image: ${uploadProgress.percent}%`}>
+                    <span className="upload-progress-fill" style={{ width: `${uploadProgress.percent}%` }} />
+                    <span>Uploading {uploadProgress.percent}%</span>
+                  </span>
+                ) : (
+                  <label className="upload-image"><ImagePlus size={16} /> Add image<input type="file" accept="image/png,image/jpeg,image/webp" onChange={(event) => uploadImage(event, "explanation")} disabled={busy} /></label>
+                )}</div>
                 <textarea ref={explanationEditor} value={explanation} onChange={(event) => setExplanation(event.target.value)} required placeholder="Write the explanation in Markdown..." />
                 <p className="contribute-hint">Inline math: $...$ · Display math: $$...$$</p>
               </section>

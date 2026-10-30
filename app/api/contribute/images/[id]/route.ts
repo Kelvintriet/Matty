@@ -41,7 +41,8 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
     await removeImageParts(id, Math.ceil(size / imagePartBytes)).catch(() => {});
     await db.delete(contributorImages).where(and(eq(contributorImages.id, id), eq(contributorImages.ownerId, user.id), eq(contributorImages.content, image.content)));
     return Response.json({ ok: true });
-  } catch {
+  } catch (error) {
+    console.error("Image request failed:", error instanceof Error ? error.message : "Unknown error");
     return Response.json({ message: "Unable to cancel the upload." }, { status: 503 });
   }
 }

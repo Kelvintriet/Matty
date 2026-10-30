@@ -47,7 +47,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     }
     await removeImageParts(id, count).catch(() => {});
     return Response.json({ path: `/api/contribute/images/${id}` });
-  } catch {
+  } catch (error) {
+    console.error("Image finalization failed:", error instanceof Error ? error.message : "Unknown error");
     return Response.json({ message: "Unable to finish the upload. Check the file and storage configuration." }, { status: 503 });
   }
 }
