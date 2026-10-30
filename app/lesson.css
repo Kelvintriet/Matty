@@ -3495,6 +3495,7 @@ button:focus-visible {
 }
 
 .contribute-actions button,
+.contribute-actions a,
 .contribute-back-list {
   padding: 0;
   border: 0;

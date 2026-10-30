@@ -2,13 +2,30 @@
 
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, ImagePlus, LockKeyhole, Plus, Trash2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { imagePartBytes, maxImageBytes } from "@/lib/image-upload";
 import ProblemContent from "../problem-content";
 import { topics } from "../content/course";
 
-export default function ContributePage() {
+type Draft = {
+  id: string;
+  title: string;
+  selections: { unitId: string; subtopicId: string }[];
+  level: number;
+  statement: string;
+  explanation: string;
+  answers: string[];
+};
+
+function draftKey(userId: string, id: string) {
+  return `matty:contribute:draft:${userId}:${id}`;
+}
+
+export default function ContributePage({ problemId }: { problemId?: string }) {
+  const router = useRouter();
+  const isDraft = Boolean(problemId?.startsWith("draft-"));
   const { data: session, isPending } = authClient.useSession();
   const [allowedUserId, setAllowedUserId] = useState<string | null>(null);
   const allowed = Boolean(session && allowedUserId === session.user.id);
@@ -23,7 +40,9 @@ export default function ContributePage() {
   const [busy, setBusy] = useState(false);
   const [publishedId, setPublishedId] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [showEditor, setShowEditor] = useState(false);
+  const [editorLoaded, setEditorLoaded] = useState(false);
+  const [drafts, setDrafts] = useState<Draft[]>([]);
+  const showEditor = Boolean(problemId);
   const [problems, setProblems] = useState<{ id: string; code: string | null; title: string; author: string; level: number }[]>([]);
   const [listLoading, setListLoading] = useState(true);
   const questionEditor = useRef<HTMLTextAreaElement>(null);
@@ -63,38 +82,83 @@ export default function ContributePage() {
     return () => { cancelled = true; };
   }, [allowed, showEditor, publishedId]);
 
-  function resetForm() {
-    setTitle("");
-    setStatement("");
-    setExplanation("");
-    setAnswers([""]);
-    setSelections([]);
-    setLevel(4);
-    setEditingId(null);
-    setPublishedId("");
-    setMessage("");
-  }
+  useEffect(() => {
+    if (!allowed || !session || !problemId) return;
 
-  async function editProblem(id: string) {
-    setBusy(true);
-    setMessage("");
-    try {
-      const response = await fetch(`/api/contribute/problems/${encodeURIComponent(id)}`, { cache: "no-store" });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message);
-      setTitle(result.title);
-      setLevel(result.level);
-      setStatement(result.statement);
-      setExplanation(result.explanation);
-      setAnswers(result.answers);
-      setSelections(result.selections);
-      setEditingId(result.code);
-      setShowEditor(true);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Unable to load the problem.");
-    } finally {
-      setBusy(false);
+    let cancelled = false;
+    if (isDraft) {
+      try {
+        const saved = localStorage.getItem(draftKey(session.user.id, problemId));
+        if (saved) {
+          const draft = JSON.parse(saved) as Draft;
+          // Restore the browser draft when the editor opens.
+          /* eslint-disable-next-line react-hooks/set-state-in-effect */
+          setTitle(draft.title);
+          setSelections(draft.selections);
+          setLevel(draft.level);
+          setStatement(draft.statement);
+          setExplanation(draft.explanation);
+          setAnswers(draft.answers);
+        }
+        setEditorLoaded(true);
+      } catch {
+        setMessage("Unable to load this draft.");
+      }
+    } else {
+      fetch(`/api/contribute/problems/${encodeURIComponent(problemId)}`, { cache: "no-store" })
+        .then(async (response) => {
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.message);
+          if (cancelled) return;
+          setTitle(result.title);
+          setLevel(result.level);
+          setStatement(result.statement);
+          setExplanation(result.explanation);
+          setAnswers(result.answers);
+          setSelections(result.selections);
+          setEditingId(result.code);
+          setEditorLoaded(true);
+        })
+        .catch((error) => {
+          if (!cancelled) setMessage(error instanceof Error ? error.message : "Unable to load the problem.");
+        });
     }
+    return () => { cancelled = true; };
+  }, [allowed, session, problemId, isDraft]);
+
+  useEffect(() => {
+    if (!allowed || !session || !problemId || !isDraft || !editorLoaded || publishedId) return;
+    const draft: Draft = { id: problemId, title, selections, level, statement, explanation, answers };
+    try {
+      localStorage.setItem(draftKey(session.user.id, problemId), JSON.stringify(draft));
+    } catch {
+      /* eslint-disable-next-line react-hooks/set-state-in-effect */
+      setMessage("Unable to save the draft in this browser.");
+    }
+  }, [allowed, session, problemId, isDraft, editorLoaded, publishedId, title, selections, level, statement, explanation, answers]);
+
+  useEffect(() => {
+    if (!allowed || !session || showEditor) return;
+    const prefix = `matty:contribute:draft:${session.user.id}:`;
+    const saved: Draft[] = [];
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index);
+      if (!key?.startsWith(prefix)) continue;
+      try {
+        const draft = JSON.parse(localStorage.getItem(key) ?? "null") as Draft | null;
+        if (draft?.id) saved.push(draft);
+      } catch {
+        // Ignore malformed browser data.
+      }
+    }
+    /* eslint-disable-next-line react-hooks/set-state-in-effect */
+    setDrafts(saved);
+  }, [allowed, session, showEditor]);
+
+  function deleteDraft(id: string) {
+    if (!session || !window.confirm("Delete this draft?")) return;
+    localStorage.removeItem(draftKey(session.user.id, id));
+    setDrafts((current) => current.filter((draft) => draft.id !== id));
   }
 
   async function deleteProblem(id: string, title: string) {
@@ -189,7 +253,12 @@ export default function ContributePage() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
-      setPublishedId(editingId ?? result.id);
+      if (isDraft && problemId && session) {
+        localStorage.removeItem(draftKey(session.user.id, problemId));
+      }
+      const publishedCode = editingId ?? result.id;
+      setPublishedId(publishedCode);
+      if (isDraft) router.replace(`/contribute/problem/${encodeURIComponent(publishedCode)}`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to publish.");
     } finally {
@@ -201,36 +270,43 @@ export default function ContributePage() {
     <main className="contribute-page">
       <header className="contribute-header"><Link href="/practice/problems"><ArrowLeft size={17} /> Practice</Link><Link href="/docs">Developer docs</Link></header>
       {isPending || checking ? <p>Loading...</p> : !session ? (
-        <section className="contribute-access"><LockKeyhole size={28} /><h1>Log in to contribute</h1><Link className="contribute-primary" href="/login?next=%2Fcontribute">Log in</Link></section>
+        <section className="contribute-access"><LockKeyhole size={28} /><h1>Log in to contribute</h1><Link className="contribute-primary" href={`/login?next=${encodeURIComponent(problemId ? `/contribute/problem/${problemId}` : "/contribute")}`}>Log in</Link></section>
       ) : !allowed ? (
         <section className="contribute-access"><LockKeyhole size={28} /><h1>Access restricted</h1><p>Your account ID</p><code>{session.user.id}</code>{message && <p role="alert">{message}</p>}</section>
       ) : publishedId ? (
         <section className="contribute-access">
           <h1>{editingId ? "Problem updated" : "Problem published"}</h1>
           <Link className="contribute-primary" href={`/practice/problems/${publishedId}`}>View problem</Link>
-          <button onClick={() => { resetForm(); setListLoading(true); setShowEditor(false); }}>Back to problems</button>
+          <Link href="/contribute">Back to problems</Link>
         </section>
       ) : !showEditor ? (
         <section>
-          <div className="contribute-title"><h1>Problems</h1><button className="contribute-primary" onClick={() => { resetForm(); setShowEditor(true); }}>Create problem</button></div>
+          <div className="contribute-title"><h1>Problems</h1><button className="contribute-primary" onClick={() => router.push(`/contribute/problem/draft-${crypto.randomUUID()}`)}>Create problem</button></div>
           {message && <p className="contribute-message" role="alert">{message}</p>}
           <div className="contribute-manage-table-wrap">
             <table className="contribute-manage-table">
               <thead><tr><th scope="col">#</th><th scope="col">Problem</th><th scope="col">Level</th><th scope="col">Author</th><th scope="col">Actions</th></tr></thead>
-              <tbody>{problems.map((item) => (
+              <tbody>{drafts.map((draft) => (
+                <tr key={draft.id}>
+                  <td>Draft</td><td>{draft.title || "Untitled problem"}</td><td>{draft.level}</td><td>{session.user.name}</td>
+                  <td><div className="contribute-actions"><Link href={`/contribute/problem/${draft.id}`}>Edit</Link><button className="contribute-delete" onClick={() => deleteDraft(draft.id)}>Delete</button></div></td>
+                </tr>
+              ))}{problems.map((item) => (
                 <tr key={item.id}>
                   <td>{item.code ?? "—"}</td><td>{item.title}</td><td>{item.level}</td><td>{item.author}</td>
-                  <td><div className="contribute-actions"><button disabled={busy} onClick={() => editProblem(item.code ?? item.id)}>Edit</button><button className="contribute-delete" disabled={busy} onClick={() => deleteProblem(item.code ?? item.id, item.title)}>Delete</button></div></td>
+                  <td><div className="contribute-actions"><Link href={`/contribute/problem/${encodeURIComponent(item.code ?? item.id)}`}>Edit</Link><button className="contribute-delete" disabled={busy} onClick={() => deleteProblem(item.code ?? item.id, item.title)}>Delete</button></div></td>
                 </tr>
               ))}</tbody>
             </table>
-            {!listLoading && !problems.length && !message && <p className="practice-no-results">No problems yet.</p>}
+            {!listLoading && !problems.length && !drafts.length && !message && <p className="practice-no-results">No problems yet.</p>}
             {listLoading && <p className="practice-no-results">Loading...</p>}
           </div>
         </section>
+      ) : !editorLoaded ? (
+        <section>{message ? <p className="contribute-message" role="alert">{message}</p> : <p>Loading...</p>}<Link href="/contribute">Back to problems</Link></section>
       ) : (
         <form onSubmit={publish} className="contribute-form">
-          <div className="contribute-title"><div><button type="button" className="contribute-back-list" onClick={() => { resetForm(); setListLoading(true); setShowEditor(false); }}><ArrowLeft size={15} /> Problems</button><h1>{editingId ? "Edit problem" : "Create a problem"}</h1><p>Markdown and LaTeX supported.</p></div><button className="contribute-primary" disabled={busy} type="submit">{busy ? "Working..." : editingId ? "Save changes" : "Publish problem"}</button></div>
+          <div className="contribute-title"><div><Link className="contribute-back-list" href="/contribute"><ArrowLeft size={15} /> Problems</Link><h1>{editingId ? "Edit problem" : "Create a problem"}</h1><p>Markdown and LaTeX supported.</p></div><button className="contribute-primary" disabled={busy} type="submit">{busy ? "Working..." : editingId ? "Save changes" : "Publish problem"}</button></div>
           {message && <p className="contribute-message" role="alert">{message}</p>}
           <div className="contribute-grid">
             <div className="contribute-main">
