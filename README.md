@@ -57,6 +57,21 @@ CONTRIBUTOR_ADMIN_USER_IDS=<account-id>
 
 For multiple contributors, separate account IDs with commas. Restart the server after changing environment settings. Contributors must sign in using an allowlisted account to upload or publish.
 
-Images are normalized and stored in TiDB for now. The Markdown uses image URLs, so storage can move to S3 later. The editor publishes directly to the practice list; it does not yet support drafts, editing, or review.
+New images are normalized and stored in a private Filebase S3-compatible bucket. Existing TiDB-backed images continue to work. The Markdown uses stable application image URLs. The editor publishes directly to the practice list; it does not yet support drafts, editing, or review.
 
 The contributor tables are defined in Drizzle. To inspect their scoped setup on a new database, run `npx drizzle-kit push --config=drizzle.contribute.config.ts` and review the proposed changes before applying them.
+
+
+## Filebase images
+
+Create a private standard S3-compatible Filebase bucket. Add these settings to `.env.local` and the production environment, without the brackets:
+
+```env
+FILEBASE_BUCKET=<bucket-name>
+FILEBASE_ACCESS_KEY_ID=<access-key-id>
+FILEBASE_SECRET_ACCESS_KEY=<secret-access-key>
+```
+
+Restart the server after changing environment settings. The server uses `https://s3.filebase.io` with region `auto`; credentials never go to the browser. Uploads require all three settings, and images in unpublished problems remain visible only to their uploader through the app. Existing TiDB images are not automatically migrated.
+
+The contributor guide is available at `/docs`.

@@ -5,13 +5,16 @@ import Link from "next/link";
 import { ArrowLeft, ImagePlus, LockKeyhole, Plus, Trash2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import ProblemContent from "../problem-content";
+import { topics } from "../content/course";
 
 export default function ContributePage() {
   const { data: session, isPending } = authClient.useSession();
   const [allowed, setAllowed] = useState(false);
   const [checking, setChecking] = useState(true);
   const [title, setTitle] = useState("");
-  const [topic, setTopic] = useState("");
+  const [topicId, setTopicId] = useState("");
+  const [subtopicId, setSubtopicId] = useState("");
+  const selectedTopic = topics.find((item) => item.id === topicId);
   const [level, setLevel] = useState(4);
   const [rating, setRating] = useState(1200);
   const [statement, setStatement] = useState("");
@@ -73,7 +76,7 @@ export default function ContributePage() {
       const response = await fetch("/api/contribute/problems", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, topic, level, rating, statement, explanation, answers }),
+        body: JSON.stringify({ title, topicId, subtopicId, level, rating, statement, explanation, answers }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
@@ -87,7 +90,7 @@ export default function ContributePage() {
 
   return (
     <main className="contribute-page">
-      <header className="contribute-header"><Link href="/practice/problems"><ArrowLeft size={17} /> Practice</Link><span>CONTRIBUTE</span></header>
+      <header className="contribute-header"><Link href="/practice/problems"><ArrowLeft size={17} /> Practice</Link><Link href="/docs">Developer docs</Link></header>
       {isPending || checking ? <p>Loading...</p> : !session ? (
         <section className="contribute-access"><LockKeyhole size={28} /><h1>Log in to contribute</h1><Link className="contribute-primary" href="/login?next=%2Fcontribute">Log in</Link></section>
       ) : !allowed ? (
@@ -100,7 +103,7 @@ export default function ContributePage() {
           {message && <p className="contribute-message" role="alert">{message}</p>}
           <div className="contribute-grid">
             <div className="contribute-main">
-              <section className="contribute-card"><h2>Problem details</h2><div className="contribute-fields"><label>Title<input value={title} onChange={(event) => setTitle(event.target.value)} required maxLength={255} /></label><label>Topic<input value={topic} onChange={(event) => setTopic(event.target.value)} required maxLength={255} /></label><label>Level<select value={level} onChange={(event) => setLevel(Number(event.target.value))}>{[1,2,3,4,5,6,7,8].map((number) => <option key={number}>{number}</option>)}</select></label><label>Rating<input type="number" min="100" max="10000" value={rating} onChange={(event) => setRating(Number(event.target.value))} required /></label></div></section>
+              <section className="contribute-card"><h2>Problem details</h2><div className="contribute-fields"><label>Title<input value={title} onChange={(event) => setTitle(event.target.value)} required maxLength={255} /></label><label>Unit<select value={topicId} onChange={(event) => { setTopicId(event.target.value); setSubtopicId(""); }} required><option value="">Choose a unit</option>{topics.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select></label><label>Subtopic<select value={subtopicId} onChange={(event) => setSubtopicId(event.target.value)} required disabled={!selectedTopic}><option value="">Choose a subtopic</option>{selectedTopic?.lessons.map((lesson) => <option key={lesson.id} value={lesson.id}>{lesson.title}</option>)}</select></label><label>Level<select value={level} onChange={(event) => setLevel(Number(event.target.value))}>{[1,2,3,4,5,6,7,8].map((number) => <option key={number}>{number}</option>)}</select></label><label>Rating<input type="number" min="100" max="10000" value={rating} onChange={(event) => setRating(Number(event.target.value))} required /></label></div></section>
               <section className="contribute-card"><div className="contribute-card-heading"><h2>Question</h2><label className="upload-image"><ImagePlus size={16} /> Add image<input type="file" accept="image/png,image/jpeg,image/webp" onChange={uploadImage} disabled={busy} /></label></div><textarea ref={editor} value={statement} onChange={(event) => setStatement(event.target.value)} required placeholder="Write the question in Markdown..." /><p className="contribute-hint">Inline math: $...$ · Display math: $$...$$</p></section>
               <section className="contribute-card"><h2>Accepted answers</h2>{answers.map((answer, index) => <div className="contribute-answer" key={index}><input value={answer} onChange={(event) => setAnswers((current) => current.map((value, i) => i === index ? event.target.value : value))} required maxLength={100} placeholder={`Answer ${index + 1}`} />{answers.length > 1 && <button type="button" aria-label={`Remove answer ${index + 1}`} onClick={() => setAnswers((current) => current.filter((_, i) => i !== index))}><Trash2 size={17} /></button>}</div>)}{answers.length < 10 && <button className="contribute-add" type="button" onClick={() => setAnswers((current) => [...current, ""])}><Plus size={16} /> Add answer</button>}</section>
               <section className="contribute-card"><h2>Explanation</h2><textarea value={explanation} onChange={(event) => setExplanation(event.target.value)} required placeholder="Write a brief explanation..." /></section>

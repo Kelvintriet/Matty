@@ -2,6 +2,7 @@ import sharp from "sharp";
 import { authorizeContributor } from "@/lib/contributor-access";
 import { getDatabase } from "@/lib/db";
 import { contributorImages } from "@/lib/db/schema";
+import { removeContributorImage, uploadContributorImage } from "@/lib/filebase";
 
 export async function POST(request: Request) {
   try {
@@ -22,9 +23,15 @@ export async function POST(request: Request) {
     }
     const data = await image.rotate().webp({ quality: 85 }).toBuffer();
     const id = crypto.randomUUID();
-    await getDatabase().insert(contributorImages).values({ id, ownerId: user.id, content: data.toString("base64"), createdAt: new Date() });
+    const content = await uploadContributorImage(id, data);
+    try {
+      await getDatabase().insert(contributorImages).values({ id, ownerId: user.id, content, createdAt: new Date() });
+    } catch (error) {
+      await removeContributorImage(content).catch(() => {});
+      throw error;
+    }
     return Response.json({ path: `/api/contribute/images/${id}` });
   } catch {
-    return Response.json({ message: "Unable to upload the image." }, { status: 400 });
+    return Response.json({ message: "Unable to upload the image. Check the file and storage configuration." }, { status: 503 });
   }
 }

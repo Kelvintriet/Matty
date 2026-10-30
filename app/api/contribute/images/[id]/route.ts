@@ -2,6 +2,7 @@ import { and, eq, isNotNull } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
 import { getDatabase } from "@/lib/db";
 import { contributorImages, problemImages, problems } from "@/lib/db/schema";
+import { readContributorImage } from "@/lib/filebase";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -16,7 +17,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       const session = await getAuth().api.getSession({ headers: request.headers });
       if (!session || session.user.id !== image.ownerId) return new Response(null, { status: 404 });
     }
-    return new Response(new Uint8Array(Buffer.from(image.content, "base64")), {
+    return new Response(new Uint8Array(await readContributorImage(image.content)), {
       headers: { "Content-Type": "image/webp", "X-Content-Type-Options": "nosniff", "Cache-Control": "private, no-store" },
     });
   } catch {

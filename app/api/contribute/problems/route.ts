@@ -2,15 +2,18 @@ import { and, eq, inArray } from "drizzle-orm";
 import { authorizeContributor } from "@/lib/contributor-access";
 import { getDatabase } from "@/lib/db";
 import { contributorImages, problemImages, problems } from "@/lib/db/schema";
+import { topics } from "@/app/content/course";
 
 export async function POST(request: Request) {
   try {
     const user = await authorizeContributor(request);
     if (!user) return Response.json({ message: "Access denied." }, { status: 403 });
     const body = await request.json();
-    const { title, topic, level, rating, statement, explanation, answers } = body;
+    const { title, topicId, subtopicId, level, rating, statement, explanation, answers } = body;
+    const unit = topics.find((item) => item.id === topicId);
+    const subtopic = unit?.lessons.find((lesson) => lesson.id === subtopicId);
     if (typeof title !== "string" || !title.trim() || title.length > 255 ||
-      typeof topic !== "string" || !topic.trim() || topic.length > 255 ||
+      !unit || !subtopic ||
       !Number.isInteger(level) || level < 1 || level > 8 ||
       !Number.isInteger(rating) || rating < 100 || rating > 10000 ||
       typeof statement !== "string" || !statement.trim() || statement.length > 50000 ||
@@ -32,7 +35,7 @@ export async function POST(request: Request) {
     const id = crypto.randomUUID();
     const now = new Date();
     await db.transaction(async (tx) => {
-      await tx.insert(problems).values({ id, title: title.trim(), topic: topic.trim(), level, rating, statement, explanation, answer: encodedAnswers, authorId: user.id, createdAt: now, publishedAt: now });
+      await tx.insert(problems).values({ id, title: title.trim(), topic: `${unit.title} / ${subtopic.title}`, level, rating, statement, explanation, answer: encodedAnswers, authorId: user.id, createdAt: now, publishedAt: now });
       if (imageIds.length) await tx.insert(problemImages).values(imageIds.map((imageId) => ({ problemId: id, imageId })));
     });
     return Response.json({ id }, { status: 201 });
