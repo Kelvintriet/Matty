@@ -1,5 +1,6 @@
 import { and, eq, isNotNull } from "drizzle-orm";
 import { getAuth } from "@/lib/auth";
+import { contributorIdentity } from "@/lib/contributor-access";
 import { getDatabase } from "@/lib/db";
 import { contributorImages, problemImages, problems } from "@/lib/db/schema";
 import { readContributorImage } from "@/lib/filebase";
@@ -15,7 +16,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       .where(and(eq(problemImages.imageId, id), isNotNull(problems.publishedAt))).limit(1);
     if (!published) {
       const session = await getAuth().api.getSession({ headers: request.headers });
-      if (!session || session.user.id !== image.ownerId) return new Response(null, { status: 404 });
+      if ((!session || session.user.id !== image.ownerId) && !await contributorIdentity(request)) return new Response(null, { status: 404 });
     }
     return new Response(new Uint8Array(await readContributorImage(image.content)), {
       headers: { "Content-Type": "image/webp", "X-Content-Type-Options": "nosniff", "Cache-Control": "private, no-store" },

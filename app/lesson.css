@@ -3454,3 +3454,69 @@ button:focus-visible {
 .practice-page .practice-filters select {
   border-radius: 4px;
 }
+
+.contribute-manage-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #dfe6df;
+  border-radius: 4px;
+}
+
+.contribute-manage-table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.contribute-manage-table th,
+.contribute-manage-table td {
+  padding: 13px 15px;
+  border-bottom: 1px solid #e9eee9;
+}
+
+.contribute-manage-table th {
+  background: #f8faf8;
+  color: #809087;
+  font-size: 11px;
+}
+
+.contribute-manage-table td {
+  color: #52685a;
+}
+
+.contribute-manage-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.contribute-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.contribute-actions button,
+.contribute-back-list {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #4ba62c;
+  font: inherit;
+  font-weight: 700;
+}
+
+.contribute-actions .contribute-delete {
+  color: #c9685f;
+}
+
+.contribute-actions button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.contribute-back-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 15px;
+  font-size: 12px;
+}

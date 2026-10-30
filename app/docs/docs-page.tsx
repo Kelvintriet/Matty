@@ -102,7 +102,7 @@ export default function DocsPage() {
           <h1>Creating problems</h1>
           <p className="docs-lead">Write, review, and publish problems for the practice list.</p>
 
-          <section id="create"><h2>Create a problem</h2><ol><li>Open <Link href="/contribute">Contribute</Link> with an authorized account.</li><li>Choose one or more subtopics across units, then set a level from 1 to 8.</li><li>Write the question, accepted answers, and explanation. Check the preview.</li><li>Publish when it is ready. Published problems appear in Practice.</li></ol></section>
+          <section id="create"><h2>Create a problem</h2><ol><li>Open <Link href="/contribute">Contribute</Link> with an authorized account.</li><li>Choose one or more subtopics across units, then set a level from 1 to 8.</li><li>Write the question, accepted answers, and explanation. Check the preview.</li><li>Publish when it is ready. Published problems appear in Practice.</li><li>Use Edit or Delete on the contributor problem list to manage any problem. Deleting also removes saved practice progress.</li></ol></section>
 
           <section id="markdown"><h2>Markdown and LaTeX</h2><p>Use Markdown for text and <code>$...$</code> for inline math. Put display math between <code>$$</code> on separate lines.</p><pre><code>{markdownExample}</code></pre><p>Use LaTeX for mathematical expressions, including fractions, powers and subscripts.</p></section>
 

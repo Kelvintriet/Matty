@@ -57,7 +57,7 @@ CONTRIBUTOR_ADMIN_USER_IDS=<account-id>
 
 For multiple contributors, separate account IDs with commas. Restart the server after changing environment settings. Contributors must sign in using an allowlisted account to upload or publish.
 
-New images are normalized and stored in a private Filebase S3-compatible bucket. Existing TiDB-backed images continue to work. The Markdown uses stable application image URLs. The editor publishes directly to the practice list; it does not yet support drafts, editing, or review.
+New images are normalized and stored in a private Filebase S3-compatible bucket. Existing TiDB-backed images continue to work. The Markdown uses stable application image URLs. Contributors can edit or delete any published problem from `/contribute`. Deleting a problem also deletes its saved practice progress. Drafts and review are not yet supported.
 
 The contributor tables are defined in Drizzle. To inspect their scoped setup on a new database, run `npx drizzle-kit push --config=drizzle.contribute.config.ts` and review the proposed changes before applying them.
 

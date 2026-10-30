@@ -9,7 +9,8 @@ import { topics } from "../content/course";
 
 export default function ContributePage() {
   const { data: session, isPending } = authClient.useSession();
-  const [allowed, setAllowed] = useState(false);
+  const [allowedUserId, setAllowedUserId] = useState<string | null>(null);
+  const allowed = Boolean(session && allowedUserId === session.user.id);
   const [checking, setChecking] = useState(true);
   const [title, setTitle] = useState("");
   const [selections, setSelections] = useState<{ unitId: string; subtopicId: string }[]>([]);
@@ -20,6 +21,10 @@ export default function ContributePage() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [publishedId, setPublishedId] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [showEditor, setShowEditor] = useState(false);
+  const [problems, setProblems] = useState<{ id: string; code: string | null; title: string; author: string; level: number }[]>([]);
+  const [listLoading, setListLoading] = useState(true);
   const questionEditor = useRef<HTMLTextAreaElement>(null);
   const explanationEditor = useRef<HTMLTextAreaElement>(null);
 
@@ -36,12 +41,76 @@ export default function ContributePage() {
       .then(async (response) => {
         if (!response.ok) throw new Error();
         const result = await response.json();
-        if (!cancelled) setAllowed(result.allowed === true);
+        if (!cancelled) setAllowedUserId(result.allowed === true ? session.user.id : null);
       })
       .catch(() => { if (!cancelled) setMessage("Unable to check access."); })
       .finally(() => { if (!cancelled) setChecking(false); });
     return () => { cancelled = true; };
   }, [session, isPending]);
+
+  useEffect(() => {
+    if (!allowed || showEditor || publishedId) return;
+    let cancelled = false;
+    fetch("/api/contribute/problems", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error();
+        const items = await response.json();
+        if (!cancelled) setProblems(items);
+      })
+      .catch(() => { if (!cancelled) setMessage("Unable to load problems."); })
+      .finally(() => { if (!cancelled) setListLoading(false); });
+    return () => { cancelled = true; };
+  }, [allowed, showEditor, publishedId]);
+
+  function resetForm() {
+    setTitle("");
+    setStatement("");
+    setExplanation("");
+    setAnswers([""]);
+    setSelections([]);
+    setLevel(4);
+    setEditingId(null);
+    setPublishedId("");
+    setMessage("");
+  }
+
+  async function editProblem(id: string) {
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch(`/api/contribute/problems/${encodeURIComponent(id)}`, { cache: "no-store" });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message);
+      setTitle(result.title);
+      setLevel(result.level);
+      setStatement(result.statement);
+      setExplanation(result.explanation);
+      setAnswers(result.answers);
+      setSelections(result.selections);
+      setEditingId(result.code);
+      setShowEditor(true);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to load the problem.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteProblem(id: string, title: string) {
+    if (!window.confirm(`Delete “${title}”? This also deletes its saved practice progress.`)) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch(`/api/contribute/problems/${encodeURIComponent(id)}`, { method: "DELETE" });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message);
+      setProblems((current) => current.filter((item) => item.id !== id && item.code !== id));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Unable to delete the problem.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function uploadImage(event: ChangeEvent<HTMLInputElement>, field: "question" | "explanation") {
     const file = event.target.files?.[0];
@@ -79,14 +148,14 @@ export default function ContributePage() {
     }
     setBusy(true);
     try {
-      const response = await fetch("/api/contribute/problems", {
-        method: "POST",
+      const response = await fetch(editingId ? `/api/contribute/problems/${encodeURIComponent(editingId)}` : "/api/contribute/problems", {
+        method: editingId ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, selections, level, statement, explanation, answers }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
-      setPublishedId(result.id);
+      setPublishedId(editingId ?? result.id);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to publish.");
     } finally {
@@ -102,10 +171,32 @@ export default function ContributePage() {
       ) : !allowed ? (
         <section className="contribute-access"><LockKeyhole size={28} /><h1>Access restricted</h1><p>Your account ID</p><code>{session.user.id}</code>{message && <p role="alert">{message}</p>}</section>
       ) : publishedId ? (
-        <section className="contribute-access"><h1>Problem published</h1><Link className="contribute-primary" href={`/practice/problems/${publishedId}`}>View problem</Link><button onClick={() => { setPublishedId(""); setTitle(""); setStatement(""); setExplanation(""); setAnswers([""]); setSelections([]); }}>Create another</button></section>
+        <section className="contribute-access">
+          <h1>{editingId ? "Problem updated" : "Problem published"}</h1>
+          <Link className="contribute-primary" href={`/practice/problems/${publishedId}`}>View problem</Link>
+          <button onClick={() => { resetForm(); setListLoading(true); setShowEditor(false); }}>Back to problems</button>
+        </section>
+      ) : !showEditor ? (
+        <section>
+          <div className="contribute-title"><h1>Problems</h1><button className="contribute-primary" onClick={() => { resetForm(); setShowEditor(true); }}>Create problem</button></div>
+          {message && <p className="contribute-message" role="alert">{message}</p>}
+          <div className="contribute-manage-table-wrap">
+            <table className="contribute-manage-table">
+              <thead><tr><th scope="col">#</th><th scope="col">Problem</th><th scope="col">Level</th><th scope="col">Author</th><th scope="col">Actions</th></tr></thead>
+              <tbody>{problems.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.code ?? "—"}</td><td>{item.title}</td><td>{item.level}</td><td>{item.author}</td>
+                  <td><div className="contribute-actions"><button disabled={busy} onClick={() => editProblem(item.code ?? item.id)}>Edit</button><button className="contribute-delete" disabled={busy} onClick={() => deleteProblem(item.code ?? item.id, item.title)}>Delete</button></div></td>
+                </tr>
+              ))}</tbody>
+            </table>
+            {!listLoading && !problems.length && !message && <p className="practice-no-results">No problems yet.</p>}
+            {listLoading && <p className="practice-no-results">Loading...</p>}
+          </div>
+        </section>
       ) : (
         <form onSubmit={publish} className="contribute-form">
-          <div className="contribute-title"><div><h1>Create a problem</h1><p>Markdown and LaTeX supported.</p></div><button className="contribute-primary" disabled={busy} type="submit">{busy ? "Working..." : "Publish problem"}</button></div>
+          <div className="contribute-title"><div><button type="button" className="contribute-back-list" onClick={() => { resetForm(); setListLoading(true); setShowEditor(false); }}><ArrowLeft size={15} /> Problems</button><h1>{editingId ? "Edit problem" : "Create a problem"}</h1><p>Markdown and LaTeX supported.</p></div><button className="contribute-primary" disabled={busy} type="submit">{busy ? "Working..." : editingId ? "Save changes" : "Publish problem"}</button></div>
           {message && <p className="contribute-message" role="alert">{message}</p>}
           <div className="contribute-grid">
             <div className="contribute-main">
