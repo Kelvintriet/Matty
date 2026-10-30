@@ -4,6 +4,20 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Check, Clipboard } from "lucide-react";
 
+const ratingGuidance = String.raw`Difficulty guide for this platform:
+- A problem rating is an estimated Elo-style difficulty, not the student's score or an official IB grade. Use a whole number of at least 100; the scale extends beyond 3000. The editor currently accepts ratings from 100 to 10000.
+- Below 1000 (Novice): straightforward recognition or direct use of one familiar rule. Example: round 4.673 to 2 decimal places.
+- 1000–1199 (Apprentice): familiar concepts with a small calculation or one clear step. Example: find the next term of a simple arithmetic sequence.
+- 1200–1399 (Specialist): a familiar concept applied in a short problem, possibly with a simple interpretation. Example: find the 10th term of an arithmetic sequence given its first term and common difference.
+- 1400–1599 (Expert): more demanding application, with multiple linked steps or a less obvious setup. Example: find a sequence's first term from two given terms.
+- 1600–1899 (Candidate Master): challenging multi-step reasoning that connects ideas or works backwards. Example: use a series total and a term condition to determine unknown sequence values.
+- 1900–2999 (Master / Grandmaster): substantially harder, unfamiliar problems requiring several connected insights; assign within this range according to the actual difficulty.
+- 3000 and above: exceptional stretch problems, potentially comparable to challenging IB DP Mathematics AA HL questions. Do not assign this range merely because a problem is long.
+
+MYP level 1–8 and problem rating are separate estimates. Levels 1–2 are introductory; 3–4 apply familiar methods; 5–6 require more confident reasoning; and 7–8 can involve challenging, unfamiliar applications. These descriptions are informal authoring guidance, not official IB marking criteria or a fixed conversion between levels and Elo.
+
+Judge difficulty by the concepts needed, number and complexity of steps, how much is given, and whether the method is obvious. Treat the rating as provisional: the system has not yet calibrated problem ratings using student results, and practice submissions do not change student Elo. Give a short reason for your suggested level and rating; if a requested rating does not match the problem, say so rather than forcing the estimate.`;
+
 const authoringPrompt = String.raw`You are helping create a mathematics problem for a Grade 10 MYP 5 practice platform.
 
 Create one original problem for:
@@ -12,12 +26,15 @@ Create one original problem for:
 - MYP level: [1–8]
 - Estimated problem rating: [e.g. 1400]
 
+${ratingGuidance}
+
 Return these clearly separated fields:
 1. Title
 2. Question in Markdown
 3. Accepted final answers, one per line
 4. A brief explanation in Markdown
 5. Any image needed, described clearly for the contributor to create or upload
+6. Suggested MYP level and problem rating, with a brief reason
 
 Use $...$ for inline LaTeX and $$...$$ on separate lines for display equations. Use proper LaTeX fractions, powers, subscripts, and symbols. Keep the question self-contained. The final answer must be a number or an exact text answer; provide equivalent accepted spellings or forms explicitly because the platform does not automatically recognize algebraic equivalence. Verify every answer and calculation.
 
@@ -36,6 +53,8 @@ Create a new problem for:
 - MYP level: [1–8]
 - Estimated problem rating: [e.g. 1400]
 
+${ratingGuidance}
+
 Identify the concepts and reasoning used in the source, then write a genuinely new, self-contained problem. Change the setting, wording, and mathematical values or structure; do not copy the source wording or diagram. Keep the intended difficulty unless asked to change it.
 
 Return these clearly separated fields:
@@ -44,6 +63,7 @@ Return these clearly separated fields:
 3. Accepted final answers, one per line
 4. A brief explanation in Markdown
 5. Any image needed, described clearly for the contributor to create or upload
+6. Suggested MYP level and problem rating, with a brief reason
 
 Use $...$ for inline LaTeX and $$...$$ on separate lines for display equations. Use proper LaTeX fractions, powers, subscripts, and symbols. The final answer must be a number or exact text; list accepted equivalent forms explicitly because the platform does not automatically recognize algebraic equivalence. Solve the new problem independently and verify all calculations and accepted answers.
 
