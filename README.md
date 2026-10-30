@@ -75,3 +75,6 @@ FILEBASE_SECRET_ACCESS_KEY=<secret-access-key>
 Restart the server after changing environment settings. The server uses `https://s3.filebase.io` with region `auto`; credentials never go to the browser. Uploads require all three settings, and images in unpublished problems remain visible only to their uploader through the app. Existing TiDB images are not automatically migrated.
 
 The contributor guide is available at `/docs`.
+
+
+Problems can have multiple curriculum subtopics, including from different units. The links are stored in `problem_topics`; existing problems keep their original topic label. For a new database, inspect the scoped setup with `npx drizzle-kit push --config=drizzle.problem-topics.config.ts` before applying it.

@@ -3318,3 +3318,44 @@ button:focus-visible {
 .docs-source-heading {
   margin-top: 32px;
 }
+
+.contribute-selected-count {
+  color: #8a9c8f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.contribute-topic-list details {
+  border-top: 1px solid #edf1ed;
+}
+
+.contribute-topic-list summary {
+  padding: 13px 2px;
+  color: #506756;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.contribute-topic-options {
+  display: grid;
+  gap: 10px;
+  padding: 3px 4px 16px;
+}
+
+.contribute-topic-options label {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: #62786a;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.contribute-topic-options input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin: 1px 0 0;
+  accent-color: #58c900;
+}

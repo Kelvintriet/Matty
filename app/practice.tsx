@@ -10,6 +10,7 @@ type Problem = {
   id: string;
   title: string;
   unit: string;
+  topicLabels?: string[];
   rating: number;
   level: number;
   author: string;
@@ -143,11 +144,11 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
 
   const query = search.trim().toLowerCase();
   const visibleProblems = problems.filter((item) => {
-    const matches = [item.id, item.title, item.unit, item.author, String(item.level), String(item.rating)]
+    const matches = [item.id, item.title, ...(item.topicLabels ?? [item.unit]), item.author, String(item.level), String(item.rating)]
       .some((value) => value.toLowerCase().includes(query));
     return matches && (statusFilter === "all" || item.status === statusFilter)
       && (levelFilter === "all" || String(item.level) === levelFilter)
-      && (topicFilter === "all" || item.unit === topicFilter);
+      && (topicFilter === "all" || (item.topicLabels ?? [item.unit]).includes(topicFilter));
   });
 
   return (
@@ -159,7 +160,7 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
           <button className="problem-back" onClick={() => navigate("/practice/problems")}><ArrowLeft size={17} /> All problems</button>
           <div className="problem-detail-grid">
             <section className="problem-card">
-              <div className="problem-meta"><span>{problem.id}</span><span>{problem.unit}</span><span>Level {problem.level}</span><span>{problem.rating} rating</span></div>
+              <div className="problem-meta"><span>{problem.id}</span>{(problem.topicLabels ?? [problem.unit]).map((label) => <span key={label}>{label}</span>)}<span>Level {problem.level}</span><span>{problem.rating} rating</span></div>
               <h2>{problem.title}</h2>
               <div className="problem-question"><ProblemContent markdown={problem.question} /></div>
               <form onSubmit={submitAnswer} className="answer-form">
@@ -198,7 +199,7 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
             <div className="practice-filters">
               <label><span className="sr-only">Filter by status</span><select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All statuses</option><option value="new">Not started</option><option value="started">In progress</option><option value="solved">Solved</option></select></label>
               <label><span className="sr-only">Filter by level</span><select value={levelFilter} onChange={(event) => setLevelFilter(event.target.value)}><option value="all">All levels</option>{[1, 2, 3, 4, 5, 6, 7, 8].map((level) => <option value={level} key={level}>Level {level}</option>)}</select></label>
-              <label><span className="sr-only">Filter by topic</span><select value={topicFilter} onChange={(event) => setTopicFilter(event.target.value)}><option value="all">All topics</option>{[...new Set(problems.map((item) => item.unit))].map((unit) => <option value={unit} key={unit}>{unit}</option>)}</select></label>
+              <label><span className="sr-only">Filter by topic</span><select value={topicFilter} onChange={(event) => setTopicFilter(event.target.value)}><option value="all">All topics</option>{[...new Set(problems.flatMap((item) => item.topicLabels ?? [item.unit]))].map((unit) => <option value={unit} key={unit}>{unit}</option>)}</select></label>
             </div>
           </div>
           <section className="problem-list-card" aria-label="Problems"><div className="problem-table-scroll"><table className="problem-table">
@@ -206,7 +207,7 @@ export default function Practice({ navigate }: { navigate: (path: string) => voi
             <tbody>{visibleProblems.map((item) => <tr key={item.id}>
               <td><span className={`problem-status ${item.status}`}>{item.status === "solved" ? "Solved" : item.status === "started" ? "In progress" : "Not started"}</span></td>
               <td><button className="problem-link" onClick={() => navigate(`/practice/problems/${item.id}`)}><span>{item.id}</span>{item.title}</button></td>
-              <td>{item.unit}</td><td><span className={`level-badge level-${item.level}`}>{item.level}</span></td><td className="problem-difficulty">{item.rating}</td><td>{item.author}</td><td>{item.published ? new Date(item.published).toLocaleDateString() : "—"}</td>
+              <td>{(item.topicLabels ?? [item.unit]).join(" · ")}</td><td><span className={`level-badge level-${item.level}`}>{item.level}</span></td><td className="problem-difficulty">{item.rating}</td><td>{item.author}</td><td>{item.published ? new Date(item.published).toLocaleDateString() : "—"}</td>
             </tr>)}</tbody>
           </table></div>{loaded && !error && visibleProblems.length === 0 && <p className="practice-no-results">{problems.length ? "No problems found." : "No problems yet."}</p>}{!loaded && <p className="practice-no-results">Loading...</p>}</section>
         </>

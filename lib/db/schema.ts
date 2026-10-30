@@ -81,3 +81,9 @@ export const problemImages = mysqlTable("problem_images", {
   problemId: varchar("problem_id", { length: 36 }).notNull().references(() => problems.id, { onDelete: "cascade" }),
   imageId: varchar("image_id", { length: 36 }).notNull().references(() => contributorImages.id, { onDelete: "cascade" }),
 }, (table) => [uniqueIndex("problem_image_unique").on(table.problemId, table.imageId)]);
+
+export const problemTopics = mysqlTable("problem_topics", {
+  problemId: varchar("problem_id", { length: 36 }).notNull().references(() => problems.id, { onDelete: "cascade" }),
+  unitId: varchar("unit_id", { length: 100 }).notNull(),
+  subtopicId: varchar("subtopic_id", { length: 100 }).notNull(),
+}, (table) => [uniqueIndex("problem_topics_unique").on(table.problemId, table.unitId, table.subtopicId)]);
