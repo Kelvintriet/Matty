@@ -53,10 +53,9 @@ Sign in and visit `/contribute` to find your account ID. Add these server-only s
 
 ```env
 CONTRIBUTOR_ADMIN_USER_IDS=<account-id>
-CONTRIBUTOR_SECRET=<a-separate-random-passphrase>
 ```
 
-For multiple contributors, separate account IDs with commas. Generate a different passphrase from the Better Auth secret with `openssl rand -base64 32`. Restart the server after changing environment settings. Each contributor must sign in and enter the passphrase to upload or publish. Five failed passphrase attempts lock that account out of contributor actions for 15 minutes.
+For multiple contributors, separate account IDs with commas. Restart the server after changing environment settings. Contributors must sign in using an allowlisted account to upload or publish.
 
 Images are normalized and stored in TiDB for now. The Markdown uses image URLs, so storage can move to S3 later. The editor publishes directly to the practice list; it does not yet support drafts, editing, or review.
 

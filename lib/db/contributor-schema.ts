@@ -1,1 +1,1 @@
-export { contributorAttempts, contributorImages, problemImages } from "./schema";
+export { contributorImages, problemImages } from "./schema";

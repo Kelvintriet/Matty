@@ -10,7 +10,6 @@ export default function ContributePage() {
   const { data: session, isPending } = authClient.useSession();
   const [allowed, setAllowed] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [secret, setSecret] = useState("");
   const [title, setTitle] = useState("");
   const [topic, setTopic] = useState("");
   const [level, setLevel] = useState(4);
@@ -47,10 +46,6 @@ export default function ContributePage() {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    if (!secret) {
-      setMessage("Enter the contributor passphrase first.");
-      return;
-    }
     const start = editor.current?.selectionStart ?? statement.length;
     const end = editor.current?.selectionEnd ?? statement.length;
     const form = new FormData();
@@ -58,7 +53,7 @@ export default function ContributePage() {
     setBusy(true);
     setMessage("");
     try {
-      const response = await fetch("/api/contribute/images", { method: "POST", headers: { "x-contributor-secret": secret }, body: form });
+      const response = await fetch("/api/contribute/images", { method: "POST", body: form });
       const result = await response.json();
       if (!response.ok) throw new Error(result.message);
       const alt = file.name.replace(/\.[^.]+$/, "").replace(/[\[\]\\]/g, " ");
@@ -77,7 +72,7 @@ export default function ContributePage() {
     try {
       const response = await fetch("/api/contribute/problems", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-contributor-secret": secret },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, topic, level, rating, statement, explanation, answers }),
       });
       const result = await response.json();
@@ -110,7 +105,7 @@ export default function ContributePage() {
               <section className="contribute-card"><h2>Accepted answers</h2>{answers.map((answer, index) => <div className="contribute-answer" key={index}><input value={answer} onChange={(event) => setAnswers((current) => current.map((value, i) => i === index ? event.target.value : value))} required maxLength={100} placeholder={`Answer ${index + 1}`} />{answers.length > 1 && <button type="button" aria-label={`Remove answer ${index + 1}`} onClick={() => setAnswers((current) => current.filter((_, i) => i !== index))}><Trash2 size={17} /></button>}</div>)}{answers.length < 10 && <button className="contribute-add" type="button" onClick={() => setAnswers((current) => [...current, ""])}><Plus size={16} /> Add answer</button>}</section>
               <section className="contribute-card"><h2>Explanation</h2><textarea value={explanation} onChange={(event) => setExplanation(event.target.value)} required placeholder="Write a brief explanation..." /></section>
             </div>
-            <aside className="contribute-side"><section className="contribute-card"><h2>Contributor passphrase</h2><input type="password" autoComplete="off" value={secret} onChange={(event) => setSecret(event.target.value)} required placeholder="Enter passphrase" /></section><section className="contribute-card contribute-preview"><h2>Preview</h2><h3>{title || "Untitled problem"}</h3><ProblemContent markdown={statement} />{explanation && <><h3>Explanation</h3><ProblemContent markdown={explanation} /></>}</section></aside>
+            <aside className="contribute-side"><section className="contribute-card contribute-preview"><h2>Preview</h2><h3>{title || "Untitled problem"}</h3><ProblemContent markdown={statement} />{explanation && <><h3>Explanation</h3><ProblemContent markdown={explanation} /></>}</section></aside>
           </div>
         </form>
       )}
